@@ -1,0 +1,207 @@
+<?php
+
+namespace App\Controllers\Admin;
+
+use App\Core\Controller;
+use App\Models\Product;
+use App\Models\Category;
+
+class ProductController extends Controller
+{
+    private $productModel;
+    private $categoryModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->requireAdmin();
+        
+        $this->productModel = new Product();
+        $this->categoryModel = new Category();
+    }
+
+    public function index()
+    {
+        $filters = [
+            'limit' => 20,
+            'offset' => ($_GET['page'] ?? 1) - 1
+        ];
+        
+        if (!empty($_GET['category_id'])) {
+            $filters['category_id'] = $_GET['category_id'];
+        }
+        
+        if (!empty($_GET['search'])) {
+            $filters['search'] = $_GET['search'];
+        }
+        
+        if (!empty($_GET['status'])) {
+            $filters['status'] = $_GET['status'];
+        }
+        
+        $products = $this->productModel->getAll($filters);
+        $categories = $this->categoryModel->getAll();
+        $totalProducts = $this->productModel->count($filters);
+        
+        return $this->render('admin/products/index', [
+            'products' => $products,
+            'categories' => $categories,
+            'totalProducts' => $totalProducts,
+            'filters' => $filters
+        ]);
+    }
+
+    public function create()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = $_POST['name'] ?? '';
+            $description = $_POST['description'] ?? '';
+            $price = $_POST['price'] ?? 0;
+            $salePrice = $_POST['sale_price'] ?? null;
+            $categoryId = $_POST['category_id'] ?? 0;
+            $unit = $_POST['unit'] ?? 'Phần';
+            $status = $_POST['status'] ?? 'available';
+            
+            if (empty($name) || empty($price) || empty($categoryId)) {
+                return $this->render('admin/products/create', [
+                    'error' => 'Vui lòng nhập đầy đủ thông tin bắt buộc',
+                    'categories' => $this->categoryModel->getAll()
+                ]);
+            }
+            
+            // Handle image upload
+            $image = null;
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $image = $this->uploadImage($_FILES['image']);
+            }
+            
+            $productId = $this->productModel->create([
+                'name' => $name,
+                'description' => $description,
+                'price' => $price,
+                'sale_price' => $salePrice ?: null,
+                'category_id' => $categoryId,
+                'unit' => $unit,
+                'status' => $status,
+                'image' => $image
+            ]);
+            
+            if ($productId) {
+                $_SESSION['success'] = 'Thêm sản phẩm thành công!';
+                $this->redirect('/admin/products');
+            } else {
+                return $this->render('admin/products/create', [
+                    'error' => 'Có lỗi xảy ra, vui lòng thử lại',
+                    'categories' => $this->categoryModel->getAll()
+                ]);
+            }
+        }
+        
+        return $this->render('admin/products/create', [
+            'categories' => $this->categoryModel->getAll()
+        ]);
+    }
+
+    public function edit($id)
+    {
+        $product = $this->productModel->findById($id);
+        
+        if (!$product) {
+            http_response_code(404);
+            return $this->render('errors/404');
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = $_POST['name'] ?? '';
+            $description = $_POST['description'] ?? '';
+            $price = $_POST['price'] ?? 0;
+            $salePrice = $_POST['sale_price'] ?? null;
+            $categoryId = $_POST['category_id'] ?? 0;
+            $unit = $_POST['unit'] ?? 'Phần';
+            $status = $_POST['status'] ?? 'available';
+            
+            if (empty($name) || empty($price) || empty($categoryId)) {
+                return $this->render('admin/products/edit', [
+                    'error' => 'Vui lòng nhập đầy đủ thông tin bắt buộc',
+                    'product' => $product,
+                    'categories' => $this->categoryModel->getAll()
+                ]);
+            }
+            
+            $updateData = [
+                'name' => $name,
+                'description' => $description,
+                'price' => $price,
+                'sale_price' => $salePrice ?: null,
+                'category_id' => $categoryId,
+                'unit' => $unit,
+                'status' => $status
+            ];
+            
+            // Handle image upload
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $image = $this->uploadImage($_FILES['image']);
+                if ($image) {
+                    $updateData['image'] = $image;
+                }
+            }
+            
+            $this->productModel->update($id, $updateData);
+            
+            $_SESSION['success'] = 'Cập nhật sản phẩm thành công!';
+            $this->redirect('/admin/products');
+        }
+        
+        return $this->render('admin/products/edit', [
+            'product' => $product,
+            'categories' => $this->categoryModel->getAll()
+        ]);
+    }
+
+    public function delete()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return $this->json(['success' => false, 'message' => 'Invalid request method']);
+        }
+        
+        $productId = $_POST['product_id'] ?? 0;
+        
+        if (!$productId) {
+            return $this->json(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
+        }
+        
+        $product = $this->productModel->findById($productId);
+        if (!$product) {
+            return $this->json(['success' => false, 'message' => 'Sản phẩm không tồn tại']);
+        }
+        
+        $this->productModel->delete($productId);
+        
+        return $this->json(['success' => true, 'message' => 'Xóa sản phẩm thành công']);
+    }
+
+    private function uploadImage($file)
+    {
+        $uploadDir = __DIR__ . '/../../../public/uploads/';
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        $maxSize = 5 * 1024 * 1024; // 5MB
+        
+        if (!in_array($file['type'], $allowedTypes)) {
+            return false;
+        }
+        
+        if ($file['size'] > $maxSize) {
+            return false;
+        }
+        
+        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filename = uniqid() . '.' . $extension;
+        $filepath = $uploadDir . $filename;
+        
+        if (move_uploaded_file($file['tmp_name'], $filepath)) {
+            return $filename;
+        }
+        
+        return false;
+    }
+} 
