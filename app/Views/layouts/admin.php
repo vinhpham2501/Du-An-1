@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?? 'Admin - Restaurant Order System' ?></title>
+    <title><?= $title ?? 'Admin Panel - Restaurant Management' ?></title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/logoo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/logoo.png">
+    <link rel="shortcut icon" href="/images/logoo.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/logoo.png">
+    <meta name="msapplication-TileImage" content="/images/logoo.png">
+    <meta name="msapplication-TileColor" content="#2d89ef">
+    <meta name="theme-color" content="#343a40">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -18,9 +27,11 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/admin/dashboard">
-                <i class="fas fa-tachometer-alt me-2"></i>
-                Admin Panel
+            <a class="navbar-brand d-flex align-items-center" href="/admin/dashboard">
+                <img src="images/logoo.png" alt="Logo" class="admin-logo me-2" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                <i class="fas fa-tachometer-alt me-2" style="display: none;"></i>
+                <span class="fw-bold">Admin</span>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -30,16 +41,29 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin/dashboard">Dashboard</a>
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin/products">Sản phẩm</a>
+                        <a class="nav-link" href="/admin/products">
+                            <i class="fas fa-box me-1"></i>Sản phẩm
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin/orders">Đơn hàng</a>
+                        <a class="nav-link" href="/admin/orders">
+                            <i class="fas fa-shopping-cart me-1"></i>Đơn hàng
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin/users">Người dùng</a>
+                        <a class="nav-link" href="/admin/users">
+                            <i class="fas fa-users me-1"></i>Người dùng
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/contacts">
+                            <i class="fas fa-envelope me-1"></i>Liên hệ
+                        </a>
                     </li>
                 </ul>
                 

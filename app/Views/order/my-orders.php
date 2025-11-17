@@ -60,13 +60,18 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <h6>Thông tin giao hàng:</h6>
-                                            <p class="mb-1"><strong>Người nhận:</strong> <?= htmlspecialchars($order['delivery_name']) ?></p>
-                                            <p class="mb-1"><strong>Điện thoại:</strong> <?= htmlspecialchars($order['delivery_phone']) ?></p>
-                                            <p class="mb-0"><strong>Địa chỉ:</strong> <?= htmlspecialchars($order['delivery_address']) ?></p>
+                                            <p class="mb-1"><strong>Người nhận:</strong> <?= htmlspecialchars($order['delivery_name'] ?? 'N/A') ?></p>
+                                            <p class="mb-1"><strong>Điện thoại:</strong> <?= htmlspecialchars($order['delivery_phone'] ?? 'N/A') ?></p>
+                                            <p class="mb-1"><strong>Địa chỉ:</strong> <?= htmlspecialchars($order['delivery_address'] ?? 'N/A') ?></p>
                                             
-                                            <?php if ($order['note']): ?>
-                                                <p class="mb-0 mt-2"><strong>Ghi chú:</strong> <?= htmlspecialchars($order['note']) ?></p>
-                                            <?php endif; ?>
+                                            <p class="mb-0">
+                                                <strong>Ghi chú:</strong> 
+                                                <?php if (!empty($order['notes']) && trim($order['notes']) !== ''): ?>
+                                                    <?= htmlspecialchars($order['notes']) ?>
+                                                <?php else: ?>
+                                                    <em class="text-muted">Không có ghi chú</em>
+                                                <?php endif; ?>
+                                            </p>
                                         </div>
                                         
                                         <div class="col-md-6 text-md-end">

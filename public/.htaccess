@@ -1,11 +1,16 @@
 RewriteEngine On
 
-# Handle Angular and React router, remove if not needed
+# Special rule for favicon
+RewriteRule ^favicon\.ico$ images/logoo.png [L]
+
+# Allow direct access to static files (images, css, js, etc.)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(images|css|js|uploads)/.*$ - [L]
+
+# Handle requests - forward to index.php in current directory
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-
-# Forward requests to index.php
-RewriteRule ^(.*)$ /index.php [QSA,L]
+RewriteRule ^(.*)$ index.php [QSA,L]
 
 # Security headers
 <IfModule mod_headers.c>
@@ -31,11 +36,18 @@ RewriteRule ^(.*)$ /index.php [QSA,L]
 # Cache static files
 <IfModule mod_expires.c>
     ExpiresActive on
-    ExpiresByType text/css "access plus 1 year"
-    ExpiresByType application/javascript "access plus 1 year"
-    ExpiresByType image/png "access plus 1 year"
-    ExpiresByType image/jpg "access plus 1 year"
-    ExpiresByType image/jpeg "access plus 1 year"
-    ExpiresByType image/gif "access plus 1 year"
-    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/pdf "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
 </IfModule>
+
+# Prevent access to sensitive files in public directory
+<Files "*.env">
+    Order allow,deny
+    Deny from all
+</Files>

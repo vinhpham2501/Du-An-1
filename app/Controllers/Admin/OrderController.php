@@ -1,0 +1,271 @@
+<?php
+
+namespace App\Controllers\Admin;
+
+use App\Core\Controller;
+use App\Models\Order;
+use App\Models\User;
+
+class OrderController extends Controller
+{
+    private $orderModel;
+    private $userModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->requireAdmin();
+        
+        $this->orderModel = new Order();
+        $this->userModel = new User();
+    }
+
+    public function index()
+    {
+        try {
+            $filters = [
+                'limit' => 20,
+                'offset' => ($_GET['page'] ?? 1) - 1
+            ];
+            
+            if (!empty($_GET['status'])) {
+                $filters['status'] = $_GET['status'];
+            }
+            
+            if (!empty($_GET['date_from'])) {
+                $filters['date_from'] = $_GET['date_from'];
+            }
+            
+            if (!empty($_GET['date_to'])) {
+                $filters['date_to'] = $_GET['date_to'];
+            }
+            
+            $orders = $this->orderModel->getAll($filters);
+            $totalOrders = $this->orderModel->count($filters);
+            
+            return $this->render('admin/orders/index', [
+                'orders' => $orders,
+                'totalOrders' => $totalOrders,
+                'filters' => $filters
+            ]);
+        } catch (\Exception $e) {
+            error_log("Admin Orders error: " . $e->getMessage());
+            return $this->render('admin/orders/index', [
+                'orders' => [],
+                'totalOrders' => 0,
+                'filters' => $filters ?? [],
+                'error' => 'Có lỗi xảy ra khi tải danh sách đơn hàng'
+            ]);
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            $order = $this->orderModel->findById($id);
+            
+            if (!$order) {
+                http_response_code(404);
+                return $this->render('errors/404');
+            }
+
+            // Check if auto-update is requested
+            $statusUpdated = false;
+            if (isset($_GET['update']) && $_GET['update'] == '1') {
+                $statusUpdated = $this->performSimpleUpdate($id, $order);
+                // Refresh order data after update
+                if ($statusUpdated) {
+                    $order = $this->orderModel->findById($id);
+                }
+            }
+            
+            // Ensure required fields have default values
+            $order['status'] = $order['status'] ?? 'pending';
+            $order['payment_status'] = $order['payment_status'] ?? 'pending';
+            $order['delivery_name'] = $order['delivery_name'] ?? 'N/A';
+            $order['delivery_phone'] = $order['delivery_phone'] ?? 'N/A';
+            $order['delivery_address'] = $order['delivery_address'] ?? 'N/A';
+            $order['notes'] = $order['notes'] ?? '';
+            $order['updated_at'] = $order['updated_at'] ?? $order['created_at'];
+            
+            $orderItems = $this->orderModel->getOrderItems($id);
+            $user = $this->userModel->findById($order['user_id']);
+            
+            return $this->render('admin/orders/show', [
+                'order' => $order,
+                'orderItems' => $orderItems ?? [],
+                'user' => $user ?? null,
+                'statusUpdated' => $statusUpdated
+            ]);
+        } catch (\Exception $e) {
+            error_log("Admin Order show error: " . $e->getMessage());
+            http_response_code(500);
+            return $this->render('errors/500', [
+                'error' => 'Có lỗi xảy ra khi tải chi tiết đơn hàng'
+            ]);
+        }
+    }
+
+    /**
+     * Perform simple status update
+     */
+    private function performSimpleUpdate($id, $order)
+    {
+        try {
+            $currentStatus = $order['status'] ?? 'pending';
+            $currentPaymentStatus = $order['payment_status'] ?? 'pending';
+            
+            // Don't update if already completed or cancelled
+            if (in_array($currentStatus, ['completed', 'cancelled'])) {
+                return false;
+            }
+            
+            // Simple status progression
+            $statusMap = [
+                'pending' => 'confirmed',
+                'confirmed' => 'preparing',
+                'preparing' => 'delivering',
+                'delivering' => 'completed'
+            ];
+            
+            $newStatus = $statusMap[$currentStatus] ?? $currentStatus;
+            
+            // Update payment status
+            $newPaymentStatus = $currentPaymentStatus;
+            if ($currentPaymentStatus === 'pending') {
+                if (in_array($newStatus, ['delivering', 'completed'])) {
+                    $newPaymentStatus = 'paid';
+                } else {
+                    $newPaymentStatus = 'cash';
+                }
+            }
+            
+            // Only update if there's a change
+            if ($newStatus !== $currentStatus || $newPaymentStatus !== $currentPaymentStatus) {
+                // Use the model's update method instead of direct database access
+                $updateData = [];
+                if ($newStatus !== $currentStatus) {
+                    $updateData['status'] = $newStatus;
+                }
+                if ($newPaymentStatus !== $currentPaymentStatus) {
+                    $updateData['payment_status'] = $newPaymentStatus;
+                }
+                
+                if (!empty($updateData)) {
+                    $result = $this->orderModel->update($id, $updateData);
+                    
+                    if ($result) {
+                        error_log("Updated order {$id}: {$currentStatus} -> {$newStatus}, {$currentPaymentStatus} -> {$newPaymentStatus}");
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        } catch (\Exception $e) {
+            error_log("Simple update error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updateStatus($id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return $this->json(['success' => false, 'message' => 'Invalid request method']);
+        }
+        
+        $status = $_POST['status'] ?? '';
+        $validStatuses = ['pending', 'confirmed', 'preparing', 'delivering', 'completed', 'cancelled'];
+        
+        if (!in_array($status, $validStatuses)) {
+            return $this->json(['success' => false, 'message' => 'Trạng thái không hợp lệ']);
+        }
+        
+        $order = $this->orderModel->findById($id);
+        if (!$order) {
+            return $this->json(['success' => false, 'message' => 'Đơn hàng không tồn tại']);
+        }
+        
+        // Cập nhật trạng thái đơn hàng
+        $updateData = ['status' => $status];
+        
+        // Logic tự động cập nhật trạng thái thanh toán
+        $paymentMethod = $order['payment_method'] ?? 'cod';
+        $currentPaymentStatus = $order['payment_status'] ?? 'pending';
+        
+        if ($paymentMethod === 'cod') {
+            // COD: Tự động cập nhật khi hoàn thành
+            if ($status === 'completed' && $currentPaymentStatus !== 'paid') {
+                $updateData['payment_status'] = 'paid';
+            } elseif ($status === 'delivering' && $currentPaymentStatus === 'pending') {
+                $updateData['payment_status'] = 'cash';
+            }
+        }
+        // Chuyển khoản: Giữ nguyên trạng thái thanh toán
+        
+        $this->orderModel->update($id, $updateData);
+        
+        return $this->json(['success' => true, 'message' => 'Cập nhật trạng thái thành công']);
+    }
+
+    public function updatePaymentStatus($id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return $this->json(['success' => false, 'message' => 'Invalid request method']);
+        }
+        
+        $paymentStatus = $_POST['payment_status'] ?? '';
+        $validPaymentStatuses = ['pending', 'paid', 'cash', 'bank_transfer'];
+        
+        if (!in_array($paymentStatus, $validPaymentStatuses)) {
+            return $this->json(['success' => false, 'message' => 'Trạng thái thanh toán không hợp lệ']);
+        }
+        
+        $order = $this->orderModel->findById($id);
+        if (!$order) {
+            return $this->json(['success' => false, 'message' => 'Đơn hàng không tồn tại']);
+        }
+        
+        $this->orderModel->update($id, ['payment_status' => $paymentStatus]);
+        
+        return $this->json(['success' => true, 'message' => 'Cập nhật trạng thái thanh toán thành công']);
+    }
+
+    public function delete($id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return $this->json(['success' => false, 'message' => 'Invalid request method']);
+        }
+        
+        try {
+            $order = $this->orderModel->findById($id);
+            if (!$order) {
+                return $this->json(['success' => false, 'message' => 'Đơn hàng không tồn tại']);
+            }
+            
+            // Kiểm tra trạng thái đơn hàng - chỉ cho phép xóa đơn hàng đã hủy hoặc hoàn thành
+            if (!in_array($order['status'], ['cancelled', 'completed'])) {
+                return $this->json([
+                    'success' => false, 
+                    'message' => 'Chỉ có thể xóa đơn hàng đã hủy hoặc đã hoàn thành'
+                ]);
+            }
+            
+            // Xóa các order items trước
+            $this->orderModel->deleteOrderItems($id);
+            
+            // Xóa đơn hàng
+            $result = $this->orderModel->delete($id);
+            
+            if ($result) {
+                return $this->json(['success' => true, 'message' => 'Xóa đơn hàng thành công']);
+            } else {
+                return $this->json(['success' => false, 'message' => 'Không thể xóa đơn hàng']);
+            }
+            
+        } catch (\Exception $e) {
+            error_log("Delete order error: " . $e->getMessage());
+            return $this->json(['success' => false, 'message' => 'Có lỗi xảy ra khi xóa đơn hàng']);
+        }
+    }
+}

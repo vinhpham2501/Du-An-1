@@ -1,113 +1,69 @@
 <?php $title = 'Trang chủ - Restaurant Order System'; ?>
 
-<!-- Hero Section -->
-<section class="hero-section bg-primary text-white py-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h1 class="display-4 fw-bold">Chào mừng đến với nhà hàng của chúng tôi</h1>
-                <p class="lead">Thưởng thức những món ăn ngon nhất với dịch vụ giao hàng tận nơi nhanh chóng và tiện lợi.</p>
-                <a href="#products" class="btn btn-light btn-lg">
-                    <i class="fas fa-utensils me-2"></i>
-                    Đặt món ngay
-                </a>
-            </div>
-            <div class="col-md-6 text-center">
-                <i class="fas fa-utensils display-1"></i>
-            </div>
-        </div>
-    </div>
-</section>
+<!-- Include Homepage CSS -->
+<link rel="stylesheet" href="/css/homepage.css">
 
-<!-- Search and Filter Section -->
-<section class="py-4 bg-light">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8">
-                <form method="GET" action="/" class="d-flex">
-                    <input type="text" class="form-control me-2" name="search" 
-                           placeholder="Tìm kiếm món ăn..." 
-                           value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
-            </div>
-            <div class="col-md-4">
-                <select class="form-select" id="sort-select" onchange="applySorting()">
-                    <option value="newest" <?= ($filters['sort'] ?? '') === 'newest' ? 'selected' : '' ?>>Mới nhất</option>
-                    <option value="price_low" <?= ($filters['sort'] ?? '') === 'price_low' ? 'selected' : '' ?>>Giá thấp → cao</option>
-                    <option value="price_high" <?= ($filters['sort'] ?? '') === 'price_high' ? 'selected' : '' ?>>Giá cao → thấp</option>
-                    <option value="name" <?= ($filters['sort'] ?? '') === 'name' ? 'selected' : '' ?>>Tên A → Z</option>
-                </select>
-            </div>
-        </div>
-    </div>
-</section>
+<!-- Include Homepage JavaScript -->
+<script src="/js/homepage.js"></script>
 
-<!-- Categories Section -->
-<section class="py-4">
-    <div class="container">
-        <h3 class="mb-4">Danh mục món ăn</h3>
-        <div class="row">
-            <div class="col">
-                <div class="d-flex flex-wrap gap-2">
-                    <a href="/" class="btn <?= empty($_GET['category_id']) ? 'btn-primary' : 'btn-outline-primary' ?>">
-                        Tất cả
-                    </a>
-                    <?php foreach ($categories as $category): ?>
-                        <a href="/?category_id=<?= $category['id'] ?>" 
-                           class="btn <?= ($_GET['category_id'] ?? '') == $category['id'] ? 'btn-primary' : 'btn-outline-primary' ?>">
-                            <?= htmlspecialchars($category['name']) ?>
-                            <span class="badge bg-secondary ms-1"><?= $category['product_count'] ?></span>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+<?php
+// Include CSS cho trang chủ
+echo '<link href="/public/css/homepage.css" rel="stylesheet">';
+?>
 
-<!-- Top Products Section -->
-<?php if (!empty($topProducts)): ?>
-<section class="py-4 bg-light">
-    <div class="container">
-        <h3 class="mb-4">Món ăn bán chạy</h3>
-        <div class="row">
-            <?php foreach ($topProducts as $product): ?>
-                <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
-                    <div class="card h-100 product-card">
-                        <?php if ($product['image']): ?>
-                            <img src="/public/uploads/<?= htmlspecialchars($product['image']) ?>" 
-                                 class="card-img-top" alt="<?= htmlspecialchars($product['name']) ?>" 
-                                 style="height: 150px; object-fit: cover;">
-                        <?php else: ?>
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                                <i class="fas fa-utensils fa-3x text-muted"></i>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <div class="card-body d-flex flex-column">
-                            <h6 class="card-title"><?= htmlspecialchars($product['name']) ?></h6>
-                            <div class="mt-auto">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <?php if ($product['sale_price']): ?>
-                                            <span class="text-muted text-decoration-line-through small">
-                                                <?= number_format($product['price']) ?>đ
-                                            </span><br>
-                                            <span class="text-danger fw-bold">
-                                                <?= number_format($product['sale_price']) ?>đ
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="fw-bold">
-                                                <?= number_format($product['price']) ?>đ
-                                            </span>
-                                        <?php endif; ?>
+<!-- Hero Slider Section -->
+<section class="hero-slider-section">
+    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="carousel-indicators">
+            <?php foreach ($featuredProducts as $index => $product): ?>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="<?= $index ?>" 
+                        <?= $index === 0 ? 'class="active"' : '' ?>></button>
+            <?php endforeach; ?>
+        </div>
+        
+        <div class="carousel-inner">
+            <?php foreach ($featuredProducts as $index => $product): ?>
+                <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
+                    <div class="hero-slide" style="background: linear-gradient(135deg, 
+                        <?php 
+                        $gradients = [
+                            'rgba(74, 144, 226, 0.8), rgba(143, 88, 188, 0.8)',
+                            'rgba(255, 94, 77, 0.8), rgba(255, 154, 0, 0.8)', 
+                            'rgba(67, 206, 162, 0.8), rgba(24, 90, 157, 0.8)',
+                            'rgba(247, 151, 30, 0.8), rgba(255, 61, 87, 0.8)'
+                        ];
+                        echo $gradients[$index % 4];
+                        ?>)">
+                        <div class="container">
+                            <div class="row align-items-center min-vh-60">
+                                <div class="col-lg-6">
+                                    <div class="hero-content text-white">
+                                        <span class="badge bg-warning text-dark mb-3 fs-6">Món ăn nổi bật</span>
+                                        <h1 class="display-4 fw-bold mb-4"><?= htmlspecialchars($product['name']) ?></h1>
+                                        <p class="lead mb-4"><?= htmlspecialchars($product['description']) ?></p>
+                                        <div class="hero-buttons">
+                                            <a href="/product/<?= $product['id'] ?>" class="btn btn-warning btn-lg me-3">
+                                                <i class="fas fa-eye me-2"></i>Xem chi tiết
+                                            </a>
+                                            <button class="btn btn-outline-light btn-lg" onclick="addToCart(<?= $product['id'] ?>)">
+                                                <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ
+                                            </button>
+                                        </div>
                                     </div>
-                                    <button class="btn btn-sm btn-primary" onclick="addToCart(<?= $product['id'] ?>)">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="hero-image text-center">
+                                        <div class="dish-image-container">
+                                            <?php if (!empty($product['image_url'])): ?>
+                                                <img src="<?= htmlspecialchars($product['image_url']) ?>" 
+                                                     alt="<?= htmlspecialchars($product['name']) ?>" class="dish-image">
+                                            <?php else: ?>
+                                                <div class="dish-image d-flex align-items-center justify-content-center bg-light">
+                                                    <i class="fas fa-utensils fa-5x text-muted"></i>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -115,134 +71,541 @@
                 </div>
             <?php endforeach; ?>
         </div>
+        
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <i class="fas fa-chevron-right"></i>
+        </button>
     </div>
 </section>
-<?php endif; ?>
 
-<!-- Products Section -->
-<section class="py-5" id="products">
+<!-- Top Selling Products Section -->
+<section class="py-5 bg-light">
     <div class="container">
-        <h3 class="mb-4">Thực đơn</h3>
-        
-        <?php if (empty($products)): ?>
-            <div class="text-center py-5">
-                <i class="fas fa-utensils fa-4x text-muted mb-3"></i>
-                <h4>Không tìm thấy món ăn nào</h4>
-                <p class="text-muted">Thử tìm kiếm với từ khóa khác hoặc chọn danh mục khác.</p>
-                <a href="/" class="btn btn-primary">Xem tất cả món ăn</a>
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="section-title">
+                    <i class="fas fa-fire text-danger me-2"></i>
+                    Sản phẩm bán chạy nhất
+                </h2>
+                <p class="text-muted">Những món ăn được yêu thích nhất tại nhà hàng</p>
             </div>
-        <?php else: ?>
-            <div class="row">
-                <?php foreach ($products as $product): ?>
-                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                        <div class="card h-100 product-card">
-                            <?php if ($product['image']): ?>
-                                <img src="/public/uploads/<?= htmlspecialchars($product['image']) ?>" 
-                                     class="card-img-top" alt="<?= htmlspecialchars($product['name']) ?>" 
-                                     style="height: 200px; object-fit: cover;">
-                            <?php else: ?>
-                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                    <i class="fas fa-utensils fa-4x text-muted"></i>
+        </div>
+        
+        <div id="topSellingCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <?php 
+                $chunks = array_chunk($topSellingProducts, 4);
+                foreach ($chunks as $index => $chunk): 
+                ?>
+                    <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
+                        <div class="row">
+                            <?php foreach ($chunk as $product): ?>
+                                <div class="col-lg-3 col-md-6 mb-4">
+                                    <div class="product-card h-100 shadow-sm">
+                                        <div class="position-relative">
+                                            <a href="/product/<?= $product['id'] ?>" class="text-decoration-none">
+                                                <?php if (!empty($product['image_url'])): ?>
+                                                    <img src="<?= htmlspecialchars($product['image_url']) ?>" 
+                                                         class="card-img-top" alt="<?= htmlspecialchars($product['name']) ?>" 
+                                                         style="height: 200px; object-fit: cover;">
+                                                <?php else: ?>
+                                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                                         style="height: 200px;">
+                                                        <i class="fas fa-utensils fa-3x text-muted"></i>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </a>
+                                            <div class="position-absolute top-0 start-0 m-2">
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-fire me-1"></i>Bán chạy
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?= htmlspecialchars($product['name']) ?></h5>
+                                            <p class="card-text text-muted small"><?= htmlspecialchars(substr($product['description'], 0, 80)) ?>...</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="price">
+                                                    <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
+                                                        <span class="text-danger fw-bold"><?= number_format($product['sale_price']) ?>đ</span>
+                                                        <small class="text-muted text-decoration-line-through"><?= number_format($product['price']) ?>đ</small>
+                                                    <?php else: ?>
+                                                        <span class="text-primary fw-bold"><?= number_format($product['price']) ?>đ</span>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <button class="btn btn-primary btn-sm" onclick="addToCart(<?= $product['id'] ?>)">
+                                                    <i class="fas fa-cart-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            <?php endif; ?>
-                            
-                            <div class="card-body d-flex flex-column">
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            
+            <?php if (count($chunks) > 1): ?>
+                <button class="carousel-control-prev" type="button" data-bs-target="#topSellingCarousel" data-bs-slide="prev">
+                    <i class="fas fa-chevron-left text-dark"></i>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#topSellingCarousel" data-bs-slide="next">
+                    <i class="fas fa-chevron-right text-dark"></i>
+                </button>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
+
+<!-- Sale Products Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="section-title">
+                    <i class="fas fa-tags text-warning me-2"></i>
+                    Món ăn đang khuyến mãi
+                </h2>
+                <p class="text-muted">Cơ hội tuyệt vời để thưởng thức món ngon với giá ưu đãi</p>
+            </div>
+        </div>
+        
+        <div id="saleCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <?php 
+                $saleChunks = array_chunk($saleProducts, 4);
+                foreach ($saleChunks as $index => $chunk): 
+                ?>
+                    <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
+                        <div class="row">
+                            <?php foreach ($chunk as $product): ?>
+                                <div class="col-lg-3 col-md-6 mb-4">
+                                    <div class="product-card h-100 shadow-sm">
+                                        <div class="position-relative">
+                                            <a href="/product/<?= $product['id'] ?>" class="text-decoration-none">
+                                                <?php if (!empty($product['image_url'])): ?>
+                                                    <img src="<?= htmlspecialchars($product['image_url']) ?>" 
+                                                         class="card-img-top" alt="<?= htmlspecialchars($product['name']) ?>" 
+                                                         style="height: 200px; object-fit: cover;">
+                                                <?php else: ?>
+                                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                                         style="height: 200px;">
+                                                        <i class="fas fa-utensils fa-3x text-muted"></i>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </a>
+                                            <div class="position-absolute top-0 start-0 m-2">
+                                                <span class="badge bg-warning">
+                                                    <i class="fas fa-percent me-1"></i>
+                                                    <?= round((($product['price'] - $product['sale_price']) / $product['price']) * 100) ?>% OFF
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?= htmlspecialchars($product['name']) ?></h5>
+                                            <p class="card-text text-muted small"><?= htmlspecialchars(substr($product['description'], 0, 80)) ?>...</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="price">
+                                                    <span class="text-danger fw-bold"><?= number_format($product['sale_price']) ?>đ</span>
+                                                    <small class="text-muted text-decoration-line-through"><?= number_format($product['price']) ?>đ</small>
+                                                </div>
+                                                <button class="btn btn-primary rounded-circle p-2" onclick="addToCart(<?= $product['id'] ?>)" title="Thêm vào giỏ hàng">
+                                                    <i class="fas fa-shopping-cart"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            
+            <?php if (count($saleChunks) > 1): ?>
+                <button class="carousel-control-prev" type="button" data-bs-target="#saleCarousel" data-bs-slide="prev">
+                    <i class="fas fa-chevron-left text-dark"></i>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#saleCarousel" data-bs-slide="next">
+                    <i class="fas fa-chevron-right text-dark"></i>
+                </button>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
+
+<!-- New Products Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="section-title">
+                    <i class="fas fa-star text-success me-2"></i>
+                    Món ăn mới ra mắt
+                </h2>
+                <p class="text-muted">Những món ăn mới nhất được nhà hàng giới thiệu</p>
+            </div>
+        </div>
+        
+        <div id="newProductsCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <?php 
+                $newChunks = array_chunk($newProducts, 4);
+                foreach ($newChunks as $index => $chunk): 
+                ?>
+                    <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
+                        <div class="row">
+                            <?php foreach ($chunk as $product): ?>
+                                <div class="col-lg-3 col-md-6 mb-4">
+                                    <div class="product-card h-100 shadow-sm">
+                                        <div class="position-relative">
+                                            <a href="/product/<?= $product['id'] ?>" class="text-decoration-none">
+                                                <?php if (!empty($product['image_url'])): ?>
+                                                    <img src="<?= htmlspecialchars($product['image_url']) ?>" 
+                                                         class="card-img-top" alt="<?= htmlspecialchars($product['name']) ?>" 
+                                                         style="height: 200px; object-fit: cover;">
+                                                <?php else: ?>
+                                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                                         style="height: 200px;">
+                                                        <i class="fas fa-utensils fa-3x text-muted"></i>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </a>
+                                            <div class="position-absolute top-0 start-0 m-2">
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-sparkles me-1"></i>Mới
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?= htmlspecialchars($product['name']) ?></h5>
+                                            <p class="card-text text-muted small"><?= htmlspecialchars(substr($product['description'], 0, 80)) ?>...</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="price">
+                                                    <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
+                                                        <span class="text-danger fw-bold"><?= number_format($product['sale_price']) ?>đ</span>
+                                                        <small class="text-muted text-decoration-line-through"><?= number_format($product['price']) ?>đ</small>
+                                                    <?php else: ?>
+                                                        <span class="text-primary fw-bold"><?= number_format($product['price']) ?>đ</span>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <button class="btn btn-success btn-sm" onclick="addToCart(<?= $product['id'] ?>)">
+                                                    <i class="fas fa-shopping-cart"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            
+            <?php if (count($newChunks) > 1): ?>
+                <button class="carousel-control-prev" type="button" data-bs-target="#newProductsCarousel" data-bs-slide="prev">
+                    <i class="fas fa-chevron-left text-dark"></i>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#newProductsCarousel" data-bs-slide="next">
+                    <i class="fas fa-chevron-right text-dark"></i>
+                </button>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
+
+<!-- Main Products Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="section-title">
+                    <i class="fas fa-list me-2"></i>
+                    Thực đơn nhà hàng
+                </h2>
+                <p class="text-muted">Danh sách đầy đủ các món ăn tại nhà hàng</p>
+            </div>
+        </div>
+
+        <!-- Categories Filter -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex flex-wrap justify-content-center gap-2" id="categoryFilter">
+                    <button class="btn btn-outline-primary category-btn active" data-category="">
+                        <i class="fas fa-th-large me-1"></i>Tất cả
+                    </button>
+                    <?php foreach ($categories as $category): ?>
+                        <button class="btn btn-outline-primary category-btn" data-category="<?= $category['id'] ?>">
+                            <?= htmlspecialchars($category['name']) ?>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="text-center py-5" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <p class="mt-2 text-muted">Đang tải sản phẩm...</p>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="row" id="productsContainer">
+            <?php if (!empty($products)): ?>
+                <?php foreach ($products as $product): ?>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="product-card h-100 shadow-sm">
+                            <div class="position-relative">
+                                <a href="/product/<?= $product['id'] ?>" class="text-decoration-none">
+                                    <?php if (!empty($product['image_url'])): ?>
+                                        <img src="<?= htmlspecialchars($product['image_url']) ?>" 
+                                             class="card-img-top" alt="<?= htmlspecialchars($product['name']) ?>" 
+                                             style="height: 200px; object-fit: cover;">
+                                    <?php else: ?>
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                             style="height: 200px;">
+                                            <i class="fas fa-utensils fa-3x text-muted"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                </a>
+                                
+                                <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
+                                    <div class="position-absolute top-0 start-0 m-2">
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-percent me-1"></i>Sale
+                                        </span>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="card-body">
                                 <h5 class="card-title">
-                                    <a href="/product?id=<?= $product['id'] ?>" class="text-decoration-none">
+                                    <a href="/product/<?= $product['id'] ?>" class="text-decoration-none text-dark">
                                         <?= htmlspecialchars($product['name']) ?>
                                     </a>
                                 </h5>
-                                
-                                <p class="card-text text-muted small flex-grow-1">
-                                    <?= htmlspecialchars(substr($product['description'] ?? '', 0, 100)) ?>
-                                    <?= strlen($product['description'] ?? '') > 100 ? '...' : '' ?>
-                                </p>
-                                
-                                <div class="mt-auto">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="badge bg-secondary"><?= htmlspecialchars($product['category_name']) ?></span>
-                                        <small class="text-muted"><?= htmlspecialchars($product['unit']) ?></small>
-                                    </div>
-                                    
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <?php if ($product['sale_price']): ?>
-                                                <span class="text-muted text-decoration-line-through">
-                                                    <?= number_format($product['price']) ?>đ
-                                                </span><br>
-                                                <span class="text-danger fw-bold h5 mb-0">
-                                                    <?= number_format($product['sale_price']) ?>đ
-                                                </span>
-                                            <?php else: ?>
-                                                <span class="fw-bold h5 mb-0">
-                                                    <?= number_format($product['price']) ?>đ
-                                                </span>
-                                            <?php endif; ?>
-                                        </div>
-                                        
-                                        <?php if ($product['status'] === 'available'): ?>
-                                            <button class="btn btn-primary" onclick="addToCart(<?= $product['id'] ?>)">
-                                                <i class="fas fa-cart-plus me-1"></i>
-                                                Thêm
-                                            </button>
+                                <p class="card-text text-muted small"><?= htmlspecialchars(substr($product['description'], 0, 80)) ?>...</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="price">
+                                        <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
+                                            <span class="text-danger fw-bold"><?= number_format($product['sale_price']) ?>đ</span>
+                                            <small class="text-muted text-decoration-line-through"><?= number_format($product['price']) ?>đ</small>
                                         <?php else: ?>
-                                            <button class="btn btn-secondary" disabled>
-                                                Hết hàng
-                                            </button>
+                                            <span class="text-primary fw-bold"><?= number_format($product['price']) ?>đ</span>
                                         <?php endif; ?>
                                     </div>
+                                    <button class="btn btn-primary btn-sm" onclick="addToCart(<?= $product['id'] ?>)">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
+            <?php else: ?>
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-search fa-5x text-muted mb-3"></i>
+                    <h3 class="text-muted">Không tìm thấy sản phẩm nào</h3>
+                    <p class="text-muted">Vui lòng thử tìm kiếm với từ khóa khác</p>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Pagination -->
+        <div id="paginationContainer">
+            <?php if ($pagination['totalPages'] > 1): ?>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <nav aria-label="Phân trang sản phẩm">
+                            <ul class="pagination justify-content-center">
+                                <?php if ($pagination['hasPrev']): ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#" onclick="filterProducts(<?= $pagination['currentPage'] - 1 ?>); return false;">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                <?php endif; ?>
+                                
+                                <?php 
+                                $start = max(1, $pagination['currentPage'] - 2);
+                                $end = min($pagination['totalPages'], $pagination['currentPage'] + 2);
+                                for ($i = $start; $i <= $end; $i++): 
+                                ?>
+                                    <li class="page-item <?= $i == $pagination['currentPage'] ? 'active' : '' ?>">
+                                        <a class="page-link" href="#" onclick="filterProducts(<?= $i ?>); return false;"><?= $i ?></a>
+                                    </li>
+                                <?php endfor; ?>
+                                
+                                <?php if ($pagination['hasNext']): ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#" onclick="filterProducts(<?= $pagination['currentPage'] + 1 ?>); return false;">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                <?php endif; ?>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
 </section>
 
 <script>
-function applySorting() {
-    const sortValue = document.getElementById('sort-select').value;
-    const urlParams = new URLSearchParams(window.location.search);
-    urlParams.set('sort', sortValue);
-    window.location.search = urlParams.toString();
+// Global variables
+let currentCategory = '';
+let currentPage = 1;
+
+// Category filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryButtons = document.querySelectorAll('.category-btn');
+    
+    categoryButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            categoryButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Get category ID
+            currentCategory = this.getAttribute('data-category');
+            currentPage = 1; // Reset to first page
+            
+            // Filter products
+            filterProducts(1);
+        });
+    });
+});
+
+// Filter products function
+function filterProducts(page = 1) {
+    currentPage = page;
+    
+    // Show loading spinner
+    document.getElementById('loadingSpinner').style.display = 'block';
+    document.getElementById('productsContainer').style.opacity = '0.5';
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    params.append('page', page);
+    
+    if (currentCategory) {
+        params.append('category_id', currentCategory);
+    }
+    
+    // Make AJAX request
+    fetch(`/api/products/filter?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update products container
+                document.getElementById('productsContainer').innerHTML = data.products;
+                
+                // Update pagination
+                document.getElementById('paginationContainer').innerHTML = data.pagination;
+                
+                // Scroll to products section
+                document.getElementById('productsContainer').scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            } else {
+                // Show error message
+                document.getElementById('productsContainer').innerHTML = 
+                    '<div class="col-12 text-center py-5">' +
+                    '<i class="fas fa-exclamation-triangle fa-5x text-danger mb-3"></i>' +
+                    '<h3 class="text-danger">Có lỗi xảy ra</h3>' +
+                    '<p class="text-muted">' + (data.message || 'Vui lòng thử lại sau') + '</p>' +
+                    '</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('productsContainer').innerHTML = 
+                '<div class="col-12 text-center py-5">' +
+                '<i class="fas fa-exclamation-triangle fa-5x text-danger mb-3"></i>' +
+                '<h3 class="text-danger">Có lỗi xảy ra</h3>' +
+                '<p class="text-muted">Vui lòng kiểm tra kết nối mạng và thử lại</p>' +
+                '</div>';
+        })
+        .finally(() => {
+            // Hide loading spinner
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('productsContainer').style.opacity = '1';
+        });
 }
 
+// Add to cart function (existing)
 function addToCart(productId) {
     fetch('/cart/add', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json',
         },
-        body: `product_id=${productId}&quantity=1`
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: 1
+        })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            // Update cart count
             document.getElementById('cart-count').textContent = data.cartCount;
-            showAlert('success', data.message);
+            
+            // Show success toast
+            const toast = document.getElementById('cartToast');
+            const toastBody = toast.querySelector('.toast-body');
+            toastBody.textContent = 'Đã thêm sản phẩm vào giỏ hàng!';
+            
+            const bsToast = new bootstrap.Toast(toast, {
+                autohide: true,
+                delay: 1500
+            });
+            bsToast.show();
         } else {
-            showAlert('danger', data.message);
+            // Show error toast
+            const toast = document.getElementById('cartToast');
+            const toastHeader = toast.querySelector('.toast-header');
+            const toastBody = toast.querySelector('.toast-body');
+            
+            toastHeader.className = 'toast-header bg-danger text-white';
+            toastHeader.querySelector('strong').textContent = 'Lỗi';
+            toastHeader.querySelector('i').className = 'fas fa-exclamation-circle me-2';
+            toastBody.textContent = data.message || 'Có lỗi xảy ra, vui lòng thử lại!';
+            
+            const bsToast = new bootstrap.Toast(toast, {
+                autohide: true,
+                delay: 4000
+            });
+            bsToast.show();
         }
     })
     .catch(error => {
-        showAlert('danger', 'Có lỗi xảy ra, vui lòng thử lại');
+        console.error('Error:', error);
+        
+        // Show error toast
+        const toast = document.getElementById('cartToast');
+        const toastHeader = toast.querySelector('.toast-header');
+        const toastBody = toast.querySelector('.toast-body');
+        
+        toastHeader.className = 'toast-header bg-danger text-white';
+        toastHeader.querySelector('strong').textContent = 'Lỗi';
+        toastHeader.querySelector('i').className = 'fas fa-exclamation-circle me-2';
+        toastBody.textContent = 'Có lỗi xảy ra, vui lòng thử lại!';
+        
+        const bsToast = new bootstrap.Toast(toast, {
+            autohide: true,
+            delay: 4000
+        });
+        bsToast.show();
     });
-}
-
-function showAlert(type, message) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    document.body.appendChild(alertDiv);
-    
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 3000);
 }
 </script>

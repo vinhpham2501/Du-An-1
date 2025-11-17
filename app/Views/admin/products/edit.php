@@ -1,194 +1,220 @@
-<?php $title = 'Sửa sản phẩm - Admin Panel'; ?>
+<?php $title = 'Chỉnh sửa sản phẩm - Admin Panel'; ?>
 
 <div class="row">
     <div class="col-12">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="/admin/products">Sản phẩm</a></li>
-                <li class="breadcrumb-item active">Sửa sản phẩm</li>
-            </ol>
-        </nav>
-        
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Sửa sản phẩm: <?= htmlspecialchars($product['name']) ?></h2>
+            <h2>Chỉnh sửa sản phẩm</h2>
             <a href="/admin/products" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>
-                Quay lại
+                <i class="fas fa-arrow-left me-2"></i>Quay lại
             </a>
         </div>
     </div>
 </div>
 
 <div class="row">
-    <div class="col-lg-8">
+    <div class="col-12">
         <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Thông tin sản phẩm</h5>
+            </div>
             <div class="card-body">
                 <?php if (isset($error)): ?>
                     <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
                 <?php endif; ?>
                 
-                <form method="POST" action="/admin/products/<?= $product['id'] ?>/edit" enctype="multipart/form-data">
+                <form method="POST" enctype="multipart/form-data">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="name" class="form-label">Tên sản phẩm *</label>
-                            <input type="text" class="form-control" id="name" name="name" 
-                                   value="<?= htmlspecialchars($_POST['name'] ?? $product['name']) ?>" required>
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       value="<?= htmlspecialchars($_POST['name'] ?? $product['name']) ?>" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Mô tả</label>
+                                <textarea class="form-control" id="description" name="description" rows="4"
+                                          placeholder="Mô tả chi tiết về sản phẩm..."><?= htmlspecialchars($_POST['description'] ?? $product['description']) ?></textarea>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="price" class="form-label">Giá <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="price" name="price" 
+                                                   value="<?= htmlspecialchars($_POST['price'] ?? $product['price']) ?>" min="0" step="1000" required>
+                                            <span class="input-group-text">đ</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="sale_price" class="form-label">Giá khuyến mãi</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="sale_price" name="sale_price" 
+                                                   value="<?= htmlspecialchars($_POST['sale_price'] ?? $product['sale_price']) ?>" min="0" step="1000">
+                                            <span class="input-group-text">đ</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="category_id" class="form-label">Danh mục <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="category_id" name="category_id" required>
+                                            <option value="">Chọn danh mục</option>
+                                            <?php foreach ($categories as $category): ?>
+                                                <option value="<?= $category['id'] ?>" 
+                                                        <?= ($_POST['category_id'] ?? $product['category_id']) == $category['id'] ? 'selected' : '' ?>>
+                                                    <?= htmlspecialchars($category['name']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="is_available" class="form-label">Trạng thái</label>
+                                        <select class="form-select" id="is_available" name="is_available">
+                                            <option value="1" <?= ($product['is_available'] ?? 1) == 1 ? 'selected' : '' ?>>Có sẵn</option>
+                                            <option value="0" <?= ($product['is_available'] ?? 1) == 0 ? 'selected' : '' ?>>Hết hàng</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="col-md-6 mb-3">
-                            <label for="category_id" class="form-label">Danh mục *</label>
-                            <select class="form-select" id="category_id" name="category_id" required>
-                                <option value="">Chọn danh mục</option>
-                                <?php foreach ($categories as $category): ?>
-                                    <option value="<?= $category['id'] ?>" 
-                                            <?= ($_POST['category_id'] ?? $product['category_id']) == $category['id'] ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($category['name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="image_url" class="form-label">URL hình ảnh</label>
+                                <input type="url" class="form-control" id="image_url" name="image_url" 
+                                       value="<?= htmlspecialchars($_POST['image_url'] ?? $product['image_url'] ?? '') ?>" 
+                                       placeholder="https://example.com/image.jpg">
+                                <div class="form-text">Hoặc upload file bên dưới</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="image" class="form-label">Upload hình ảnh</label>
+                                <input type="file" class="form-control" id="image" name="image" 
+                                       accept="image/jpeg,image/png,image/webp">
+                                <div class="form-text">Chấp nhận: JPG, PNG, WEBP. Tối đa 5MB</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div id="image-preview">
+                                    <?php if ($product['image_url']): ?>
+                                        <?php 
+                                        $imageSrc = (strpos($product['image_url'], 'http') === 0) 
+                                            ? $product['image_url'] 
+                                            : '/uploads/' . $product['image_url'];
+                                        ?>
+                                        <img src="<?= htmlspecialchars($imageSrc) ?>" 
+                                             alt="<?= htmlspecialchars($product['name']) ?>" 
+                                             class="img-thumbnail" style="max-width: 100%; height: 200px; object-fit: cover;"
+                                             onerror="this.style.display='none'">
+                                        <div class="mt-2">
+                                            <small class="text-muted">Hình ảnh hiện tại</small>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="bg-light d-flex align-items-center justify-content-center" 
+                                             style="height: 200px;">
+                                            <i class="fas fa-image text-muted fa-3x"></i>
+                                        </div>
+                                        <div class="mt-2">
+                                            <small class="text-muted">Chưa có hình ảnh</small>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Thông tin sản phẩm</h6>
+                                    <ul class="list-unstyled mb-0">
+                                        <li><i class="fas fa-calendar text-info me-2"></i>Tạo: <?= date('d/m/Y', strtotime($product['created_at'])) ?></li>
+                                        <li><i class="fas fa-edit text-info me-2"></i>Cập nhật: <?= date('d/m/Y', strtotime($product['updated_at'])) ?></li>
+                                        <li><i class="fas fa-tag text-info me-2"></i>ID: #<?= $product['id'] ?></li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Mô tả</label>
-                        <textarea class="form-control" id="description" name="description" 
-                                  rows="3"><?= htmlspecialchars($_POST['description'] ?? $product['description'] ?? '') ?></textarea>
-                    </div>
+                    <hr>
                     
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label for="price" class="form-label">Giá gốc (đ) *</label>
-                            <input type="number" class="form-control" id="price" name="price" 
-                                   value="<?= htmlspecialchars($_POST['price'] ?? $product['price']) ?>" 
-                                   min="0" step="1000" required>
-                        </div>
-                        
-                        <div class="col-md-4 mb-3">
-                            <label for="sale_price" class="form-label">Giá khuyến mãi (đ)</label>
-                            <input type="number" class="form-control" id="sale_price" name="sale_price" 
-                                   value="<?= htmlspecialchars($_POST['sale_price'] ?? $product['sale_price'] ?? '') ?>" 
-                                   min="0" step="1000">
-                            <div class="form-text">Để trống nếu không có khuyến mãi</div>
-                        </div>
-                        
-                        <div class="col-md-4 mb-3">
-                            <label for="unit" class="form-label">Đơn vị</label>
-                            <select class="form-select" id="unit" name="unit">
-                                <option value="Phần" <?= ($_POST['unit'] ?? $product['unit']) === 'Phần' ? 'selected' : '' ?>>Phần</option>
-                                <option value="Tô" <?= ($_POST['unit'] ?? $product['unit']) === 'Tô' ? 'selected' : '' ?>>Tô</option>
-                                <option value="Ly" <?= ($_POST['unit'] ?? $product['unit']) === 'Ly' ? 'selected' : '' ?>>Ly</option>
-                                <option value="Cái" <?= ($_POST['unit'] ?? $product['unit']) === 'Cái' ? 'selected' : '' ?>>Cái</option>
-                                <option value="Con" <?= ($_POST['unit'] ?? $product['unit']) === 'Con' ? 'selected' : '' ?>>Con</option>
-                                <option value="Kg" <?= ($_POST['unit'] ?? $product['unit']) === 'Kg' ? 'selected' : '' ?>>Kg</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="status" class="form-label">Trạng thái</label>
-                            <select class="form-select" id="status" name="status">
-                                <option value="available" <?= ($_POST['status'] ?? $product['status']) === 'available' ? 'selected' : '' ?>>
-                                    Có sẵn
-                                </option>
-                                <option value="out_of_stock" <?= ($_POST['status'] ?? $product['status']) === 'out_of_stock' ? 'selected' : '' ?>>
-                                    Hết hàng
-                                </option>
-                                <option value="discontinued" <?= ($_POST['status'] ?? $product['status']) === 'discontinued' ? 'selected' : '' ?>>
-                                    Ngừng bán
-                                </option>
-                            </select>
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label for="image" class="form-label">Hình ảnh mới</label>
-                            <input type="file" class="form-control" id="image" name="image" 
-                                   accept="image/jpeg,image/png,image/webp">
-                            <div class="form-text">Chấp nhận: JPG, PNG, WebP. Tối đa 5MB. Để trống nếu không đổi.</div>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex gap-2">
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="/admin/products" class="btn btn-secondary">Hủy</a>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>
-                            Cập nhật sản phẩm
+                            <i class="fas fa-save me-2"></i>Cập nhật sản phẩm
                         </button>
-                        
-                        <a href="/admin/products" class="btn btn-outline-secondary">
-                            <i class="fas fa-times me-2"></i>
-                            Hủy
-                        </a>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-lg-4">
-        <!-- Current Image -->
-        <?php if ($product['image']): ?>
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Hình ảnh hiện tại</h5>
-                </div>
-                <div class="card-body text-center">
-                    <img src="/public/uploads/<?= htmlspecialchars($product['image']) ?>" 
-                         class="img-fluid rounded" alt="<?= htmlspecialchars($product['name']) ?>">
-                </div>
-            </div>
-        <?php endif; ?>
-        
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Hướng dẫn</h5>
-            </div>
-            <div class="card-body">
-                <ul class="list-unstyled">
-                    <li class="mb-2">
-                        <i class="fas fa-info-circle text-primary me-2"></i>
-                        Tên sản phẩm nên ngắn gọn và dễ hiểu
-                    </li>
-                    <li class="mb-2">
-                        <i class="fas fa-info-circle text-primary me-2"></i>
-                        Mô tả chi tiết giúp khách hàng hiểu rõ về món ăn
-                    </li>
-                    <li class="mb-2">
-                        <i class="fas fa-info-circle text-primary me-2"></i>
-                        Giá khuyến mãi phải nhỏ hơn giá gốc
-                    </li>
-                    <li class="mb-2">
-                        <i class="fas fa-info-circle text-primary me-2"></i>
-                        Chỉ tải hình ảnh mới nếu muốn thay đổi
-                    </li>
-                </ul>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-// Validate sale price
-document.getElementById('sale_price').addEventListener('input', function() {
-    const price = parseFloat(document.getElementById('price').value) || 0;
-    const salePrice = parseFloat(this.value) || 0;
+// Image preview for new upload
+document.getElementById('image').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('image-preview');
     
-    if (salePrice > 0 && salePrice >= price) {
-        this.setCustomValidity('Giá khuyến mãi phải nhỏ hơn giá gốc');
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `
+                <img src="${e.target.result}" alt="Preview" 
+                     class="img-thumbnail" style="max-width: 100%; height: 200px; object-fit: cover;">
+                <div class="mt-2">
+                    <small class="text-success">Hình ảnh mới</small>
+                </div>
+            `;
+        }
+        reader.readAsDataURL(file);
     } else {
-        this.setCustomValidity('');
+        // Reset to original image
+        <?php if ($product['image_url']): ?>
+            preview.innerHTML = `
+                <?php 
+                $imageSrc = (strpos($product['image_url'], 'http') === 0) 
+                    ? $product['image_url'] 
+                    : '/uploads/' . $product['image_url'];
+                ?>
+                <img src="<?= htmlspecialchars($imageSrc) ?>" 
+                     alt="<?= htmlspecialchars($product['name']) ?>" 
+                     class="img-thumbnail" style="max-width: 100%; height: 200px; object-fit: cover;"
+                     onerror="this.style.display='none'">
+                <div class="mt-2">
+                    <small class="text-muted">Hình ảnh hiện tại</small>
+                </div>
+            `;
+        <?php else: ?>
+            preview.innerHTML = `
+                <div class="bg-light d-flex align-items-center justify-content-center" 
+                     style="height: 200px;">
+                    <i class="fas fa-image text-muted fa-3x"></i>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">Chưa có hình ảnh</small>
+                </div>
+            `;
+        <?php endif; ?>
     }
 });
 
-document.getElementById('price').addEventListener('input', function() {
-    const salePriceInput = document.getElementById('sale_price');
-    const price = parseFloat(this.value) || 0;
-    const salePrice = parseFloat(salePriceInput.value) || 0;
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const price = parseFloat(document.getElementById('price').value);
+    const salePrice = parseFloat(document.getElementById('sale_price').value);
     
-    if (salePrice > 0 && salePrice >= price) {
-        salePriceInput.setCustomValidity('Giá khuyến mãi phải nhỏ hơn giá gốc');
-    } else {
-        salePriceInput.setCustomValidity('');
+    if (salePrice && salePrice >= price) {
+        e.preventDefault();
+        alert('Giá khuyến mãi phải thấp hơn giá gốc!');
+        return false;
     }
 });
 </script>

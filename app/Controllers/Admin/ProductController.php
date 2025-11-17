@@ -35,8 +35,8 @@ class ProductController extends Controller
             $filters['search'] = $_GET['search'];
         }
         
-        if (!empty($_GET['status'])) {
-            $filters['status'] = $_GET['status'];
+        if (isset($_GET['status']) && $_GET['status'] !== '') {
+            $filters['is_available'] = (int)$_GET['status'];
         }
         
         $products = $this->productModel->getAll($filters);
@@ -59,8 +59,8 @@ class ProductController extends Controller
             $price = $_POST['price'] ?? 0;
             $salePrice = $_POST['sale_price'] ?? null;
             $categoryId = $_POST['category_id'] ?? 0;
-            $unit = $_POST['unit'] ?? 'Phần';
-            $status = $_POST['status'] ?? 'available';
+            $imageUrl = $_POST['image_url'] ?? '';
+            $isAvailable = (int)($_POST['is_available'] ?? 1);
             
             if (empty($name) || empty($price) || empty($categoryId)) {
                 return $this->render('admin/products/create', [
@@ -69,7 +69,7 @@ class ProductController extends Controller
                 ]);
             }
             
-            // Handle image upload
+            // Handle image upload (nếu có upload file)
             $image = null;
             if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                 $image = $this->uploadImage($_FILES['image']);
@@ -81,9 +81,8 @@ class ProductController extends Controller
                 'price' => $price,
                 'sale_price' => $salePrice ?: null,
                 'category_id' => $categoryId,
-                'unit' => $unit,
-                'status' => $status,
-                'image' => $image
+                'image_url' => $image ?: $imageUrl,
+                'is_available' => $isAvailable
             ]);
             
             if ($productId) {
@@ -117,8 +116,8 @@ class ProductController extends Controller
             $price = $_POST['price'] ?? 0;
             $salePrice = $_POST['sale_price'] ?? null;
             $categoryId = $_POST['category_id'] ?? 0;
-            $unit = $_POST['unit'] ?? 'Phần';
-            $status = $_POST['status'] ?? 'available';
+            $imageUrl = $_POST['image_url'] ?? '';
+            $isAvailable = (int)($_POST['is_available'] ?? 1);
             
             if (empty($name) || empty($price) || empty($categoryId)) {
                 return $this->render('admin/products/edit', [
@@ -134,22 +133,30 @@ class ProductController extends Controller
                 'price' => $price,
                 'sale_price' => $salePrice ?: null,
                 'category_id' => $categoryId,
-                'unit' => $unit,
-                'status' => $status
+                'image_url' => $imageUrl,
+                'is_available' => $isAvailable
             ];
             
-            // Handle image upload
+            // Handle image upload (nếu có upload file)
             if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                 $image = $this->uploadImage($_FILES['image']);
                 if ($image) {
-                    $updateData['image'] = $image;
+                    $updateData['image_url'] = $image;
                 }
             }
             
-            $this->productModel->update($id, $updateData);
+            $result = $this->productModel->update($id, $updateData);
             
-            $_SESSION['success'] = 'Cập nhật sản phẩm thành công!';
-            $this->redirect('/admin/products');
+            if ($result) {
+                $_SESSION['success'] = 'Cập nhật sản phẩm thành công!';
+                $this->redirect('/admin/products');
+            } else {
+                return $this->render('admin/products/edit', [
+                    'error' => 'Có lỗi xảy ra khi cập nhật sản phẩm',
+                    'product' => $product,
+                    'categories' => $this->categoryModel->getAll()
+                ]);
+            }
         }
         
         return $this->render('admin/products/edit', [

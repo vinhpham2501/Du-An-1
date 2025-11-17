@@ -26,8 +26,8 @@
                                 <?php foreach ($cartItems as $item): ?>
                                     <div class="row align-items-center border-bottom py-3" data-product-id="<?= $item['product']['id'] ?>">
                                         <div class="col-md-2">
-                                            <?php if ($item['product']['image']): ?>
-                                                <img src="/public/uploads/<?= htmlspecialchars($item['product']['image']) ?>" 
+                                            <?php if (!empty($item['product']['image_url'])): ?>
+                                                <img src="<?= htmlspecialchars($item['product']['image_url']) ?>" 
                                                      class="img-fluid rounded" alt="<?= htmlspecialchars($item['product']['name']) ?>"
                                                      style="height: 80px; width: 80px; object-fit: cover;">
                                             <?php else: ?>
@@ -44,7 +44,7 @@
                                                     <?= htmlspecialchars($item['product']['name']) ?>
                                                 </a>
                                             </h6>
-                                            <small class="text-muted"><?= htmlspecialchars($item['product']['unit']) ?></small>
+                                            <small class="text-muted"><?= htmlspecialchars($item['product']['category_name'] ?? '') ?></small>
                                         </div>
                                         
                                         <div class="col-md-2">

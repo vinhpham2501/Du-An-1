@@ -31,9 +31,12 @@ class AuthController extends Controller
                 return $this->render('auth/login', ['error' => 'Email hoặc mật khẩu không đúng']);
             }
             
+            // Auto-upgrade legacy plaintext passwords to hashed
+            $this->userModel->upgradePasswordIfNeeded($user['id'], $user['password'], $password);
+
             // Set session
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_name'] = $user['full_name'];
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['role'] = $user['role'];
             
@@ -51,7 +54,7 @@ class AuthController extends Controller
     public function register()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $name = $_POST['name'] ?? '';
+            $fullName = $_POST['name'] ?? '';
             $email = $_POST['email'] ?? '';
             $password = $_POST['password'] ?? '';
             $confirmPassword = $_POST['confirm_password'] ?? '';
@@ -59,7 +62,7 @@ class AuthController extends Controller
             $address = $_POST['address'] ?? '';
             
             // Validation
-            if (empty($name) || empty($email) || empty($password)) {
+            if (empty($fullName) || empty($email) || empty($password)) {
                 return $this->render('auth/register', ['error' => 'Vui lòng nhập đầy đủ thông tin bắt buộc']);
             }
             
@@ -76,9 +79,13 @@ class AuthController extends Controller
                 return $this->render('auth/register', ['error' => 'Email đã tồn tại']);
             }
             
+            // Generate username from email
+            $username = explode('@', $email)[0];
+            
             // Create user
             $userId = $this->userModel->create([
-                'name' => $name,
+                'username' => $username,
+                'full_name' => $fullName,
                 'email' => $email,
                 'password' => $password,
                 'phone' => $phone,
@@ -110,21 +117,21 @@ class AuthController extends Controller
         $user = $this->userModel->findById($_SESSION['user_id']);
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $name = $_POST['name'] ?? '';
+            $fullName = $_POST['name'] ?? '';
             $phone = $_POST['phone'] ?? '';
             $address = $_POST['address'] ?? '';
             
-            if (empty($name)) {
+            if (empty($fullName)) {
                 return $this->render('auth/profile', ['error' => 'Tên không được để trống', 'user' => $user]);
             }
             
             $this->userModel->update($_SESSION['user_id'], [
-                'name' => $name,
+                'full_name' => $fullName,
                 'phone' => $phone,
                 'address' => $address
             ]);
             
-            $_SESSION['user_name'] = $name;
+            $_SESSION['user_name'] = $fullName;
             $_SESSION['success'] = 'Cập nhật thông tin thành công!';
             $this->redirect('/profile');
         }

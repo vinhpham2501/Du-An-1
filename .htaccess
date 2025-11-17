@@ -1,0 +1,22 @@
+RewriteEngine On
+RewriteBase /
+
+# Cho truy cập trực tiếp nếu là file/thư mục thật
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Đưa mọi request vào public/index.php
+RewriteRule ^ public/index.php [L,QSA]
+
+# Bảo vệ file .env
+<Files ".env">
+    Require all denied
+</Files>
+
+# Giữ header bảo mật nếu muốn (tùy chọn)
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>

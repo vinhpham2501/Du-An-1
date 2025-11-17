@@ -23,6 +23,11 @@
                                 <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
                             <?php endif; ?>
                             
+                            <?php if (isset($_SESSION['success'])): ?>
+                                <div class="alert alert-success"><?= htmlspecialchars($_SESSION['success']) ?></div>
+                                <?php unset($_SESSION['success']); ?>
+                            <?php endif; ?>
+                            
                             <form method="POST" action="/contact">
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Họ và tên *</label>
@@ -67,8 +72,7 @@
                                     Địa chỉ
                                 </h5>
                                 <p class="ms-4">
-                                    123 Đường ABC, Phường XYZ<br>
-                                    Quận 1, TP. Hồ Chí Minh<br>
+                                    Hải Châu - Đà Nẵng<br>
                                     Việt Nam
                                 </p>
                             </div>
@@ -79,7 +83,7 @@
                                     Điện thoại
                                 </h5>
                                 <p class="ms-4">
-                                    <a href="tel:0123456789" class="text-decoration-none">0123 456 789</a><br>
+                                    <a href="tel:0372886625" class="text-decoration-none">0372 886 625</a><br>
                                     <a href="tel:0987654321" class="text-decoration-none">0987 654 321</a>
                                 </p>
                             </div>
@@ -90,7 +94,7 @@
                                     Email
                                 </h5>
                                 <p class="ms-4">
-                                    <a href="mailto:info@restaurant.com" class="text-decoration-none">info@restaurant.com</a><br>
+                                    <a href="mailto:vinhpham261206@gmail.com" class="text-decoration-none">vinhpham261206@gmail.com</a><br>
                                     <a href="mailto:support@restaurant.com" class="text-decoration-none">support@restaurant.com</a>
                                 </p>
                             </div>
@@ -112,16 +116,16 @@
                         <div class="card-body text-center">
                             <h5>Theo dõi chúng tôi</h5>
                             <div class="d-flex justify-content-center gap-3">
-                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                <a href="https://www.facebook.com/PhamVinh2501" class="btn btn-outline-primary btn-sm">
                                     <i class="fab fa-facebook-f"></i>
                                 </a>
-                                <a href="#" class="btn btn-outline-info btn-sm">
+                                <a href="https://www.instagram.com/phamzinh/" class="btn btn-outline-info btn-sm">
                                     <i class="fab fa-twitter"></i>
                                 </a>
-                                <a href="#" class="btn btn-outline-danger btn-sm">
+                                <a href="https://www.instagram.com/phamzinh/" class="btn btn-outline-danger btn-sm">
                                     <i class="fab fa-instagram"></i>
                                 </a>
-                                <a href="#" class="btn btn-outline-success btn-sm">
+                                <a href="https://www.facebook.com/PhamVinh2501" class="btn btn-outline-success btn-sm">
                                     <i class="fab fa-whatsapp"></i>
                                 </a>
                             </div>

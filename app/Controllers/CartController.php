@@ -24,7 +24,7 @@ class CartController extends Controller
         foreach ($cart as $productId => $quantity) {
             $product = $this->productModel->findById($productId);
             if ($product) {
-                $price = $product['sale_price'] ?: $product['price'];
+                $price = $product['price'];
                 $itemTotal = $price * $quantity;
                 $total += $itemTotal;
                 
@@ -49,15 +49,18 @@ class CartController extends Controller
             return $this->json(['success' => false, 'message' => 'Invalid request method']);
         }
         
-        $productId = $_POST['product_id'] ?? 0;
-        $quantity = (int)($_POST['quantity'] ?? 1);
+        // Đọc JSON data từ request body
+        $input = json_decode(file_get_contents('php://input'), true);
+        
+        $productId = $input['product_id'] ?? ($_POST['product_id'] ?? 0);
+        $quantity = (int)($input['quantity'] ?? ($_POST['quantity'] ?? 1));
         
         if (!$productId || $quantity < 1) {
             return $this->json(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
         }
         
         $product = $this->productModel->findById($productId);
-        if (!$product || $product['status'] !== 'available') {
+        if (!$product || !$product['is_available']) {
             return $this->json(['success' => false, 'message' => 'Sản phẩm không tồn tại hoặc không khả dụng']);
         }
         

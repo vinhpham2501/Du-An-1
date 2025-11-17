@@ -21,13 +21,13 @@
                             <div class="col-md-6 mb-3">
                                 <label for="name" class="form-label">Họ và tên *</label>
                                 <input type="text" class="form-control" id="name" name="name" 
-                                       value="<?= htmlspecialchars($user['name']) ?>" required>
+                                       value="<?= htmlspecialchars($user['full_name'] ?? '') ?>" required>
                             </div>
                             
                             <div class="col-md-6 mb-3">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="email" class="form-control" id="email" 
-                                       value="<?= htmlspecialchars($user['email']) ?>" readonly>
+                                       value="<?= htmlspecialchars($user['email'] ?? '') ?>" readonly>
                                 <div class="form-text">Email không thể thay đổi</div>
                             </div>
                         </div>

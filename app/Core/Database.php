@@ -13,7 +13,7 @@ class Database
     private function __construct($config)
     {
         try {
-            $dsn = "pgsql:host={$config['host']};port={$config['port']};dbname={$config['database']}";
+            $dsn = "mysql:host={$config['host']};port={$config['port']};dbname={$config['database']};charset={$config['charset']}";
             
             $this->connection = new PDO($dsn, $config['username'], $config['password'], $config['options']);
         } catch (PDOException $e) {
@@ -25,7 +25,7 @@ class Database
     {
         if (self::$instance === null) {
             if ($config === null) {
-                $config = require CONFIG_PATH . '/database.php';
+                $config = require __DIR__ . '/../../config/database.php';
             }
             self::$instance = new self($config);
         }

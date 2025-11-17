@@ -5,20 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $title ?? 'Restaurant Order System' ?></title>
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/logoo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/logoo.png">
+    <link rel="shortcut icon" href="/images/logoo.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/logoo.png">
+    <meta name="msapplication-TileImage" content="/images/logoo.png">
+    <meta name="msapplication-TileColor" content="#007bff">
+    <meta name="theme-color" content="#007bff">
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="/public/css/style.css" rel="stylesheet">
+    
+    <style>
+    .navbar-brand img {
+        transition: transform 0.3s ease;
+        border-radius: 4px;
+    }
+    
+    .navbar-brand:hover img {
+        transform: scale(1.05);
+    }
+    
+    .navbar-brand {
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+    
+    .frontend-logo {
+        max-height: 36px;
+        width: auto;
+        object-fit: contain;
+    }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-utensils me-2"></i>
-                Restaurant
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="images/logoo.png" alt="Logo" class="frontend-logo me-2" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                <i class="fas fa-utensils me-2" style="display: none;"></i>
+                <span class="fw-bold">Restaurant</span>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -37,6 +70,17 @@
                         <a class="nav-link" href="/contact">Liên hệ</a>
                     </li>
                 </ul>
+                
+                <!-- Search Form -->
+                <form class="d-flex me-3" method="GET" action="/" style="width: 300px;">
+                    <input class="form-control me-2" type="search" name="search" 
+                           placeholder="Tìm kiếm món ăn..." 
+                           value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" 
+                           style="border-radius: 20px;">
+                    <button class="btn btn-outline-warning" type="submit" style="border-radius: 20px;">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
                 
                 <ul class="navbar-nav">
                     <li class="nav-item">
@@ -101,28 +145,279 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>Restaurant Order System</h5>
-                    <p>Hệ thống đặt món ăn trực tuyến tiện lợi và nhanh chóng.</p>
-                </div>
-                <div class="col-md-6">
-                    <h5>Liên hệ</h5>
-                    <p>
-                        <i class="fas fa-phone me-2"></i>0123 456 789<br>
-                        <i class="fas fa-envelope me-2"></i>info@restaurant.com<br>
-                        <i class="fas fa-map-marker-alt me-2"></i>123 Đường ABC, Quận XYZ, TP.HCM
-                    </p>
+    <footer class="footer-modern mt-5">
+        <div class="footer-top">
+            <div class="container">
+                <div class="row g-4">
+                    <!-- About Section -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-widget">
+                            <div class="footer-logo mb-3">
+                                <img src="images/logoo.png" alt="Logo" style="height: 45px; width: auto;" 
+                                     onerror="this.style.display='none';">
+                                <h4 class="text-white fw-bold mt-2">Restaurant</h4>
+                            </div>
+                            <p class="footer-desc">
+                                Hệ thống đặt món ăn trực tuyến tiện lợi, nhanh chóng và an toàn. 
+                                Mang đến trải nghiệm ẩm thực tuyệt vời cho bạn.
+                            </p>
+                            <div class="footer-social">
+                                <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Links -->
+                    <div class="col-lg-2 col-md-6">
+                        <div class="footer-widget">
+                            <h5 class="footer-title">Liên kết</h5>
+                            <ul class="footer-links">
+                                <li><a href="/"><i class="fas fa-chevron-right me-2"></i>Trang chủ</a></li>
+                                <li><a href="/about"><i class="fas fa-chevron-right me-2"></i>Giới thiệu</a></li>
+                                <li><a href="/contact"><i class="fas fa-chevron-right me-2"></i>Liên hệ</a></li>
+                                <li><a href="/my-orders"><i class="fas fa-chevron-right me-2"></i>Đơn hàng</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Support -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="footer-widget">
+                            <h5 class="footer-title">Hỗ trợ</h5>
+                            <ul class="footer-links">
+                                <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Chính sách đổi trả</a></li>
+                                <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Bảo mật thông tin</a></li>
+                                <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Điều khoản sử dụng</a></li>
+                                <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Câu hỏi thường gặp</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Info -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="footer-widget">
+                            <h5 class="footer-title">Liên hệ</h5>
+                            <ul class="footer-contact">
+                                <li>
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Hải Châu, Đà Nẵng</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-phone"></i>
+                                    <span>0372886625</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-envelope"></i>
+                                    <span>vinhpham261206@gmail.com</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-clock"></i>
+                                    <span>8:00 - 22:00 hàng ngày</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <hr>
-            <div class="text-center">
-                <p>&copy; 2024 Restaurant Order System. All rights reserved.</p>
+        </div>
+        
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-center text-md-start">
+                        <p class="mb-0">
+                            &copy; 2025 <strong>Phạm Trường Vinh</strong> - PD12070. All rights reserved.
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <p class="mb-0">
+                            Made with <i class="fas fa-heart text-danger"></i> in Đà Nẵng
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>
+    
+    <style>
+    /* Modern Footer Styles */
+    .footer-modern {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #e0e0e0;
+    }
+    
+    .footer-top {
+        padding: 60px 0 40px;
+    }
+    
+    .footer-widget {
+        margin-bottom: 30px;
+    }
+    
+    .footer-logo img {
+        filter: brightness(1.2);
+    }
+    
+    .footer-desc {
+        color: #b0b0b0;
+        line-height: 1.8;
+        margin-bottom: 20px;
+        font-size: 0.95rem;
+    }
+    
+    .footer-title {
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+        position: relative;
+        padding-bottom: 12px;
+    }
+    
+    .footer-title::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        border-radius: 2px;
+    }
+    
+    .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .footer-links li {
+        margin-bottom: 12px;
+    }
+    
+    .footer-links a {
+        color: #b0b0b0;
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+    
+    .footer-links a:hover {
+        color: #007bff;
+        transform: translateX(5px);
+    }
+    
+    .footer-links a i {
+        font-size: 0.7rem;
+        opacity: 0.7;
+    }
+    
+    .footer-contact {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .footer-contact li {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 15px;
+        color: #b0b0b0;
+        font-size: 0.95rem;
+    }
+    
+    .footer-contact li i {
+        color: #007bff;
+        font-size: 1.1rem;
+        margin-right: 12px;
+        margin-top: 2px;
+        min-width: 20px;
+    }
+    
+    .footer-social {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+    
+    .social-link {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+    
+    .social-link:hover {
+        background: #007bff;
+        color: #ffffff;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+    }
+    
+    .footer-bottom {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 20px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .footer-bottom p {
+        color: #b0b0b0;
+        font-size: 0.9rem;
+    }
+    
+    .footer-bottom strong {
+        color: #ffffff;
+    }
+    
+    .footer-bottom .text-danger {
+        animation: heartbeat 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes heartbeat {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    @media (max-width: 768px) {
+        .footer-top {
+            padding: 40px 0 20px;
+        }
+        
+        .footer-widget {
+            margin-bottom: 25px;
+        }
+        
+        .footer-bottom .col-md-6 {
+            margin-bottom: 10px;
+        }
+    }
+    </style>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+        <div id="cartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong class="me-auto">Thành công</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                Đã thêm sản phẩm vào giỏ hàng!
+            </div>
+        </div>
+    </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

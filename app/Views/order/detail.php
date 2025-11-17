@@ -1,4 +1,4 @@
-<?php $title = 'Chi tiết đơn hàng #' . $order['id'] . ' - Restaurant Order System'; ?>
+<?php $title = 'Chi tiết đơn hàng #' . ($order['id'] ?? '') . ' - Restaurant Order System'; ?>
 
 <div class="container py-5">
     <div class="row">
@@ -7,7 +7,7 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
                     <li class="breadcrumb-item"><a href="/my-orders">Đơn hàng của tôi</a></li>
-                    <li class="breadcrumb-item active">Đơn hàng #<?= $order['id'] ?></li>
+                    <li class="breadcrumb-item active">Đơn hàng #<?= $order['id'] ?? '' ?></li>
                 </ol>
             </nav>
             
@@ -17,10 +17,10 @@
                         <div class="col-md-6">
                             <h4 class="mb-0">
                                 <i class="fas fa-receipt me-2"></i>
-                                Đơn hàng #<?= $order['id'] ?>
+                                Đơn hàng #<?= $order['id'] ?? '' ?>
                             </h4>
                             <small class="text-muted">
-                                Đặt lúc: <?= date('d/m/Y H:i', strtotime($order['created_at'])) ?>
+                                Đặt lúc: <?= date('d/m/Y H:i', strtotime($order['created_at'] ?? '')) ?>
                             </small>
                         </div>
                         
@@ -42,8 +42,8 @@
                                 'cancelled' => 'Đã hủy'
                             ];
                             
-                            $color = $statusColors[$order['status']] ?? 'secondary';
-                            $label = $statusLabels[$order['status']] ?? $order['status'];
+                            $color = $statusColors[$order['status'] ?? ''] ?? 'secondary';
+                            $label = $statusLabels[$order['status'] ?? ''] ?? ($order['status'] ?? '');
                             ?>
                             <span class="badge bg-<?= $color ?> fs-6"><?= $label ?></span>
                         </div>
@@ -55,14 +55,19 @@
                         <div class="col-md-6">
                             <h5>Thông tin giao hàng</h5>
                             <div class="border p-3 rounded">
-                                <p class="mb-2"><strong>Người nhận:</strong> <?= htmlspecialchars($order['delivery_name']) ?></p>
-                                <p class="mb-2"><strong>Điện thoại:</strong> <?= htmlspecialchars($order['delivery_phone']) ?></p>
-                                <p class="mb-0"><strong>Địa chỉ:</strong> <?= htmlspecialchars($order['delivery_address']) ?></p>
+                                <p class="mb-2"><strong>Người nhận:</strong> <?= htmlspecialchars($order['delivery_name'] ?? 'N/A') ?></p>
+                                <p class="mb-2"><strong>Điện thoại:</strong> <?= htmlspecialchars($order['delivery_phone'] ?? 'N/A') ?></p>
+                                <p class="mb-0"><strong>Địa chỉ:</strong> <?= htmlspecialchars($order['delivery_address'] ?? 'N/A') ?></p>
                                 
-                                <?php if ($order['note']): ?>
-                                    <hr>
-                                    <p class="mb-0"><strong>Ghi chú:</strong> <?= htmlspecialchars($order['note']) ?></p>
-                                <?php endif; ?>
+                                <hr>
+                                <p class="mb-0">
+                                    <strong>Ghi chú:</strong> 
+                                    <?php if (!empty($order['notes']) && trim($order['notes']) !== ''): ?>
+                                        <?= htmlspecialchars($order['notes']) ?>
+                                    <?php else: ?>
+                                        <em class="text-muted">Không có ghi chú</em>
+                                    <?php endif; ?>
+                                </p>
                             </div>
                         </div>
                         
@@ -70,23 +75,23 @@
                             <h5>Trạng thái đơn hàng</h5>
                             <div class="border p-3 rounded">
                                 <div class="timeline">
-                                    <div class="timeline-item <?= in_array($order['status'], ['pending', 'preparing', 'delivering', 'completed']) ? 'active' : '' ?>">
+                                    <div class="timeline-item <?= in_array($order['status'] ?? '', ['pending', 'preparing', 'delivering', 'completed']) ? 'active' : '' ?>">
                                         <i class="fas fa-clock"></i>
                                         <span>Chờ xác nhận</span>
                                     </div>
                                     
-                                    <?php if ($order['status'] !== 'cancelled'): ?>
-                                        <div class="timeline-item <?= in_array($order['status'], ['preparing', 'delivering', 'completed']) ? 'active' : '' ?>">
+                                    <?php if ($order['status'] ?? '' !== 'cancelled'): ?>
+                                        <div class="timeline-item <?= in_array($order['status'] ?? '', ['preparing', 'delivering', 'completed']) ? 'active' : '' ?>">
                                             <i class="fas fa-utensils"></i>
                                             <span>Đang chuẩn bị</span>
                                         </div>
                                         
-                                        <div class="timeline-item <?= in_array($order['status'], ['delivering', 'completed']) ? 'active' : '' ?>">
+                                        <div class="timeline-item <?= in_array($order['status'] ?? '', ['delivering', 'completed']) ? 'active' : '' ?>">
                                             <i class="fas fa-truck"></i>
                                             <span>Đang giao hàng</span>
                                         </div>
                                         
-                                        <div class="timeline-item <?= $order['status'] === 'completed' ? 'active' : '' ?>">
+                                        <div class="timeline-item <?= $order['status'] ?? '' === 'completed' ? 'active' : '' ?>">
                                             <i class="fas fa-check-circle"></i>
                                             <span>Hoàn thành</span>
                                         </div>
@@ -98,9 +103,9 @@
                                     <?php endif; ?>
                                 </div>
                                 
-                                <?php if ($order['status'] === 'pending'): ?>
+                                <?php if ($order['status'] ?? '' === 'pending'): ?>
                                     <div class="mt-3">
-                                        <button class="btn btn-outline-danger btn-sm" onclick="cancelOrder(<?= $order['id'] ?>)">
+                                        <button class="btn btn-outline-danger btn-sm" onclick="cancelOrder(<?= $order['id'] ?? '' ?>)">
                                             <i class="fas fa-times me-1"></i>
                                             Hủy đơn hàng
                                         </button>
@@ -128,26 +133,33 @@
                                     <tr>
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                <?php if ($item['image']): ?>
-                                                    <img src="/public/uploads/<?= htmlspecialchars($item['image']) ?>" 
-                                                         class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                                <?php if (!empty($item['image'])): ?>
+                                                    <?php 
+                                                    // Kiểm tra xem có phải URL hay file local
+                                                    $imageSrc = (strpos($item['image'], 'http') === 0) 
+                                                        ? $item['image'] 
+                                                        : '/uploads/' . $item['image'];
+                                                    ?>
+                                                    <img src="<?= htmlspecialchars($imageSrc) ?>" 
+                                                         class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;"
+                                                         alt="<?= htmlspecialchars($item['name'] ?? '') ?>"
+                                                         onerror="this.style.display='none'">
                                                 <?php endif; ?>
                                                 <div>
-                                                    <h6 class="mb-0"><?= htmlspecialchars($item['name']) ?></h6>
-                                                    <small class="text-muted"><?= htmlspecialchars($item['unit']) ?></small>
+                                                    <h6 class="mb-0"><?= htmlspecialchars($item['name'] ?? 'N/A') ?></h6>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td><?= number_format($item['price']) ?>đ</td>
-                                        <td><?= $item['quantity'] ?></td>
-                                        <td class="fw-bold"><?= number_format($item['price'] * $item['quantity']) ?>đ</td>
+                                        <td><?= number_format($item['price'] ?? 0) ?>đ</td>
+                                        <td><?= $item['quantity'] ?? 0 ?></td>
+                                        <td class="fw-bold"><?= number_format(($item['price'] ?? 0) * ($item['quantity'] ?? 0)) ?>đ</td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                             <tfoot>
                                 <tr class="table-active">
                                     <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
-                                    <td class="fw-bold h5 text-primary"><?= number_format($order['total_amount']) ?>đ</td>
+                                    <td class="fw-bold h5 text-primary"><?= number_format($order['total_amount'] ?? 0) ?>đ</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -159,7 +171,7 @@
                             Quay lại danh sách đơn hàng
                         </a>
                         
-                        <?php if ($order['status'] === 'completed'): ?>
+                        <?php if ($order['status'] ?? '' === 'completed'): ?>
                             <button class="btn btn-primary ms-2" onclick="reorder()">
                                 <i class="fas fa-redo me-2"></i>
                                 Đặt lại đơn hàng này
@@ -225,6 +237,7 @@ function reorder() {
     if (confirm('Bạn có muốn đặt lại tất cả món ăn trong đơn hàng này?')) {
         // Add all items to cart
         <?php foreach ($orderItems as $item): ?>
+            <?php if (!empty($item['product_id']) && !empty($item['quantity'])): ?>
             fetch('/cart/add', {
                 method: 'POST',
                 headers: {
@@ -232,6 +245,7 @@ function reorder() {
                 },
                 body: `product_id=<?= $item['product_id'] ?>&quantity=<?= $item['quantity'] ?>`
             });
+            <?php endif; ?>
         <?php endforeach; ?>
         
         setTimeout(() => {
