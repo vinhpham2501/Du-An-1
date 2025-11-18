@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?? 'Restaurant Order System' ?></title>
+    <title><?= $title ?? '' ?></title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/images/logo1.1.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/images/logo1.1.png">
-    <link rel="shortcut icon" href="/images/logo1.1.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/logo1.1.png">
-    <meta name="msapplication-TileImage" content="/images/logo1.1.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/images/logo1.1.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/public/images/logo1.1.png">
+    <link rel="shortcut icon" href="/public/images/logo1.1.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/public/images/logo1.1.png">
+    <meta name="msapplication-TileImage" content="/public/images/logo1.1.png">
     <meta name="msapplication-TileColor" content="#007bff">
     <meta name="theme-color" content="#007bff">
     
@@ -36,6 +36,11 @@
     .navbar-brand {
         font-size: 1.2rem;
         font-weight: 600;
+    }
+    
+    .navbar-brand span {
+        color: #ffc107 !important;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
     }
     
     .frontend-logo {
@@ -74,10 +79,10 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="/">
-                <img src="images/logo1.1.png" alt="Logo" class="frontend-logo me-2" 
+                <img src="images/logo1.1.png" alt="Sắc Việt Logo" class="frontend-logo me-2" 
                      onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                <i class="fas fa-utensils me-2" style="display: none;"></i>
-                <span class="fw-bold">Sắc Việt</span>
+                <i class="fas fa-utensils me-2" style="display: none; color: #ffc107;"></i>
+                <span class="fw-bold" style="color: #ffc107; font-size: 1.3rem;">Sắc Việt</span>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -185,13 +190,13 @@
                     <div class="col-lg-4 col-md-6">
                         <div class="footer-widget">
                             <div class="footer-logo mb-3">
-                                <img src="images/logoo.png" alt="Logo" style="height: 45px; width: auto;" 
+                                <img src="images/logoo.png" alt="Sắc Việt" style="height: 45px; width: auto;" 
                                      onerror="this.style.display='none';">
-                                <h4 class="text-white fw-bold mt-2">Restaurant</h4>
+                                <h4 class="text-white fw-bold mt-2" style="color: #ffc107;">Sắc Việt</h4>
                             </div>
                             <p class="footer-desc">
-                                Hệ thống đặt món ăn trực tuyến tiện lợi, nhanh chóng và an toàn. 
-                                Mang đến trải nghiệm ẩm thực tuyệt vời cho bạn.
+                                Sắc Việt - Nền tảng đặt món ăn trực tuyến mang đến những hương vị xứ sở. 
+                                Tiện lợi, nhanh chóng và an toàn cho mọi gia đình Việt.
                             </p>
                             <div class="footer-social">
                                 <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
@@ -262,7 +267,7 @@
                 <div class="row align-items-center">
                     <div class="col-md-6 text-center text-md-start">
                         <p class="mb-0">
-                            &copy; 2025 <strong>Phạm Trường Vinh</strong> - PD12070. All rights reserved.
+                            &copy; 2025 <strong style="color: #ffc107;">Sắc Việt</strong> - PD12070. All rights reserved.
                         </p>
                     </div>
                     <div class="col-md-6 text-center text-md-end">
