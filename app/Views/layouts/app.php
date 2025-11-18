@@ -51,7 +51,7 @@
                 <img src="images/logoo.png" alt="Logo" class="frontend-logo me-2" 
                      onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
                 <i class="fas fa-utensils me-2" style="display: none;"></i>
-                <span class="fw-bold">Restaurant</span>
+                <span class="fw-bold">Sắc Việt</span>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
