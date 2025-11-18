@@ -6,16 +6,18 @@
     <title><?= $title ?? 'Restaurant Order System' ?></title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/images/logo1.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/images/logo1.png">
-    <link rel="shortcut icon" href="/images/logo1.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/logo1.png">
-    <meta name="msapplication-TileImage" content="/images/logo1.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/logo1.1.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/logo1.1.png">
+    <link rel="shortcut icon" href="/images/logo1.1.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/logo1.1.png">
+    <meta name="msapplication-TileImage" content="/images/logo1.1.png">
     <meta name="msapplication-TileColor" content="#007bff">
     <meta name="theme-color" content="#007bff">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
     <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
@@ -41,6 +43,30 @@
         width: auto;
         object-fit: contain;
     }
+    .nav-link.icon-link {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px !important;
+        border-radius: 8px;
+        transition: 0.25s ease;
+        font-weight: 500;
+    }
+
+    .nav-link.icon-link:hover {
+        background-color: #f0f2f5;
+        color: #0d6efd !important;
+        transform: translateY(-2px);
+    }
+
+    .nav-link.icon-link i {
+        font-size: 1.1rem;
+        transition: 0.25s ease;
+    }
+
+    .nav-link.icon-link:hover i {
+        transform: scale(1.2);
+    }
     </style>
 </head>
 <body>
@@ -48,7 +74,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="/">
-                <img src="images/logo1.png" alt="Logo" class="frontend-logo me-2" 
+                <img src="images/logo1.1.png" alt="Logo" class="frontend-logo me-2" 
                      onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
                 <i class="fas fa-utensils me-2" style="display: none;"></i>
                 <span class="fw-bold">Sắc Việt</span>
@@ -74,7 +100,7 @@
                 <!-- Search Form -->
                 <form class="d-flex me-3" method="GET" action="/" style="width: 300px;">
                     <input class="form-control me-2" type="search" name="search" 
-                           placeholder="Tìm kiếm món ăn..." 
+                           placeholder="Tìm kiếm..." 
                            value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" 
                            style="border-radius: 20px;">
                     <button class="btn btn-outline-warning" type="submit" style="border-radius: 20px;">
@@ -111,10 +137,16 @@
                         </li>
                     <?php else: ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="/login">Đăng nhập</a>
+                            <a class="nav-link icon-link" href="/login">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                Đăng nhập
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/register">Đăng ký</a>
+                            <a class="nav-link icon-link" href="/register">
+                                <i class="bi bi-person-plus"></i>
+                                Đăng ký
+                            </a>
                         </li>
                     <?php endif; ?>
                 </ul>
