@@ -6,11 +6,11 @@
     <title><?= $title ?? 'Restaurant Order System' ?></title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/images/logoo.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/images/logoo.png">
-    <link rel="shortcut icon" href="/images/logoo.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/logoo.png">
-    <meta name="msapplication-TileImage" content="/images/logoo.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/logo1.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/logo1.png">
+    <link rel="shortcut icon" href="/images/logo1.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/logo1.png">
+    <meta name="msapplication-TileImage" content="/images/logo1.png">
     <meta name="msapplication-TileColor" content="#007bff">
     <meta name="theme-color" content="#007bff">
     
@@ -48,7 +48,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="/">
-                <img src="images/logoo.png" alt="Logo" class="frontend-logo me-2" 
+                <img src="images/logo1.png" alt="Logo" class="frontend-logo me-2" 
                      onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
                 <i class="fas fa-utensils me-2" style="display: none;"></i>
                 <span class="fw-bold">Sắc Việt</span>
