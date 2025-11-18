@@ -187,20 +187,20 @@
 </style>
 
 <!-- Hero Section -->
-<section class="hero-about">
+<section class="hero-about bg-light py-5">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
-                <h1 class="display-3 fw-bold mb-4">Về Nhà Hàng Chúng Tôi</h1>
+                <h1 class="display-3 fw-bold mb-4">Về Sắc Việt</h1>
                 <p class="lead fs-4 mb-4">
-                    Hành trình 15 năm mang đến những trải nghiệm ẩm thực tuyệt vời nhất
+                    Hành trình mang đến những bộ trang phục truyền thống Việt Nam tinh tế và hiện đại
                 </p>
                 <div class="d-flex justify-content-center gap-3">
-                    <a href="#story" class="btn btn-light btn-lg">
+                    <a href="#story" class="btn btn-primary btn-lg">
                         <i class="fas fa-book-open me-2"></i>Câu chuyện của chúng tôi
                     </a>
-                    <a href="#menu" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-utensils me-2"></i>Xem thực đơn
+                    <a href="#collection" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-tshirt me-2"></i>Xem bộ sưu tập
                     </a>
                 </div>
             </div>
@@ -211,27 +211,27 @@
 <!-- Stats Section -->
 <section class="py-5">
     <div class="container">
-        <div class="stats-section">
+        <div class="stats-section text-center">
             <div class="row">
-                <div class="col-md-3 col-6">
+                <div class="col-md-3 col-6 mb-4">
                     <div class="stat-item">
-                        <span class="stat-number" data-count="15">0</span>
+                        <span class="stat-number" data-count="10">0</span>
                         <h5 class="text-muted">Năm Kinh Nghiệm</h5>
                     </div>
                 </div>
-                <div class="col-md-3 col-6">
+                <div class="col-md-3 col-6 mb-4">
                     <div class="stat-item">
-                        <span class="stat-number" data-count="50000">0</span>
+                        <span class="stat-number" data-count="5000">0</span>
                         <h5 class="text-muted">Khách Hàng Hài Lòng</h5>
                     </div>
                 </div>
-                <div class="col-md-3 col-6">
+                <div class="col-md-3 col-6 mb-4">
                     <div class="stat-item">
-                        <span class="stat-number" data-count="200">0</span>
-                        <h5 class="text-muted">Món Ăn Đặc Sắc</h5>
+                        <span class="stat-number" data-count="300">0</span>
+                        <h5 class="text-muted">Mẫu Trang Phục</h5>
                     </div>
                 </div>
-                <div class="col-md-3 col-6">
+                <div class="col-md-3 col-6 mb-4">
                     <div class="stat-item">
                         <span class="stat-number" data-count="5">0</span>
                         <h5 class="text-muted">Chi Nhánh</h5>
@@ -243,107 +243,33 @@
 </section>
 
 <!-- Story Section -->
-<section id="story" class="py-5">
+<section id="story" class="py-5 bg-white">
     <div class="container">
         <div class="row align-items-center mb-5">
             <div class="col-lg-6">
                 <div class="pe-lg-4">
-                    <h2 class="display-5 fw-bold mb-4">Câu Chuyện Của Chúng Tôi</h2>
+                    <h2 class="display-5 fw-bold mb-4">Câu Chuyện Của Sắc Việt</h2>
                     <p class="lead mb-4">
-                        Bắt đầu từ một quán ăn nhỏ trên phố cổ Hà Nội năm 2008, chúng tôi đã không ngừng 
-                        phát triển với tình yêu và đam mê dành cho ẩm thực Việt Nam truyền thống.
+                        Bắt đầu từ một xưởng may nhỏ tại Đà Nẵng năm 2013, Sắc Việt ra đời với sứ mệnh
+                        gìn giữ và phát triển những bộ trang phục truyền thống Việt Nam.
                     </p>
                     <p class="mb-4">
-                        Với phương châm "Từ trái tim đến bàn ăn", mỗi món ăn của chúng tôi đều được 
-                        chế biến từ những nguyên liệu tươi ngon nhất, kết hợp với công thức gia truyền 
-                        được truyền qua nhiều thế hệ.
+                        Mỗi sản phẩm đều được thiết kế tinh tế, từ áo dài thướt tha, áo tứ thân duyên dáng
+                        đến những bộ cánh dân tộc đặc sắc, kết hợp giữa văn hóa truyền thống và phong cách hiện đại.
                     </p>
-                    <div class="d-flex align-items-center">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face&auto=format" 
-                             class="rounded-circle me-3" width="60" height="60" alt="CEO">
+                    <div class="d-flex align-items-center mt-4">
+                        <img src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=60&h=60&fit=crop&crop=face&auto=format" 
+                             class="rounded-circle me-3" width="60" height="60" alt="Founder">
                         <div>
-                            <h6 class="mb-0">Nguyễn Văn Nam</h6>
+                            <h6 class="mb-0">Phạm Bích Hiền</h6>
                             <small class="text-muted">Founder & CEO</small>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="position-relative">
-                    <!-- Story Carousel -->
-                    <div id="storyCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
-                        <div class="carousel-indicators">
-                            <button type="button" data-bs-target="#storyCarousel" data-bs-slide-to="0" class="active"></button>
-                            <button type="button" data-bs-target="#storyCarousel" data-bs-slide-to="1"></button>
-                            <button type="button" data-bs-target="#storyCarousel" data-bs-slide-to="2"></button>
-                            <button type="button" data-bs-target="#storyCarousel" data-bs-slide-to="3"></button>
-                            <button type="button" data-bs-target="#storyCarousel" data-bs-slide-to="4"></button>
-                        </div>
-                        <div class="carousel-inner rounded-4 shadow-lg">
-                            <div class="carousel-item active">
-                                <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop" 
-                                     class="d-block w-100" alt="Nhà hàng hiện tại" style="height: 400px; object-fit: cover;">
-                                <div class="carousel-caption d-none d-md-block">
-                                    <div class="bg-primary text-white p-3 rounded-4 d-inline-block">
-                                        <i class="fas fa-award fa-2x mb-2"></i>
-                                        <div>
-                                            <h6 class="mb-0">Nhà hàng</h6>
-                                            <small>Được yêu thích nhất 2023</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="carousel-item">
-                                <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop" 
-                                     class="d-block w-100" alt="Khởi đầu năm 2008" style="height: 400px; object-fit: cover;">
-                                <div class="carousel-caption d-none d-md-block">
-                                    <div class="bg-dark bg-opacity-75 text-white p-3 rounded">
-                                        <h5>Khởi Đầu Ước Mơ - 2008</h5>
-                                        <p>Quán ăn nhỏ đầu tiên trên phố cổ Hà Nội</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="carousel-item">
-                                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=600&fit=crop" 
-                                     class="d-block w-100" alt="Mở rộng 2012" style="height: 400px; object-fit: cover;">
-                                <div class="carousel-caption d-none d-md-block">
-                                    <div class="bg-dark bg-opacity-75 text-white p-3 rounded">
-                                        <h5>Mở Rộng Đầu Tiên - 2012</h5>
-                                        <p>Chi nhánh thứ 2 tại quận Hai Bà Trưng</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="carousel-item">
-                                <img src="https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=800&h=600&fit=crop" 
-                                     class="d-block w-100" alt="Giải thưởng 2018" style="height: 400px; object-fit: cover;">
-                                <div class="carousel-caption d-none d-md-block">
-                                    <div class="bg-dark bg-opacity-75 text-white p-3 rounded">
-                                        <h5>Giải Thưởng Danh Giá - 2018</h5>
-                                        <p>Nhận giải "Nhà hàng Việt Nam xuất sắc"</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="carousel-item">
-                                <img src="https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=800&h=600&fit=crop" 
-                                     class="d-block w-100" alt="Chuyển đổi số 2020" style="height: 400px; object-fit: cover;">
-                                <div class="carousel-caption d-none d-md-block">
-                                    <div class="bg-dark bg-opacity-75 text-white p-3 rounded">
-                                        <h5>Chuyển Đổi Số - 2020</h5>
-                                        <p>Ra mắt hệ thống đặt món online</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#storyCarousel" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#storyCarousel" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
-                    </div>
-                </div>
+                <img src="/public/uploads/tayphung.jpg"
+                     class="img-fluid rounded-4 shadow-lg" alt="Bộ sưu tập Sắc Việt">
             </div>
         </div>
     </div>
@@ -354,48 +280,36 @@
     <div class="container">
         <div class="text-center mb-5">
             <h2 class="display-5 fw-bold">Hành Trình Phát Triển</h2>
-            <p class="lead">Những cột mốc quan trọng trong quá trình phát triển của chúng tôi</p>
+            <p class="lead">Những cột mốc quan trọng trong sự phát triển của Sắc Việt</p>
         </div>
-        
         <div class="timeline">
             <div class="timeline-item">
                 <div class="timeline-content">
-                    <h5>Khởi Đầu Ước Mơ</h5>
-                    <p>Mở quán ăn đầu tiên tại phố cổ Hà Nội với 4 bàn ăn và menu 20 món truyền thống.</p>
+                    <h5>Khởi Nguồn</h5>
+                    <p>Mở xưởng may nhỏ tại Đà Nẵng, phục vụ khách hàng yêu thích áo dài và trang phục dân tộc.</p>
                 </div>
-                <div class="timeline-year">2008</div>
+                <div class="timeline-year">2013</div>
             </div>
-            
             <div class="timeline-item">
                 <div class="timeline-content">
-                    <h5>Mở Rộng Đầu Tiên</h5>
-                    <p>Khai trương chi nhánh thứ 2 tại quận Ba Đình, phục vụ hơn 200 khách mỗi ngày.</p>
-                </div>
-                <div class="timeline-year">2012</div>
-            </div>
-            
-            <div class="timeline-item">
-                <div class="timeline-content">
-                    <h5>Giải Thưởng Danh Giá</h5>
-                    <p>Nhận giải "Nhà hàng Việt Nam xuất sắc" từ Hiệp hội Du lịch Việt Nam.</p>
+                    <h5>Mở Rộng Bộ Sưu Tập</h5>
+                    <p>Ra mắt bộ sưu tập áo dài cưới, áo dài lễ hội, nhận được sự yêu thích từ khách hàng khắp miền Trung.</p>
                 </div>
                 <div class="timeline-year">2016</div>
             </div>
-            
             <div class="timeline-item">
                 <div class="timeline-content">
-                    <h5>Chuyển Đổi Số</h5>
-                    <p>Ra mắt hệ thống đặt món online và giao hàng tận nơi, phục vụ toàn thành phố.</p>
+                    <h5>Đặt Mua Online</h5>
+                    <p>Ra mắt website đặt hàng trực tuyến, phục vụ khách hàng trên toàn quốc.</p>
                 </div>
-                <div class="timeline-year">2020</div>
+                <div class="timeline-year">2019</div>
             </div>
-            
             <div class="timeline-item">
                 <div class="timeline-content">
-                    <h5>Mở Rộng Toàn Quốc</h5>
-                    <p>Hiện tại có 5 chi nhánh tại Hà Nội, TP.HCM và Đà Nẵng, phục vụ hơn 1000 khách/ngày.</p>
+                    <h5>Chuỗi Cửa Hàng</h5>
+                    <p>Mở 3 chi nhánh tại Hà Nội, TP.HCM và Đà Nẵng, nâng cao trải nghiệm mua sắm trực tiếp.</p>
                 </div>
-                <div class="timeline-year">2023</div>
+                <div class="timeline-year">2022</div>
             </div>
         </div>
     </div>
@@ -406,96 +320,60 @@
     <div class="container">
         <div class="text-center mb-5">
             <h2 class="display-5 fw-bold">Giá Trị Cốt Lõi</h2>
-            <p class="lead">Những nguyên tắc định hướng mọi hoạt động của chúng tôi</p>
+            <p class="lead">Những nguyên tắc định hướng mọi hoạt động của Sắc Việt</p>
         </div>
-        
         <div class="values-grid">
             <div class="value-item">
-                <div class="feature-icon">
-                    <i class="fas fa-heart"></i>
-                </div>
+                <div class="feature-icon"><i class="fas fa-heart"></i></div>
                 <h4>Tận Tâm</h4>
-                <p>Phục vụ khách hàng với tất cả tình yêu và sự chân thành, luôn đặt sự hài lòng của khách hàng lên hàng đầu.</p>
+                <p>Chúng tôi phục vụ khách hàng với sự tận tâm và chuyên nghiệp, luôn đặt trải nghiệm của bạn lên hàng đầu.</p>
             </div>
-            
             <div class="value-item">
-                <div class="feature-icon">
-                    <i class="fas fa-leaf"></i>
-                </div>
+                <div class="feature-icon"><i class="fas fa-palette"></i></div>
+                <h4>Sáng Tạo</h4>
+                <p>Thiết kế độc đáo, kết hợp tinh hoa truyền thống với phong cách hiện đại, tạo nên những bộ trang phục tinh tế.</p>
+            </div>
+            <div class="value-item">
+                <div class="feature-icon"><i class="fas fa-leaf"></i></div>
                 <h4>Tự Nhiên</h4>
-                <p>Sử dụng nguyên liệu hữu cơ, tươi sạch từ các trang trại địa phương, không chất bảo quản có hại.</p>
+                <p>Sử dụng nguyên liệu vải chất lượng, an toàn và thân thiện với môi trường.</p>
             </div>
-            
             <div class="value-item">
-                <div class="feature-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h4>Cộng Đồng</h4>
-                <p>Xây dựng mối quan hệ bền vững với cộng đồng, hỗ trợ nông dân địa phương và các hoạt động từ thiện.</p>
-            </div>
-            
-            <div class="value-item">
-                <div class="feature-icon">
-                    <i class="fas fa-star"></i>
-                </div>
+                <div class="feature-icon"><i class="fas fa-star"></i></div>
                 <h4>Chất Lượng</h4>
-                <p>Không ngừng cải tiến và nâng cao chất lượng món ăn, dịch vụ để mang đến trải nghiệm tốt nhất.</p>
+                <p>Không ngừng cải tiến quy trình sản xuất để mang đến những sản phẩm hoàn hảo nhất.</p>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Features Section -->
-<section class="py-5">
+<section class="py-5 bg-light">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold">Tại Sao Chọn Chúng Tôi?</h2>
+            <h2 class="display-5 fw-bold">Tại Sao Chọn Sắc Việt?</h2>
             <p class="lead">Những điều đặc biệt làm nên sự khác biệt</p>
         </div>
-        
         <div class="row">
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-award"></i>
-                    </div>
-                    <h4>Chứng Nhận Chất Lượng</h4>
-                    <p>Được cấp chứng nhận HACCP, ISO 22000 về an toàn thực phẩm và chứng nhận Green Restaurant về môi trường.</p>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-check text-success me-2"></i>HACCP Certified</li>
-                        <li><i class="fas fa-check text-success me-2"></i>ISO 22000</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Green Restaurant</li>
-                    </ul>
+                    <div class="feature-icon"><i class="fas fa-award"></i></div>
+                    <h4>Uy Tín & Chất Lượng</h4>
+                    <p>Sản phẩm được kiểm định kỹ lưỡng, đảm bảo chất lượng và tinh tế trong từng chi tiết.</p>
                 </div>
             </div>
-            
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-shipping-fast"></i>
-                    </div>
-                    <h4>Giao Hàng Siêu Tốc</h4>
-                    <p>Hệ thống giao hàng hiện đại với đội ngũ shipper chuyên nghiệp, cam kết giao hàng trong 30 phút.</p>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-clock text-primary me-2"></i>Giao hàng 30 phút</li>
-                        <li><i class="fas fa-motorcycle text-primary me-2"></i>100+ Shipper</li>
-                        <li><i class="fas fa-map-marked-alt text-primary me-2"></i>Phủ sóng toàn thành phố</li>
-                    </ul>
+                    <div class="feature-icon"><i class="fas fa-shipping-fast"></i></div>
+                    <h4>Giao Hàng Nhanh</h4>
+                    <p>Đặt hàng trực tuyến, giao hàng toàn quốc nhanh chóng và an toàn.</p>
                 </div>
             </div>
-            
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
+                    <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
                     <h4>Công Nghệ Hiện Đại</h4>
-                    <p>Ứng dụng đặt món thông minh với AI gợi ý, thanh toán đa dạng và theo dõi đơn hàng real-time.</p>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-robot text-info me-2"></i>AI Recommendation</li>
-                        <li><i class="fas fa-credit-card text-info me-2"></i>Đa dạng thanh toán</li>
-                        <li><i class="fas fa-eye text-info me-2"></i>Theo dõi real-time</li>
-                    </ul>
+                    <p>Website và app thông minh, hỗ trợ lựa chọn mẫu, thanh toán và theo dõi đơn hàng dễ dàng.</p>
                 </div>
             </div>
         </div>
@@ -503,36 +381,38 @@
 </section>
 
 <!-- CTA Section -->
-<section class="py-5 bg-primary text-white">
+<section class="py-5" style="background: linear-gradient(135deg, #6f42c1, #7952b3); color: #fff;">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h2 class="display-6 fw-bold mb-3">Sẵn Sàng Trải Nghiệm?</h2>
+            <!-- Nội dung chính -->
+            <div class="col-lg-7">
+                <h2 class="display-5 fw-bold mb-3">Khám Phá Phong Cách Sắc Việt</h2>
                 <p class="lead mb-4">
-                    Hãy để chúng tôi mang đến cho bạn những trải nghiệm ẩm thực tuyệt vời nhất. 
-                    Đặt món ngay hôm nay và cảm nhận sự khác biệt!
+                    Trải nghiệm bộ sưu tập trang phục truyền thống Việt Nam với thiết kế tinh tế, sang trọng và hiện đại.
                 </p>
                 <div class="d-flex flex-wrap gap-3">
-                    <a href="/" class="btn btn-light btn-lg">
-                        <i class="fas fa-utensils me-2"></i>Xem Thực Đơn
+                    <a href="/collection" class="btn btn-light btn-lg fw-bold text-purple shadow-sm" 
+                       style="transition: transform 0.3s;">
+                        <i class="fas fa-tshirt me-2"></i>Xem Bộ Sưu Tập
                     </a>
-                    <a href="/contact" class="btn btn-outline-light btn-lg">
+                    <a href="/contact" class="btn btn-outline-light btn-lg fw-bold" 
+                       style="transition: transform 0.3s;">
                         <i class="fas fa-phone me-2"></i>Liên Hệ Ngay
                     </a>
                 </div>
             </div>
-            <div class="col-lg-4 text-center">
-                <div class="bg-white bg-opacity-10 rounded-4 p-4">
+            <!-- Hotline -->
+            <div class="col-lg-5 text-center mt-4 mt-lg-0">
+                <div class="bg-white bg-opacity-10 rounded-4 p-4 shadow-lg" style="backdrop-filter: blur(10px);">
                     <i class="fas fa-phone-alt fa-3x mb-3"></i>
-                    <h4>Hotline 24/7</h4>
-                    <h3 class="fw-bold">1900 1234</h3>
+                    <h5 class="fw-bold mb-1">Hotline 24/7</h5>
+                    <h3 class="fw-bold mb-2">1900 1234</h3>
                     <p class="mb-0">Luôn sẵn sàng phục vụ bạn</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
-
 <!-- JavaScript for Animations -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {

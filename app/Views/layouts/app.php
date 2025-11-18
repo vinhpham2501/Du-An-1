@@ -6,11 +6,11 @@
     <title><?= $title ?? '' ?></title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/public/images/logo1.1.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/public/images/logo1.1.png">
-    <link rel="shortcut icon" href="/public/images/logo1.1.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/public/images/logo1.1.png">
-    <meta name="msapplication-TileImage" content="/public/images/logo1.1.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/logo1.1.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/logo1.1.png">
+    <link rel="shortcut icon" href="/images/logo1.1.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/logo1.1.png">
+    <meta name="msapplication-TileImage" content="/images/logo1.1.png">
     <meta name="msapplication-TileColor" content="#007bff">
     <meta name="theme-color" content="#007bff">
     
@@ -21,7 +21,7 @@
     <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="/public/css/style.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
     
     <style>
     .navbar-brand img {
@@ -75,85 +75,96 @@
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+    <!-- NAVBAR MỚI -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="/">
-                <img src="images/logo1.1.png" alt="Sắc Việt Logo" class="frontend-logo me-2" 
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                <i class="fas fa-utensils me-2" style="display: none; color: #ffc107;"></i>
-                <span class="fw-bold" style="color: #ffc107; font-size: 1.3rem;">Sắc Việt</span>
+                <img src="images/logo1.1.png" alt="Sắc Việt" 
+                    class="frontend-logo me-2"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                <span class="brand-text">Sắc Việt</span>
             </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+
+            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
+
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Trang chủ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about">Giới thiệu</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/contact">Liên hệ</a>
-                    </li>
-                </ul>
                 
-                <!-- Search Form -->
-                <form class="d-flex me-3" method="GET" action="/" style="width: 300px;">
-                    <input class="form-control me-2" type="search" name="search" 
-                           placeholder="Tìm kiếm..." 
-                           value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" 
-                           style="border-radius: 20px;">
-                    <button class="btn btn-outline-warning" type="submit" style="border-radius: 20px;">
+                <!-- LEFT MENU -->
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/about">Giới thiệu</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/contact">Liên hệ</a></li>
+                </ul>
+
+                <!-- SEARCH -->
+                <form class="d-flex me-3 search-box" action="/" method="GET">
+                    <input class="form-control" type="text" placeholder="Tìm kiếm..."
+                        name="search"
+                        value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                    <button class="btn btn-search" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
                 </form>
-                
+
+                <!-- USER RIGHT -->
                 <ul class="navbar-nav">
-                    <li class="nav-item">
+
+                    <!-- CART -->
+                    <li class="nav-item me-2">
                         <a class="nav-link position-relative" href="/cart">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle" id="cart-count">
+                            <i class="fas fa-shopping-cart fs-5"></i>
+                            <span class="badge bg-danger rounded-pill cart-badge">
                                 <?= isset($_SESSION['cart']) ? array_sum($_SESSION['cart']) : 0 ?>
                             </span>
                         </a>
                     </li>
-                    
+
+                    <!-- IF LOGINED -->
                     <?php if (isset($_SESSION['user_id'])): ?>
+
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                                 <i class="fas fa-user me-1"></i>
                                 <?= htmlspecialchars($_SESSION['user_name']) ?>
                             </a>
-                            <ul class="dropdown-menu">
+
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                                 <li><a class="dropdown-item" href="/profile">Thông tin cá nhân</a></li>
                                 <li><a class="dropdown-item" href="/my-orders">Đơn hàng của tôi</a></li>
+
                                 <?php if ($_SESSION['role'] === 'admin'): ?>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="/admin/dashboard">Quản trị</a></li>
                                 <?php endif; ?>
+
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="/logout">Đăng xuất</a></li>
+                                <li><a class="dropdown-item text-danger" href="/logout">
+                                    <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                                </a></li>
+
                             </ul>
                         </li>
+
                     <?php else: ?>
+
+                        <!-- LOGIN -->
                         <li class="nav-item">
-                            <a class="nav-link icon-link" href="/login">
-                                <i class="bi bi-box-arrow-in-right"></i>
-                                Đăng nhập
+                            <a class="nav-link btn-auth" href="/login">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link icon-link" href="/register">
-                                <i class="bi bi-person-plus"></i>
-                                Đăng ký
+
+                        <!-- REGISTER -->
+                        <li class="nav-item ms-2">
+                            <a class="nav-link btn-auth" href="/register">
+                                <i class="bi bi-person-plus me-1"></i> Đăng ký
                             </a>
                         </li>
+
                     <?php endif; ?>
+
                 </ul>
             </div>
         </div>
@@ -195,13 +206,11 @@
                                 <h4 class="text-white fw-bold mt-2" style="color: #ffc107;">Sắc Việt</h4>
                             </div>
                             <p class="footer-desc">
-                                Sắc Việt - Nền tảng đặt món ăn trực tuyến mang đến những hương vị xứ sở. 
-                                Tiện lợi, nhanh chóng và an toàn cho mọi gia đình Việt.
+                               Sắc Việt – Nơi lưu giữ và tôn vinh vẻ đẹp trang phục truyền thống Việt Nam. Từ những áo dài thướt tha, áo tứ thân duyên dáng đến các bộ cánh dân tộc đặc sắc, mỗi sản phẩm đều được chế tác tinh tế, kết hợp văn hóa và phong cách hiện đại. Mua sắm tại Sắc Việt mang đến trải nghiệm tiện lợi, an toàn và giúp bạn tỏa sáng vẻ đẹp truyền thống trong mọi khoảnh khắc.
                             </p>
                             <div class="footer-social">
                                 <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
                                 <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
                                 <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
                             </div>
                         </div>
@@ -240,15 +249,15 @@
                             <ul class="footer-contact">
                                 <li>
                                     <i class="fas fa-map-marker-alt"></i>
-                                    <span>Hải Châu, Đà Nẵng</span>
+                                    <span>Đà Nẵng</span>
                                 </li>
                                 <li>
                                     <i class="fas fa-phone"></i>
-                                    <span>0372886625</span>
+                                    <span>0111111111</span>
                                 </li>
                                 <li>
                                     <i class="fas fa-envelope"></i>
-                                    <span>vinhpham261206@gmail.com</span>
+                                    <span>nhom3@gmail.com</span>
                                 </li>
                                 <li>
                                     <i class="fas fa-clock"></i>
@@ -459,6 +468,6 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
-    <script src="/public/js/app.js"></script>
+    <script src="/js/app.js"></script>
 </body>
 </html>
