@@ -88,7 +88,7 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
             <div class="col-12 text-center">
                 <h2 class="section-title">
                     <i class="fas fa-fire text-danger me-2"></i>
-                    Sản phẩm bán chạy nhất
+                    Sản phẩm bán chạy one
                 </h2>
                 <p class="text-muted">Những món ăn được yêu thích nhất tại nhà hàng</p>
             </div>
