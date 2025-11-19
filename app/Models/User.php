@@ -6,11 +6,23 @@ use App\Core\Model;
 
 class User extends Model
 {
-    protected $table = 'users';
+    protected $table = 'KHACH_HANG';
 
     public function findByEmail($email)
     {
-        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE email = ?");
+        $sql = "SELECT 
+                    MaKH AS id,
+                    HoTen AS full_name,
+                    Email AS email,
+                    MatKhau AS password,
+                    SDT AS phone,
+                    GioiTinh AS gender,
+                    VaiTro AS role,
+                    TrangThai AS status,
+                    NgayDangKy AS created_at
+                FROM {$this->table}
+                WHERE Email = ?";
+        $stmt = $this->db->prepare($sql);
         $stmt->execute([$email]);
         return $stmt->fetch();
     }
@@ -21,8 +33,27 @@ class User extends Model
         if (isset($data['password'])) {
             $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         }
-        
-        return parent::create($data);
+        // Map allowed inserts
+        $map = [
+            'full_name' => 'HoTen',
+            'email' => 'Email',
+            'password' => 'MatKhau',
+            'phone' => 'SDT',
+            'gender' => 'GioiTinh',
+            'role' => 'VaiTro',
+        ];
+        $set = [];
+        $params = [];
+        foreach ($data as $k => $v) {
+            if (isset($map[$k]) && $k !== 'address') {
+                $set[] = $map[$k] . ' = ?';
+                $params[] = $v;
+            }
+        }
+        if (empty($set)) return false;
+        $sql = "INSERT INTO {$this->table} SET " . implode(', ', $set);
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($params);
     }
 
     private function isHashed($hash)
@@ -52,22 +83,33 @@ class User extends Model
     public function updatePassword($id, $newPassword)
     {
         $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-        return $this->update($id, ['password' => $hashedPassword]);
+        $stmt = $this->db->prepare("UPDATE {$this->table} SET MatKhau = ? WHERE MaKH = ?");
+        return $stmt->execute([$hashedPassword, $id]);
     }
 
     public function getAll($filters = [])
     {
-        $sql = "SELECT * FROM {$this->table}";
+        $sql = "SELECT 
+                    MaKH AS id,
+                    HoTen AS full_name,
+                    Email AS email,
+                    MatKhau AS password,
+                    SDT AS phone,
+                    GioiTinh AS gender,
+                    VaiTro AS role,
+                    TrangThai AS status,
+                    NgayDangKy AS created_at
+                FROM {$this->table}";
         $params = [];
         $conditions = [];
 
         if (isset($filters['role'])) {
-            $conditions[] = "role = ?";
+            $conditions[] = "VaiTro = ?";
             $params[] = $filters['role'];
         }
 
         if (isset($filters['search'])) {
-            $conditions[] = "(full_name LIKE ? OR email LIKE ? OR phone LIKE ?)";
+            $conditions[] = "(HoTen LIKE ? OR Email LIKE ? OR SDT LIKE ?)";
             $searchTerm = '%' . $filters['search'] . '%';
             $params[] = $searchTerm;
             $params[] = $searchTerm;
@@ -78,7 +120,7 @@ class User extends Model
             $sql .= " WHERE " . implode(' AND ', $conditions);
         }
 
-        $sql .= " ORDER BY created_at DESC";
+        $sql .= " ORDER BY NgayDangKy DESC";
 
         if (isset($filters['limit'])) {
             $sql .= " LIMIT " . (int)$filters['limit'];
@@ -96,12 +138,12 @@ class User extends Model
         $conditions = [];
 
         if (isset($filters['role'])) {
-            $conditions[] = "role = ?";
+            $conditions[] = "VaiTro = ?";
             $params[] = $filters['role'];
         }
 
         if (isset($filters['search'])) {
-            $conditions[] = "(full_name LIKE ? OR email LIKE ? OR phone LIKE ?)";
+            $conditions[] = "(HoTen LIKE ? OR Email LIKE ? OR SDT LIKE ?)";
             $searchTerm = '%' . $filters['search'] . '%';
             $params[] = $searchTerm;
             $params[] = $searchTerm;
@@ -119,16 +161,60 @@ class User extends Model
 
     public function delete($id)
     {
-        $sql = "DELETE FROM {$this->table} WHERE id = ?";
+        $sql = "DELETE FROM {$this->table} WHERE MaKH = ?";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$id]);
     }
 
     public function getActiveOrders($userId)
     {
-        $sql = "SELECT COUNT(*) FROM orders WHERE user_id = ? AND status NOT IN ('completed', 'cancelled')";
+        $sql = "SELECT COUNT(*) FROM DON_HANG WHERE MaKH = ? AND TrangThai NOT IN ('Hoàn tất', 'Hủy')";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$userId]);
         return $stmt->fetchColumn();
+    }
+
+    public function findById($id)
+    {
+        $sql = "SELECT 
+                    MaKH AS id,
+                    HoTen AS full_name,
+                    Email AS email,
+                    MatKhau AS password,
+                    SDT AS phone,
+                    GioiTinh AS gender,
+                    VaiTro AS role,
+                    TrangThai AS status,
+                    NgayDangKy AS created_at
+                FROM {$this->table}
+                WHERE MaKH = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$id]);
+        return $stmt->fetch();
+    }
+
+    public function update($id, $data)
+    {
+        // Map allowed updates
+        $map = [
+            'full_name' => 'HoTen',
+            'phone' => 'SDT',
+            'gender' => 'GioiTinh',
+            'role' => 'VaiTro',
+            'status' => 'TrangThai',
+        ];
+        $set = [];
+        $params = [];
+        foreach ($data as $k => $v) {
+            if (isset($map[$k])) {
+                $set[] = $map[$k] . ' = ?';
+                $params[] = $v;
+            }
+        }
+        if (empty($set)) return false;
+        $sql = "UPDATE {$this->table} SET " . implode(', ', $set) . " WHERE MaKH = ?";
+        $params[] = $id;
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($params);
     }
 }

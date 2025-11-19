@@ -6,11 +6,20 @@ use App\Core\Model;
 
 class Order extends Model
 {
-    protected $table = 'orders';
+    protected $table = 'DON_HANG';
 
     public function findById($id)
     {
-        $sql = "SELECT * FROM {$this->table} WHERE id = ?";
+        $sql = "SELECT 
+                    MaDH AS id,
+                    MaKH AS user_id,
+                    MaDC AS address_id,
+                    NgayDat AS created_at,
+                    TongTien AS total_amount,
+                    TrangThai AS status,
+                    PhuongThucThanhToan AS payment_method,
+                    GhiChu AS notes
+                FROM {$this->table} WHERE MaDH = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$id]);
         $order = $stmt->fetch();
@@ -26,7 +35,16 @@ class Order extends Model
 
     public function getByUserId($userId)
     {
-        $sql = "SELECT * FROM {$this->table} WHERE user_id = ? ORDER BY created_at DESC";
+        $sql = "SELECT 
+                    MaDH AS id,
+                    MaKH AS user_id,
+                    MaDC AS address_id,
+                    NgayDat AS created_at,
+                    TongTien AS total_amount,
+                    TrangThai AS status,
+                    PhuongThucThanhToan AS payment_method,
+                    GhiChu AS notes
+                FROM {$this->table} WHERE MaKH = ? ORDER BY NgayDat DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$userId]);
         return $stmt->fetchAll();
@@ -34,7 +52,13 @@ class Order extends Model
 
     public function getLastOrderByUserId($userId)
     {
-        $sql = "SELECT * FROM {$this->table} WHERE user_id = ? ORDER BY created_at DESC LIMIT 1";
+        $sql = "SELECT 
+                    MaDH AS id,
+                    MaKH AS user_id,
+                    NgayDat AS created_at,
+                    TongTien AS total_amount,
+                    TrangThai AS status
+                FROM {$this->table} WHERE MaKH = ? ORDER BY NgayDat DESC LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$userId]);
         return $stmt->fetch();
@@ -42,10 +66,17 @@ class Order extends Model
 
     public function getOrderItems($orderId)
     {
-        $sql = "SELECT oi.*, p.name, p.image_url as image 
-                FROM order_items oi 
-                JOIN products p ON oi.product_id = p.id 
-                WHERE oi.order_id = ?";
+        $sql = "SELECT 
+                    oi.MaDH AS order_id,
+                    oi.MaSP AS product_id,
+                    oi.SoLuong AS quantity,
+                    oi.DonGia AS price,
+                    oi.ThanhTien AS line_total,
+                    p.TenSP AS name,
+                    p.HinhAnh AS image
+                FROM CHI_TIET_DON_HANG oi 
+                JOIN SAN_PHAM p ON oi.MaSP = p.MaSP 
+                WHERE oi.MaDH = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$orderId]);
         return $stmt->fetchAll();
@@ -53,23 +84,23 @@ class Order extends Model
 
     public function getStatistics($filters = [])
     {
-        $conditions = ["status IN ('completed', 'delivering', 'preparing')"];
+        $conditions = ["TrangThai IN ('Hoàn tất', 'Đang giao', 'Chờ duyệt')"];
         $params = [];
 
         if (isset($filters['date_from'])) {
-            $conditions[] = "DATE(created_at) >= ?";
+            $conditions[] = "DATE(NgayDat) >= ?";
             $params[] = $filters['date_from'];
         }
 
         if (isset($filters['date_to'])) {
-            $conditions[] = "DATE(created_at) <= ?";
+            $conditions[] = "DATE(NgayDat) <= ?";
             $params[] = $filters['date_to'];
         }
 
         $sql = "SELECT 
                     COUNT(*) as total_orders,
-                    COALESCE(SUM(total_amount), 0) as total_revenue,
-                    COALESCE(AVG(total_amount), 0) as avg_order_value
+                    COALESCE(SUM(TongTien), 0) as total_revenue,
+                    COALESCE(AVG(TongTien), 0) as avg_order_value
                 FROM {$this->table} 
                 WHERE " . implode(' AND ', $conditions);
 
@@ -81,13 +112,13 @@ class Order extends Model
     public function getDailyRevenue($days = 7)
     {
         $sql = "SELECT 
-                    DATE(created_at) as date,
+                    DATE(NgayDat) as date,
                     COUNT(*) as orders,
-                    COALESCE(SUM(total_amount), 0) as revenue
+                    COALESCE(SUM(TongTien), 0) as revenue
                 FROM {$this->table} 
-                WHERE DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
-                    AND status IN ('completed', 'delivering', 'preparing')
-                GROUP BY DATE(created_at)
+                WHERE DATE(NgayDat) >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+                    AND TrangThai IN ('Hoàn tất', 'Đang giao', 'Chờ duyệt')
+                GROUP BY DATE(NgayDat)
                 ORDER BY date DESC";
         
         $stmt = $this->db->prepare($sql);
@@ -98,24 +129,31 @@ class Order extends Model
     public function getAll($filters = [])
     {
         try {
-            $sql = "SELECT o.*, u.full_name as user_name, u.email as user_email 
+            $sql = "SELECT 
+                        o.MaDH AS id,
+                        o.MaKH AS user_id,
+                        o.NgayDat AS created_at,
+                        o.TongTien AS total_amount,
+                        o.TrangThai AS status,
+                        u.HoTen AS user_name,
+                        u.Email AS user_email
                     FROM {$this->table} o 
-                    JOIN users u ON o.user_id = u.id";
+                    JOIN KHACH_HANG u ON o.MaKH = u.MaKH";
             $params = [];
             $conditions = [];
 
             if (isset($filters['status'])) {
-                $conditions[] = "o.status = ?";
+                $conditions[] = "o.TrangThai = ?";
                 $params[] = $filters['status'];
             }
 
             if (isset($filters['date_from'])) {
-                $conditions[] = "DATE(o.created_at) >= ?";
+                $conditions[] = "DATE(o.NgayDat) >= ?";
                 $params[] = $filters['date_from'];
             }
 
             if (isset($filters['date_to'])) {
-                $conditions[] = "DATE(o.created_at) <= ?";
+                $conditions[] = "DATE(o.NgayDat) <= ?";
                 $params[] = $filters['date_to'];
             }
 
@@ -123,7 +161,7 @@ class Order extends Model
                 $sql .= " WHERE " . implode(' AND ', $conditions);
             }
 
-            $sql .= " ORDER BY o.created_at DESC";
+            $sql .= " ORDER BY o.NgayDat DESC";
 
             if (isset($filters['limit'])) {
                 $sql .= " LIMIT " . (int)$filters['limit'];
@@ -145,17 +183,17 @@ class Order extends Model
         $conditions = [];
 
         if (isset($filters['status'])) {
-            $conditions[] = "o.status = ?";
+            $conditions[] = "o.TrangThai = ?";
             $params[] = $filters['status'];
         }
 
         if (isset($filters['date_from'])) {
-            $conditions[] = "DATE(o.created_at) >= ?";
+            $conditions[] = "DATE(o.NgayDat) >= ?";
             $params[] = $filters['date_from'];
         }
 
         if (isset($filters['date_to'])) {
-            $conditions[] = "DATE(o.created_at) <= ?";
+            $conditions[] = "DATE(o.NgayDat) <= ?";
             $params[] = $filters['date_to'];
         }
 
@@ -170,14 +208,14 @@ class Order extends Model
 
     public function delete($id)
     {
-        $sql = "DELETE FROM {$this->table} WHERE id = ?";
+        $sql = "DELETE FROM {$this->table} WHERE MaDH = ?";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$id]);
     }
 
     public function deleteOrderItems($orderId)
     {
-        $sql = "DELETE FROM order_items WHERE order_id = ?";
+        $sql = "DELETE FROM CHI_TIET_DON_HANG WHERE MaDH = ?";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$orderId]);
     }

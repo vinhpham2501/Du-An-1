@@ -6,18 +6,30 @@ use App\Core\Model;
 
 class Product extends Model
 {
-    protected $table = 'products';
+    protected $table = 'SAN_PHAM';
 
     public function getAll($filters = [])
     {
-        $sql = "SELECT p.*, c.name as category_name FROM {$this->table} p 
-                LEFT JOIN categories c ON p.category_id = c.id";
+        $sql = "SELECT 
+                    p.MaSP AS id,
+                    p.TenSP AS name,
+                    p.MoTa AS description,
+                    p.Gia AS price,
+                    NULL AS sale_price,
+                    p.HinhAnh AS image_url,
+                    p.NgayTao AS created_at,
+                    p.TrangThai AS is_available,
+                    0 AS is_featured,
+                    p.MaDM AS category_id,
+                    c.TenDM AS category_name
+                FROM {$this->table} p 
+                LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM";
         $params = [];
         $conditions = [];
 
-        // Mặc định chỉ lấy sản phẩm available (trừ khi có filter khác)
+        // Mặc định chỉ lấy sản phẩm đang bán (TrangThai=1) trừ khi có filter khác
         if (!isset($filters['is_available'])) {
-            $conditions[] = "p.is_available = ?";
+            $conditions[] = "p.TrangThai = ?";
             $params[] = 1;
         }
 
@@ -27,7 +39,7 @@ class Product extends Model
         }
 
         if (isset($filters['is_available'])) {
-            $conditions[] = "p.is_available = ?";
+            $conditions[] = "p.TrangThai = ?";
             $params[] = $filters['is_available'];
         }
 
@@ -38,7 +50,7 @@ class Product extends Model
         }
 
         if (isset($filters['exclude_id'])) {
-            $conditions[] = "p.id != ?";
+            $conditions[] = "p.MaSP != ?";
             $params[] = $filters['exclude_id'];
         }
 
@@ -50,23 +62,23 @@ class Product extends Model
         if (isset($filters['sort'])) {
             switch ($filters['sort']) {
                 case 'newest':
-                    $sql .= " ORDER BY p.created_at DESC";
+                    $sql .= " ORDER BY p.NgayTao DESC";
                     break;
                 case 'oldest':
-                    $sql .= " ORDER BY p.created_at ASC";
+                    $sql .= " ORDER BY p.NgayTao ASC";
                     break;
                 case 'name':
-                    $sql .= " ORDER BY p.name ASC";
+                    $sql .= " ORDER BY p.TenSP ASC";
                     break;
                 case 'price_low':
-                    $sql .= " ORDER BY p.price ASC";
+                    $sql .= " ORDER BY p.Gia ASC";
                     break;
                 case 'price_high':
-                    $sql .= " ORDER BY p.price DESC";
+                    $sql .= " ORDER BY p.Gia DESC";
                     break;
             }
         } else {
-            $sql .= " ORDER BY p.id DESC";
+            $sql .= " ORDER BY p.MaSP DESC";
         }
 
         // Apply limit
@@ -85,10 +97,10 @@ class Product extends Model
     public function count($filters = [])
     {
         $sql = "SELECT COUNT(*) FROM {$this->table} p 
-                LEFT JOIN categories c ON p.category_id = c.id";
+                LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM";
         $params = [];
-        $conditions = ['p.is_available = ?'];
-        $params[] = true;
+        $conditions = ['p.TrangThai = ?'];
+        $params[] = 1;
 
         if (isset($filters['category_id'])) {
             $conditions[] = "p.category_id = ?";
@@ -96,7 +108,7 @@ class Product extends Model
         }
 
         if (isset($filters['is_available'])) {
-            $conditions[] = "p.is_available = ?";
+            $conditions[] = "p.TrangThai = ?";
             $params[] = $filters['is_available'];
         }
 
@@ -115,12 +127,18 @@ class Product extends Model
 
     public function getByCategory($categoryId, $limit = null)
     {
-        $sql = "SELECT * FROM {$this->table} WHERE category_id = ? AND is_available = true ORDER BY created_at DESC";
-        
+        $sql = "SELECT 
+                    p.MaSP AS id, p.TenSP AS name, p.MoTa AS description,
+                    p.Gia AS price, NULL AS sale_price, p.HinhAnh AS image_url,
+                    p.NgayTao AS created_at, p.TrangThai AS is_available,
+                    0 AS is_featured, p.MaDM AS category_id
+                FROM {$this->table} p
+                WHERE p.MaDM = ? AND p.TrangThai = 1 ORDER BY p.NgayTao DESC";
+
         if ($limit) {
             $sql .= " LIMIT " . (int)$limit;
         }
-        
+
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$categoryId]);
         return $stmt->fetchAll();
@@ -128,18 +146,29 @@ class Product extends Model
 
     public function getTopSelling($limit = 10)
     {
-        $sql = "SELECT p.*, c.name as category_name, 
-                COALESCE(SUM(oi.quantity), 0) as total_sold,
-                COALESCE(SUM(oi.quantity * oi.price), 0) as revenue
+        $sql = "SELECT 
+                    p.MaSP AS id,
+                    p.TenSP AS name,
+                    p.MoTa AS description,
+                    p.Gia AS price,
+                    NULL AS sale_price,
+                    p.HinhAnh AS image_url,
+                    p.NgayTao AS created_at,
+                    p.TrangThai AS is_available,
+                    0 AS is_featured,
+                    p.MaDM AS category_id,
+                    c.TenDM AS category_name,
+                    COALESCE(SUM(oi.SoLuong), 0) AS total_sold,
+                    COALESCE(SUM(oi.SoLuong * oi.DonGia), 0) AS revenue
                 FROM {$this->table} p 
-                LEFT JOIN categories c ON p.category_id = c.id
-                LEFT JOIN order_items oi ON p.id = oi.product_id
-                LEFT JOIN orders o ON oi.order_id = o.id 
-                WHERE p.is_available = true AND (o.status IS NULL OR o.status IN ('completed', 'delivering'))
-                GROUP BY p.id, p.category_id, p.name, p.description, p.price, p.image_url, p.is_available, p.is_featured, p.created_at, p.updated_at, c.name
-                ORDER BY total_sold DESC, p.created_at DESC 
+                LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM
+                LEFT JOIN CHI_TIET_DON_HANG oi ON p.MaSP = oi.MaSP
+                LEFT JOIN DON_HANG o ON oi.MaDH = o.MaDH 
+                WHERE p.TrangThai = 1 AND (o.TrangThai IS NULL OR o.TrangThai IN ('Hoàn tất','Đang giao'))
+                GROUP BY p.MaSP, p.MaDM, p.TenSP, p.MoTa, p.Gia, p.HinhAnh, p.TrangThai, p.NgayTao, c.TenDM
+                ORDER BY total_sold DESC, p.NgayTao DESC 
                 LIMIT ?";
-        
+
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$limit]);
         return $stmt->fetchAll();
@@ -147,13 +176,18 @@ class Product extends Model
 
     public function getSaleProducts($limit = 10)
     {
-        $sql = "SELECT p.*, c.name as category_name 
+        // Schema mới không có trường giảm giá; tạm chọn sản phẩm mới nhất đang bán
+        $sql = "SELECT 
+                    p.MaSP AS id, p.TenSP AS name, p.MoTa AS description,
+                    p.Gia AS price, NULL AS sale_price, p.HinhAnh AS image_url,
+                    p.NgayTao AS created_at, p.TrangThai AS is_available,
+                    0 AS is_featured, p.MaDM AS category_id, c.TenDM AS category_name
                 FROM {$this->table} p 
-                LEFT JOIN categories c ON p.category_id = c.id
-                WHERE p.is_available = true AND p.sale_price IS NOT NULL AND p.sale_price > 0 AND p.sale_price < p.price
-                ORDER BY ((p.price - p.sale_price) / p.price) DESC, p.created_at DESC 
+                LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM
+                WHERE p.TrangThai = 1
+                ORDER BY p.NgayTao DESC 
                 LIMIT ?";
-        
+
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$limit]);
         return $stmt->fetchAll();
@@ -161,13 +195,17 @@ class Product extends Model
 
     public function getNewProducts($limit = 10)
     {
-        $sql = "SELECT p.*, c.name as category_name 
+        $sql = "SELECT 
+                    p.MaSP AS id, p.TenSP AS name, p.MoTa AS description,
+                    p.Gia AS price, NULL AS sale_price, p.HinhAnh AS image_url,
+                    p.NgayTao AS created_at, p.TrangThai AS is_available,
+                    0 AS is_featured, p.MaDM AS category_id, c.TenDM AS category_name
                 FROM {$this->table} p 
-                LEFT JOIN categories c ON p.category_id = c.id
-                WHERE p.is_available = true 
-                ORDER BY p.created_at DESC 
+                LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM
+                WHERE p.TrangThai = 1 
+                ORDER BY p.NgayTao DESC 
                 LIMIT ?";
-        
+
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$limit]);
         return $stmt->fetchAll();
@@ -175,13 +213,18 @@ class Product extends Model
 
     public function getFeaturedProducts($limit = 8)
     {
-        $sql = "SELECT p.*, c.name as category_name 
+        // Schema mới không có cờ nổi bật; tạm lấy mới nhất đang bán
+        $sql = "SELECT 
+                    p.MaSP AS id, p.TenSP AS name, p.MoTa AS description,
+                    p.Gia AS price, NULL AS sale_price, p.HinhAnh AS image_url,
+                    p.NgayTao AS created_at, p.TrangThai AS is_available,
+                    0 AS is_featured, p.MaDM AS category_id, c.TenDM AS category_name
                 FROM {$this->table} p 
-                LEFT JOIN categories c ON p.category_id = c.id
-                WHERE p.is_available = true AND p.is_featured = true
-                ORDER BY p.created_at DESC 
+                LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM
+                WHERE p.TrangThai = 1
+                ORDER BY p.NgayTao DESC 
                 LIMIT ?";
-        
+
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$limit]);
         return $stmt->fetchAll();
@@ -189,11 +232,15 @@ class Product extends Model
 
     public function findById($id)
     {
-        $sql = "SELECT p.*, c.name as category_name 
+        $sql = "SELECT 
+                    p.MaSP AS id, p.TenSP AS name, p.MoTa AS description,
+                    p.Gia AS price, NULL AS sale_price, p.HinhAnh AS image_url,
+                    p.NgayTao AS created_at, p.TrangThai AS is_available,
+                    0 AS is_featured, p.MaDM AS category_id, c.TenDM AS category_name
                 FROM {$this->table} p 
-                LEFT JOIN categories c ON p.category_id = c.id
-                WHERE p.id = ?";
-        
+                LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM
+                WHERE p.MaSP = ?";
+
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$id]);
         return $stmt->fetch();

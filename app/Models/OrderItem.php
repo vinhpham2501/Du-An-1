@@ -6,19 +6,22 @@ use App\Core\Model;
 
 class OrderItem extends Model
 {
-    protected $table = 'order_items';
+    protected $table = 'CHI_TIET_DON_HANG';
 
     public function createMultiple($orderId, $items)
     {
-        $sql = "INSERT INTO {$this->table} (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO {$this->table} (MaDH, MaSP, SoLuong, DonGia, ThanhTien) VALUES (?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
         
         foreach ($items as $item) {
+            $qty = (int)($item['quantity'] ?? 1);
+            $price = (float)($item['price'] ?? 0);
             $stmt->execute([
                 $orderId,
                 $item['product_id'],
-                $item['quantity'],
-                $item['price']
+                $qty,
+                $price,
+                $qty * $price
             ]);
         }
         

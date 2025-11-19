@@ -1,4 +1,4 @@
-<?php $title = 'Trang chủ - Restaurant Order System'; ?>
+<?php $title = 'Trang chủ - Sắc Việt Traditional Shop'; ?>
 
 <!-- Include Homepage CSS -->
 <link rel="stylesheet" href="/css/homepage.css">
@@ -10,6 +10,61 @@
 // Include CSS cho trang chủ
 echo '<link href="/public/css/homepage.css" rel="stylesheet">';
 ?>
+
+<!-- Hero Banner Section (Traditional Clothing) -->
+<?php 
+    $bannerImageUrl = $bannerImageUrl ?? 'https://images.unsplash.com/photo-1564069114553-7215e1ff1890?q=80&w=1600&auto=format&fit=crop';
+?>
+<section class="hero-banner" style="position:relative;background: url('<?= htmlspecialchars($bannerImageUrl) ?>') center/cover no-repeat;">
+    <div style="background: rgba(255, 240, 245, 0.6);">
+        <div class="container py-5 py-lg-6" style="min-height: 420px;">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <span class="badge bg-danger-subtle text-danger mb-3" style="font-size: .9rem;">Bộ sưu tập mới</span>
+                    <h1 class="display-5 fw-bold mb-3">Tỏa sáng cùng trang phục truyền thống</h1>
+                    <p class="lead text-muted mb-4">Khám phá áo dài, áo tứ thân, và nhiều thiết kế đậm bản sắc Việt.</p>
+                    <div>
+                        <a href="#productsContainer" class="btn btn-warning btn-lg me-3">
+                            <i class="fas fa-bag-shopping me-2"></i>Mua sắm ngay
+                        </a>
+                        <a href="/about" class="btn btn-outline-dark btn-lg">
+                            <i class="fas fa-circle-info me-2"></i>Tìm hiểu thêm
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Icons Row -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="feature">
+                    <i class="fas fa-truck fa-2x text-primary mb-3"></i>
+                    <h5 class="mb-2">Giao hàng nhanh chóng</h5>
+                    <p class="text-muted">Giao hàng tận nơi trong vòng 24 giờ.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="feature">
+                    <i class="fas fa-undo-alt fa-2x text-primary mb-3"></i>
+                    <h5 class="mb-2">Đổi trả dễ dàng</h5>
+                    <p class="text-muted">Đổi trả sản phẩm trong vòng 7 ngày.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature">
+                    <i class="fas fa-lock fa-2x text-primary mb-3"></i>
+                    <h5 class="mb-2">Thanh toán an toàn</h5>
+                    <p class="text-muted">Hệ thống thanh toán an toàn và bảo mật.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Hero Slider Section -->
 <section class="hero-slider-section">
@@ -38,7 +93,7 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
                             <div class="row align-items-center min-vh-60">
                                 <div class="col-lg-6">
                                     <div class="hero-content text-white">
-                                        <span class="badge bg-warning text-dark mb-3 fs-6">Món ăn nổi bật</span>
+                                        <span class="badge bg-warning text-dark mb-3 fs-6">Sản phẩm nổi bật</span>
                                         <h1 class="display-4 fw-bold mb-4"><?= htmlspecialchars($product['name']) ?></h1>
                                         <p class="lead mb-4"><?= htmlspecialchars($product['description']) ?></p>
                                         <div class="hero-buttons">
@@ -59,7 +114,7 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
                                                      alt="<?= htmlspecialchars($product['name']) ?>" class="dish-image">
                                             <?php else: ?>
                                                 <div class="dish-image d-flex align-items-center justify-content-center bg-light">
-                                                    <i class="fas fa-utensils fa-5x text-muted"></i>
+                                                    <i class="fas fa-shirt fa-5x text-muted"></i>
                                                 </div>
                                             <?php endif; ?>
                                         </div>
@@ -88,9 +143,9 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
             <div class="col-12 text-center">
                 <h2 class="section-title">
                     <i class="fas fa-fire text-danger me-2"></i>
-                    Sản phẩm bán chạy one
+                    Sản phẩm bán chạy
                 </h2>
-                <p class="text-muted">Những món ăn được yêu thích nhất tại nhà hàng</p>
+                <p class="text-muted">Những trang phục được yêu thích nhất tại cửa hàng</p>
             </div>
         </div>
         
@@ -114,7 +169,7 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
                                                 <?php else: ?>
                                                     <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
                                                          style="height: 200px;">
-                                                        <i class="fas fa-utensils fa-3x text-muted"></i>
+                                                        <i class="fas fa-shirt fa-3x text-muted"></i>
                                                     </div>
                                                 <?php endif; ?>
                                             </a>
@@ -168,9 +223,9 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
             <div class="col-12 text-center">
                 <h2 class="section-title">
                     <i class="fas fa-tags text-warning me-2"></i>
-                    Món ăn đang khuyến mãi
+                    Trang phục đang khuyến mãi
                 </h2>
-                <p class="text-muted">Cơ hội tuyệt vời để thưởng thức món ngon với giá ưu đãi</p>
+                <p class="text-muted">Ưu đãi hấp dẫn cho các mẫu áo dài, trang phục truyền thống</p>
             </div>
         </div>
         
@@ -194,7 +249,7 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
                                                 <?php else: ?>
                                                     <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
                                                          style="height: 200px;">
-                                                        <i class="fas fa-utensils fa-3x text-muted"></i>
+                                                        <i class="fas fa-shirt fa-3x text-muted"></i>
                                                     </div>
                                                 <?php endif; ?>
                                             </a>
@@ -245,9 +300,9 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
             <div class="col-12 text-center">
                 <h2 class="section-title">
                     <i class="fas fa-star text-success me-2"></i>
-                    Món ăn mới ra mắt
+                    Bộ sưu tập mới
                 </h2>
-                <p class="text-muted">Những món ăn mới nhất được nhà hàng giới thiệu</p>
+                <p class="text-muted">Những thiết kế truyền thống mới nhất vừa cập bến</p>
             </div>
         </div>
         
@@ -271,13 +326,13 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
                                                 <?php else: ?>
                                                     <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
                                                          style="height: 200px;">
-                                                        <i class="fas fa-utensils fa-3x text-muted"></i>
+                                                        <i class="fas fa-shirt fa-3x text-muted"></i>
                                                     </div>
                                                 <?php endif; ?>
                                             </a>
                                             <div class="position-absolute top-0 start-0 m-2">
                                                 <span class="badge bg-success">
-                                                    <i class="fas fa-sparkles me-1"></i>Mới
+                                                    <i class="fas fa-star me-1"></i>Mới
                                                 </span>
                                             </div>
                                         </div>
@@ -325,9 +380,9 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
             <div class="col-12 text-center">
                 <h2 class="section-title">
                     <i class="fas fa-list me-2"></i>
-                    Thực đơn nhà hàng
+                    Sản phẩm của cửa hàng
                 </h2>
-                <p class="text-muted">Danh sách đầy đủ các món ăn tại nhà hàng</p>
+                <p class="text-muted">Bộ sưu tập trang phục truyền thống đa dạng</p>
             </div>
         </div>
 
@@ -370,7 +425,7 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
                                     <?php else: ?>
                                         <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
                                              style="height: 200px;">
-                                            <i class="fas fa-utensils fa-3x text-muted"></i>
+                                            <i class="fas fa-shirt fa-3x text-muted"></i>
                                         </div>
                                     <?php endif; ?>
                                 </a>
