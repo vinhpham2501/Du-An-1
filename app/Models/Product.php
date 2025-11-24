@@ -24,6 +24,7 @@ class Product extends Model
                     c.TenDM AS category_name
                 FROM {$this->table} p 
                 LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM";
+
         $params = [];
         $conditions = [];
 
@@ -58,7 +59,7 @@ class Product extends Model
             $sql .= " WHERE " . implode(' AND ', $conditions);
         }
 
-        // Apply sorting
+        // Sorting
         if (isset($filters['sort'])) {
             switch ($filters['sort']) {
                 case 'newest':
@@ -81,7 +82,7 @@ class Product extends Model
             $sql .= " ORDER BY p.MaSP DESC";
         }
 
-        // Apply limit
+        // Limit & offset
         if (isset($filters['limit'])) {
             $sql .= " LIMIT " . (int)$filters['limit'];
             if (isset($filters['offset'])) {
@@ -96,10 +97,12 @@ class Product extends Model
 
     public function count($filters = [])
     {
-        $sql = "SELECT COUNT(*) FROM {$this->table} p 
+        $sql = "SELECT COUNT(*) 
+                FROM {$this->table} p 
                 LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM";
+
         $params = [];
-        $conditions = ['p.TrangThai = ?'];
+        $conditions = ["p.TrangThai = ?"];
         $params[] = 1;
 
         if (isset($filters['category_id'])) {
@@ -133,7 +136,8 @@ class Product extends Model
                     p.NgayTao AS created_at, p.TrangThai AS is_available,
                     0 AS is_featured, p.MaDM AS category_id
                 FROM {$this->table} p
-                WHERE p.MaDM = ? AND p.TrangThai = 1 ORDER BY p.NgayTao DESC";
+                WHERE p.MaDM = ? AND p.TrangThai = 1 
+                ORDER BY p.NgayTao DESC";
 
         if ($limit) {
             $sql .= " LIMIT " . (int)$limit;
@@ -164,7 +168,8 @@ class Product extends Model
                 LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM
                 LEFT JOIN CHI_TIET_DON_HANG oi ON p.MaSP = oi.MaSP
                 LEFT JOIN DON_HANG o ON oi.MaDH = o.MaDH 
-                WHERE p.TrangThai = 1 AND (o.TrangThai IS NULL OR o.TrangThai IN ('Hoàn tất','Đang giao'))
+                WHERE p.TrangThai = 1 
+                  AND (o.TrangThai IS NULL OR o.TrangThai IN ('Hoàn tất','Đang giao'))
                 GROUP BY p.MaSP, p.MaDM, p.TenSP, p.MoTa, p.Gia, p.HinhAnh, p.TrangThai, p.NgayTao, c.TenDM
                 ORDER BY total_sold DESC, p.NgayTao DESC 
                 LIMIT ?";
@@ -176,7 +181,6 @@ class Product extends Model
 
     public function getSaleProducts($limit = 10)
     {
-        // Schema mới không có trường giảm giá; tạm chọn sản phẩm mới nhất đang bán
         $sql = "SELECT 
                     p.MaSP AS id, p.TenSP AS name, p.MoTa AS description,
                     p.Gia AS price, NULL AS sale_price, p.HinhAnh AS image_url,
@@ -213,7 +217,6 @@ class Product extends Model
 
     public function getFeaturedProducts($limit = 8)
     {
-        // Schema mới không có cờ nổi bật; tạm lấy mới nhất đang bán
         $sql = "SELECT 
                     p.MaSP AS id, p.TenSP AS name, p.MoTa AS description,
                     p.Gia AS price, NULL AS sale_price, p.HinhAnh AS image_url,

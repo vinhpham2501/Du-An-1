@@ -169,11 +169,52 @@ class Order extends Model
 
             $stmt = $this->db->prepare($sql);
             $stmt->execute($params);
-            return $stmt->fetchAll();
+            $orders = $stmt->fetchAll();
+
+            // Bổ sung các field dùng trong view admin để tránh Undefined array key
+            foreach ($orders as &$order) {
+                // Tên và SĐT giao hàng: mặc định dùng tên khách hàng, SĐT để trống nếu không có
+                if (!isset($order['delivery_name']) || $order['delivery_name'] === null) {
+                    $order['delivery_name'] = $order['user_name'] ?? 'Khách hàng';
+                }
+
+                if (!isset($order['delivery_phone']) || $order['delivery_phone'] === null) {
+                    $order['delivery_phone'] = '';
+                }
+
+                // Trạng thái thanh toán: mặc định là pending để tránh null truyền vào htmlspecialchars
+                if (!isset($order['payment_status']) || $order['payment_status'] === null) {
+                    $order['payment_status'] = 'pending';
+                }
+            }
+
+            return $orders;
         } catch (\Exception $e) {
             error_log("Order getAll error: " . $e->getMessage());
             return [];
         }
+    }
+
+    public function updateStatus($id, $status)
+    {
+        $sql = "UPDATE {$this->table} SET TrangThai = ? WHERE MaDH = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$status, $id]);
+    }
+
+    // Ghi đè update để dùng khóa MaDH thay vì cột id chung
+    public function update($id, $data)
+    {
+        $fields = array_keys($data);
+        $setClause = implode(' = ?, ', $fields) . ' = ?';
+
+        $sql = "UPDATE {$this->table} SET {$setClause} WHERE MaDH = ?";
+
+        $params = array_values($data);
+        $params[] = $id;
+
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($params);
     }
 
     public function count($filters = [])

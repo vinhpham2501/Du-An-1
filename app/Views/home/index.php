@@ -10,7 +10,7 @@
 
 <!-- Hero Banner Section (Traditional Clothing) -->
 <?php 
-    $bannerImageUrl = $bannerImageUrl ?? 'https://images.unsplash.com/photo-1564069114553-7215e1ff1890?q=80&w=1600&auto=format&fit=crop';
+    $bannerImageUrl = $bannerImageUrl ?? 'https://i.pinimg.com/1200x/47/f4/65/47f4657188bf0f0a9917cf9236da9957.jpg';
 ?>
 <section class="hero-banner" style="position:relative;background: url('<?= htmlspecialchars($bannerImageUrl) ?>') center/cover no-repeat;">
     <div style="background: rgba(255, 240, 245, 0.6);">
