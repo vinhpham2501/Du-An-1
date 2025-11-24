@@ -93,19 +93,18 @@
                                 <input type="url" class="form-control" id="image_url" name="image_url" 
                                        value="<?= htmlspecialchars($_POST['image_url'] ?? '') ?>" 
                                        placeholder="https://example.com/image.jpg">
-                                <div class="form-text">Hoặc upload file bên dưới</div>
+                                <div class="form-text">Dán đường dẫn ảnh trực tiếp (https://... .jpg, .png, .webp ...)</div>
                             </div>
-                            
+
                             <div class="mb-3">
-                                <label for="image" class="form-label">Upload hình ảnh</label>
-                                <input type="file" class="form-control" id="image" name="image" 
-                                       accept="image/jpeg,image/png,image/webp">
-                                <div class="form-text">Chấp nhận: JPG, PNG, WEBP. Tối đa 5MB</div>
+                                <label for="image_file" class="form-label">Tải lên hình ảnh</label>
+                                <input type="file" class="form-control" id="image_file" name="image_file" accept="image/jpeg,image/png,image/webp">
+                                <div class="form-text">Nếu chọn file, hệ thống sẽ ưu tiên ảnh tải lên và lưu tại /images/</div>
                             </div>
-                            
+
                             <div class="mb-3">
-                                <div id="image-preview" class="d-none">
-                                    <img id="preview-img" src="" alt="Preview" 
+                                <div id="image-preview" class="<?= !empty($_POST['image_url']) ? '' : 'd-none' ?>">
+                                    <img id="preview-img" src="<?= htmlspecialchars($_POST['image_url'] ?? '') ?>" alt="Preview" 
                                          class="img-thumbnail" style="max-width: 100%; height: 200px; object-fit: cover;">
                                 </div>
                             </div>
@@ -139,19 +138,14 @@
 </div>
 
 <script>
-// Image preview
-document.getElementById('image').addEventListener('change', function(e) {
-    const file = e.target.files[0];
+// Live preview from URL
+document.getElementById('image_url').addEventListener('input', function(e) {
+    const url = e.target.value.trim();
     const preview = document.getElementById('image-preview');
     const previewImg = document.getElementById('preview-img');
-    
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            previewImg.src = e.target.result;
-            preview.classList.remove('d-none');
-        }
-        reader.readAsDataURL(file);
+    if (url) {
+        previewImg.src = url;
+        preview.classList.remove('d-none');
     } else {
         preview.classList.add('d-none');
     }

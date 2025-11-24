@@ -79,7 +79,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="/">
-                <img src="images/logo1.1.png" alt="Sắc Việt" 
+                <img src="/images/logo1.1.png" alt="Sắc Việt" 
                     class="frontend-logo me-2"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
                 <span class="brand-text">Sắc Việt</span>
@@ -94,6 +94,7 @@
                 <!-- LEFT MENU -->
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/products">Sản phẩm</a></li>
                     <li class="nav-item"><a class="nav-link" href="/about">Giới thiệu</a></li>
                     <li class="nav-item"><a class="nav-link" href="/contact">Liên hệ</a></li>
                 </ul>
@@ -115,7 +116,7 @@
                     <li class="nav-item me-2">
                         <a class="nav-link position-relative" href="/cart">
                             <i class="fas fa-shopping-cart fs-5"></i>
-                            <span class="badge bg-danger rounded-pill cart-badge">
+                            <span id="cart-count" class="badge bg-danger rounded-pill cart-badge">
                                 <?= isset($_SESSION['cart']) ? array_sum($_SESSION['cart']) : 0 ?>
                             </span>
                         </a>
@@ -201,7 +202,7 @@
                     <div class="col-lg-4 col-md-6">
                         <div class="footer-widget">
                             <div class="footer-logo mb-3">
-                                <img src="images/logoo.png" alt="Sắc Việt" style="height: 45px; width: auto;" 
+                                <img src="/images/logoo.png" alt="Sắc Việt" style="height: 45px; width: auto;" 
                                      onerror="this.style.display='none';">
                                 <h4 class="text-white fw-bold mt-2" style="color: #ffc107;">Sắc Việt</h4>
                             </div>

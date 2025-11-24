@@ -69,19 +69,21 @@ class ProductController extends Controller
                 ]);
             }
             
-            // Handle image upload (nếu có upload file)
-            $image = null;
-            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                $image = $this->uploadImage($_FILES['image']);
+            // Prefer uploaded file over URL if provided
+            if (!empty($_FILES['image_file']['tmp_name']) && ($_FILES['image_file']['error'] ?? UPLOAD_ERR_OK) === UPLOAD_ERR_OK) {
+                $uploaded = $this->uploadImage($_FILES['image_file']);
+                if ($uploaded) {
+                    $imageUrl = $uploaded; // store filename; ImageHelper will render /images/<filename>
+                }
             }
-            
+
             $productId = $this->productModel->create([
                 'name' => $name,
                 'description' => $description,
                 'price' => $price,
                 'sale_price' => $salePrice ?: null,
                 'category_id' => $categoryId,
-                'image_url' => $image ?: $imageUrl,
+                'image_url' => $imageUrl,
                 'is_available' => $isAvailable
             ]);
             
@@ -127,6 +129,14 @@ class ProductController extends Controller
                 ]);
             }
             
+            // Prefer uploaded file over URL if provided
+            if (!empty($_FILES['image_file']['tmp_name']) && ($_FILES['image_file']['error'] ?? UPLOAD_ERR_OK) === UPLOAD_ERR_OK) {
+                $uploaded = $this->uploadImage($_FILES['image_file']);
+                if ($uploaded) {
+                    $imageUrl = $uploaded; // store filename
+                }
+            }
+
             $updateData = [
                 'name' => $name,
                 'description' => $description,
@@ -137,13 +147,7 @@ class ProductController extends Controller
                 'is_available' => $isAvailable
             ];
             
-            // Handle image upload (nếu có upload file)
-            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                $image = $this->uploadImage($_FILES['image']);
-                if ($image) {
-                    $updateData['image_url'] = $image;
-                }
-            }
+            // Bỏ xử lý upload file: chỉ sử dụng URL ảnh từ form
             
             $result = $this->productModel->update($id, $updateData);
             
@@ -189,7 +193,7 @@ class ProductController extends Controller
 
     private function uploadImage($file)
     {
-        $uploadDir = PUBLIC_PATH . '/uploads/';
+        $uploadDir = PUBLIC_PATH . '/images/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }

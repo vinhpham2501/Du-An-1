@@ -1,4 +1,4 @@
-<?php $title = 'Chỉnh sửa sản phẩm - Admin Panel'; ?>
+<?php use App\Helpers\ImageHelper; $title = 'Chỉnh sửa sản phẩm - Admin Panel'; ?>
 
 <div class="row">
     <div class="col-12">
@@ -93,30 +93,26 @@
                                 <input type="url" class="form-control" id="image_url" name="image_url" 
                                        value="<?= htmlspecialchars($_POST['image_url'] ?? $product['image_url'] ?? '') ?>" 
                                        placeholder="https://example.com/image.jpg">
-                                <div class="form-text">Hoặc upload file bên dưới</div>
+                                <div class="form-text">Dán đường dẫn ảnh trực tiếp (https://... .jpg, .png, .webp ...)</div>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="image" class="form-label">Upload hình ảnh</label>
-                                <input type="file" class="form-control" id="image" name="image" 
-                                       accept="image/jpeg,image/png,image/webp">
-                                <div class="form-text">Chấp nhận: JPG, PNG, WEBP. Tối đa 5MB</div>
+                                <label for="image_file" class="form-label">Tải lên hình ảnh</label>
+                                <input type="file" class="form-control" id="image_file" name="image_file" accept="image/jpeg,image/png,image/webp">
+                                <div class="form-text">Nếu chọn file, hệ thống sẽ ưu tiên ảnh tải lên và lưu tại /images/</div>
                             </div>
                             
                             <div class="mb-3">
                                 <div id="image-preview">
-                                    <?php if ($product['image_url']): ?>
-                                        <?php 
-                                        $imageSrc = (strpos($product['image_url'], 'http') === 0) 
-                                            ? $product['image_url'] 
-                                            : '/uploads/' . $product['image_url'];
-                                        ?>
-                                        <img src="<?= htmlspecialchars($imageSrc) ?>" 
+                                    <?php 
+                                        $imageSrc = ImageHelper::getImageSrc($_POST['image_url'] ?? ($product['image_url'] ?? null));
+                                    ?>
+                                    <?php if (!empty($imageSrc)): ?>
+                                        <img id="preview-img" src="<?= htmlspecialchars($imageSrc) ?>" 
                                              alt="<?= htmlspecialchars($product['name']) ?>" 
-                                             class="img-thumbnail" style="max-width: 100%; height: 200px; object-fit: cover;"
-                                             onerror="this.style.display='none'">
+                                             class="img-thumbnail" style="max-width: 100%; height: 200px; object-fit: cover;">
                                         <div class="mt-2">
-                                            <small class="text-muted">Hình ảnh hiện tại</small>
+                                            <small class="text-muted">Xem trước hình ảnh</small>
                                         </div>
                                     <?php else: ?>
                                         <div class="bg-light d-flex align-items-center justify-content-center" 
@@ -158,51 +154,23 @@
 </div>
 
 <script>
-// Image preview for new upload
-document.getElementById('image').addEventListener('change', function(e) {
-    const file = e.target.files[0];
+// Live preview when image_url changes
+document.getElementById('image_url').addEventListener('input', function(e) {
+    const url = e.target.value.trim();
     const preview = document.getElementById('image-preview');
-    
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.innerHTML = `
-                <img src="${e.target.result}" alt="Preview" 
-                     class="img-thumbnail" style="max-width: 100%; height: 200px; object-fit: cover;">
-                <div class="mt-2">
-                    <small class="text-success">Hình ảnh mới</small>
-                </div>
-            `;
-        }
-        reader.readAsDataURL(file);
+    let img = document.getElementById('preview-img');
+    if (!img) {
+        img = document.createElement('img');
+        img.id = 'preview-img';
+        img.className = 'img-thumbnail';
+        img.style.cssText = 'max-width: 100%; height: 200px; object-fit: cover;';
+        preview.innerHTML = '';
+        preview.appendChild(img);
+    }
+    if (url) {
+        img.src = url;
     } else {
-        // Reset to original image
-        <?php if ($product['image_url']): ?>
-            preview.innerHTML = `
-                <?php 
-                $imageSrc = (strpos($product['image_url'], 'http') === 0) 
-                    ? $product['image_url'] 
-                    : '/uploads/' . $product['image_url'];
-                ?>
-                <img src="<?= htmlspecialchars($imageSrc) ?>" 
-                     alt="<?= htmlspecialchars($product['name']) ?>" 
-                     class="img-thumbnail" style="max-width: 100%; height: 200px; object-fit: cover;"
-                     onerror="this.style.display='none'">
-                <div class="mt-2">
-                    <small class="text-muted">Hình ảnh hiện tại</small>
-                </div>
-            `;
-        <?php else: ?>
-            preview.innerHTML = `
-                <div class="bg-light d-flex align-items-center justify-content-center" 
-                     style="height: 200px;">
-                    <i class="fas fa-image text-muted fa-3x"></i>
-                </div>
-                <div class="mt-2">
-                    <small class="text-muted">Chưa có hình ảnh</small>
-                </div>
-            `;
-        <?php endif; ?>
+        preview.innerHTML = '<div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;"><i class="fas fa-image text-muted fa-3x"></i></div><div class="mt-2"><small class="text-muted">Chưa có hình ảnh</small></div>';
     }
 });
 

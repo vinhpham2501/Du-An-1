@@ -1,11 +1,11 @@
-<?php $title = htmlspecialchars($product['name']) . ' - Chi tiết sản phẩm'; ?>
+<?php use App\Helpers\ImageHelper; $title = htmlspecialchars($product['name']) . ' - Chi tiết sản phẩm'; ?>
 
 <!-- Breadcrumb -->
 <nav aria-label="breadcrumb" class="py-3">
     <div class="container">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Trang chủ</a></li>
-            <li class="breadcrumb-item"><a href="/?category_id=<?= $product['category_id'] ?>" class="text-decoration-none"><?= htmlspecialchars($product['category_name']) ?></a></li>
+            <li class="breadcrumb-item"><a href="/products?category_id=<?= $product['category_id'] ?>" class="text-decoration-none"><?= htmlspecialchars($product['category_name']) ?></a></li>
             <li class="breadcrumb-item active" aria-current="page"><?= htmlspecialchars($product['name']) ?></li>
         </ol>
     </div>
@@ -18,11 +18,21 @@
             <!-- Product Image -->
             <div class="col-lg-6 mb-4">
                 <div class="product-image-container">
-                    <?php if (!empty($product['image_url'])): ?>
-                        <img src="<?= htmlspecialchars($product['image_url']) ?>" 
-                             class="img-fluid rounded shadow-lg" 
-                             alt="<?= htmlspecialchars($product['name']) ?>"
-                             style="width: 100%; height: 500px; object-fit: cover;">
+                    <?php 
+                        $detailImageSrc = ImageHelper::getImageSrc($product['image_url'] ?? null);
+                    ?>
+                    <?php if (!empty($detailImageSrc)): ?>
+                        <div class="position-relative" style="width: 100%; height: 500px;">
+                            <img src="<?= htmlspecialchars($detailImageSrc) ?>" 
+                                 class="img-fluid rounded shadow-lg w-100 h-100" 
+                                 alt="<?= htmlspecialchars($product['name']) ?>"
+                                 style="object-fit: cover;"
+                                 loading="eager" decoding="async"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="bg-light rounded shadow-lg position-absolute top-0 start-0 w-100 h-100 d-none align-items-center justify-content-center">
+                                <i class="fas fa-utensils fa-5x text-muted"></i>
+                            </div>
+        	            </div>
                     <?php else: ?>
                         <div class="bg-light d-flex align-items-center justify-content-center rounded shadow-lg" 
                              style="width: 100%; height: 500px;">
@@ -136,8 +146,11 @@
                     <div class="product-card h-100 shadow-sm">
                         <div class="position-relative">
                             <a href="/product/<?= $relatedProduct['id'] ?>" class="text-decoration-none">
-                                <?php if (!empty($relatedProduct['image_url'])): ?>
-                                    <img src="<?= htmlspecialchars($relatedProduct['image_url']) ?>" 
+                                <?php 
+                                    $relatedImg = ImageHelper::getImageSrc($relatedProduct['image_url'] ?? null);
+                                ?>
+                                <?php if (!empty($relatedImg)): ?>
+                                    <img src="<?= htmlspecialchars($relatedImg) ?>" 
                                          class="card-img-top" alt="<?= htmlspecialchars($relatedProduct['name']) ?>" 
                                          style="height: 200px; object-fit: cover;">
                                 <?php else: ?>

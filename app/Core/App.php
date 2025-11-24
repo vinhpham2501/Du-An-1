@@ -28,6 +28,7 @@ class App
         // Home routes
         $this->router->get('/', 'HomeController@index');
         $this->router->get('/product', 'HomeController@product');
+        $this->router->get('/products', 'HomeController@products');
         $this->router->get('/product/{id}', 'ProductController@detail');
         $this->router->get('/api/products/filter', 'HomeController@filterProducts');
         $this->router->get('/category', 'HomeController@category');

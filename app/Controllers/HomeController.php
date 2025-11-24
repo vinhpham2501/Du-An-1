@@ -24,6 +24,53 @@ class HomeController extends Controller
         $this->contactModel = new Contact();
     }
 
+    public function products()
+    {
+        try {
+            $currentPage = (int)($_GET['page'] ?? 1);
+            $currentPage = max(1, $currentPage);
+            $itemsPerPage = 12;
+            $offset = ($currentPage - 1) * $itemsPerPage;
+
+            $filters = [
+                'limit' => $itemsPerPage,
+                'offset' => $offset,
+                'sort' => $_GET['sort'] ?? 'newest'
+            ];
+
+            if (!empty($_GET['category_id'])) {
+                $filters['category_id'] = $_GET['category_id'];
+            }
+
+            if (!empty($_GET['search'])) {
+                $filters['search'] = $_GET['search'];
+            }
+
+            $products = $this->productModel->getAll($filters);
+            $totalProducts = $this->productModel->count($filters);
+            $categories = $this->categoryModel->getAll();
+
+            $totalPages = (int)ceil($totalProducts / $itemsPerPage);
+
+            return $this->render('home/products', [
+                'products' => $products,
+                'categories' => $categories,
+                'filters' => $filters,
+                'pagination' => [
+                    'currentPage' => $currentPage,
+                    'totalPages' => $totalPages,
+                    'totalProducts' => $totalProducts,
+                    'itemsPerPage' => $itemsPerPage
+                ]
+            ]);
+        } catch (\Exception $e) {
+            error_log('Error in HomeController@products: ' . $e->getMessage());
+            return $this->render('errors/500', [
+                'message' => 'Có lỗi xảy ra, vui lòng thử lại sau'
+            ]);
+        }
+    }
+
     public function index()
     {
         try {

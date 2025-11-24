@@ -49,8 +49,12 @@ class CartController extends Controller
             return $this->json(['success' => false, 'message' => 'Invalid request method']);
         }
         
-        // Đọc JSON data từ request body
-        $input = json_decode(file_get_contents('php://input'), true);
+        // Đọc JSON data từ request body (an toàn với form-urlencoded)
+        $rawBody = file_get_contents('php://input');
+        $input = json_decode($rawBody, true);
+        if (!is_array($input)) {
+            $input = [];
+        }
         
         $productId = $input['product_id'] ?? ($_POST['product_id'] ?? 0);
         $quantity = (int)($input['quantity'] ?? ($_POST['quantity'] ?? 1));

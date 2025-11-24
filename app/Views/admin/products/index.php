@@ -1,4 +1,4 @@
-<?php $title = 'Quản lý sản phẩm - Admin Panel'; ?>
+<?php use App\Helpers\ImageHelper; $title = 'Quản lý sản phẩm - Admin Panel'; ?>
 
 <div class="row">
     <div class="col-12">
@@ -90,13 +90,8 @@
                                 <?php foreach ($products as $product): ?>
                                     <tr>
                                         <td>
-                                            <?php if ($product['image_url']): ?>
-                                                <?php 
-                                                // Kiểm tra xem có phải URL hay file local
-                                                $imageSrc = (strpos($product['image_url'], 'http') === 0) 
-                                                    ? $product['image_url'] 
-                                                    : '/uploads/' . $product['image_url'];
-                                                ?>
+                                            <?php if (!empty($product['image_url'])): ?>
+                                                <?php $imageSrc = ImageHelper::getImageSrc($product['image_url']); ?>
                                                 <img src="<?= htmlspecialchars($imageSrc) ?>" 
                                                      alt="<?= htmlspecialchars($product['name']) ?>" 
                                                      class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;"

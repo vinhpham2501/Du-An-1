@@ -1,4 +1,4 @@
-<?php $title = htmlspecialchars($product['name']) . ' - Restaurant Order System'; ?>
+<?php use App\Helpers\ImageHelper; $title = htmlspecialchars($product['name']) . ' - Restaurant Order System'; ?>
 
 <div class="container py-5">
     <nav aria-label="breadcrumb">
@@ -10,8 +10,11 @@
 
     <div class="row">
         <div class="col-md-6">
-            <?php if ($product['image']): ?>
-                <img src="/public/uploads/<?= htmlspecialchars($product['image']) ?>" 
+            <?php 
+                $mainImageSrc = ImageHelper::getImageSrc($product['image_url'] ?? null);
+            ?>
+            <?php if (!empty($mainImageSrc)): ?>
+                <img src="<?= htmlspecialchars($mainImageSrc) ?>" 
                      class="img-fluid rounded" alt="<?= htmlspecialchars($product['name']) ?>">
             <?php else: ?>
                 <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 400px;">
@@ -148,8 +151,11 @@
                         <?php if ($relatedProduct['id'] != $product['id']): ?>
                             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                                 <div class="card h-100">
-                                    <?php if ($relatedProduct['image']): ?>
-                                        <img src="/public/uploads/<?= htmlspecialchars($relatedProduct['image']) ?>" 
+                                    <?php 
+                                        $relatedImageSrc = ImageHelper::getImageSrc($relatedProduct['image_url'] ?? null);
+                                    ?>
+                                    <?php if (!empty($relatedImageSrc)): ?>
+                                        <img src="<?= htmlspecialchars($relatedImageSrc) ?>" 
                                              class="card-img-top" style="height: 200px; object-fit: cover;">
                                     <?php else: ?>
                                         <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">

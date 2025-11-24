@@ -1,4 +1,4 @@
-<?php $title = 'Trang chủ - Sắc Việt Traditional Shop'; ?>
+<?php use App\Helpers\ImageHelper; $title = 'Trang chủ - Sắc Việt Traditional Shop'; ?>
 
 <!-- Include Homepage CSS -->
 <link rel="stylesheet" href="/css/homepage.css">
@@ -6,10 +6,7 @@
 <!-- Include Homepage JavaScript -->
 <script src="/js/homepage.js"></script>
 
-<?php
-// Include CSS cho trang chủ
-echo '<link href="/public/css/homepage.css" rel="stylesheet">';
-?>
+<?php // removed duplicate CSS include to avoid double-loading styles ?>
 
 <!-- Hero Banner Section (Traditional Clothing) -->
 <?php 
@@ -109,9 +106,12 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
                                 <div class="col-lg-6">
                                     <div class="hero-image text-center">
                                         <div class="dish-image-container">
-                                            <?php if (!empty($product['image_url'])): ?>
-                                                <img src="<?= htmlspecialchars($product['image_url']) ?>" 
-                                                     alt="<?= htmlspecialchars($product['name']) ?>" class="dish-image">
+                                            <?php 
+                                                $slideImg = ImageHelper::getImageSrc($product['image_url'] ?? null);
+                                            ?>
+                                            <?php if (!empty($slideImg)): ?>
+                                                <img src="<?= htmlspecialchars($slideImg) ?>" 
+                                                     alt="<?= htmlspecialchars($product['name']) ?>" class="dish-image" decoding="async" fetchpriority="high">
                                             <?php else: ?>
                                                 <div class="dish-image d-flex align-items-center justify-content-center bg-light">
                                                     <i class="fas fa-shirt fa-5x text-muted"></i>
@@ -162,10 +162,13 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
                                     <div class="product-card h-100 shadow-sm">
                                         <div class="position-relative">
                                             <a href="/product/<?= $product['id'] ?>" class="text-decoration-none">
-                                                <?php if (!empty($product['image_url'])): ?>
-                                                    <img src="<?= htmlspecialchars($product['image_url']) ?>" 
+                                                <?php 
+                                                    $topImg = ImageHelper::getImageSrc($product['image_url'] ?? null);
+                                                ?>
+                                                <?php if (!empty($topImg)): ?>
+                                                    <img src="<?= htmlspecialchars($topImg) ?>" 
                                                          class="card-img-top" alt="<?= htmlspecialchars($product['name']) ?>" 
-                                                         style="height: 200px; object-fit: cover;">
+                                                         style="height: 200px; object-fit: cover;" loading="lazy" decoding="async">
                                                 <?php else: ?>
                                                     <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
                                                          style="height: 200px;">
@@ -242,10 +245,13 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
                                     <div class="product-card h-100 shadow-sm">
                                         <div class="position-relative">
                                             <a href="/product/<?= $product['id'] ?>" class="text-decoration-none">
-                                                <?php if (!empty($product['image_url'])): ?>
-                                                    <img src="<?= htmlspecialchars($product['image_url']) ?>" 
+                                                <?php 
+                                                    $newImg = ImageHelper::getImageSrc($product['image_url'] ?? null);
+                                                ?>
+                                                <?php if (!empty($newImg)): ?>
+                                                    <img src="<?= htmlspecialchars($newImg) ?>" 
                                                          class="card-img-top" alt="<?= htmlspecialchars($product['name']) ?>" 
-                                                         style="height: 200px; object-fit: cover;">
+                                                         style="height: 200px; object-fit: cover;" loading="lazy" decoding="async">
                                                 <?php else: ?>
                                                     <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
                                                          style="height: 200px;">
@@ -319,10 +325,13 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
                                     <div class="product-card h-100 shadow-sm">
                                         <div class="position-relative">
                                             <a href="/product/<?= $product['id'] ?>" class="text-decoration-none">
-                                                <?php if (!empty($product['image_url'])): ?>
-                                                    <img src="<?= htmlspecialchars($product['image_url']) ?>" 
+                                                <?php 
+                                                    $newImg = ImageHelper::getImageSrc($product['image_url'] ?? null);
+                                                ?>
+                                                <?php if (!empty($newImg)): ?>
+                                                    <img src="<?= htmlspecialchars($newImg) ?>" 
                                                          class="card-img-top" alt="<?= htmlspecialchars($product['name']) ?>" 
-                                                         style="height: 200px; object-fit: cover;">
+                                                         style="height: 200px; object-fit: cover;" loading="lazy" decoding="async">
                                                 <?php else: ?>
                                                     <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
                                                          style="height: 200px;">
@@ -418,10 +427,13 @@ echo '<link href="/public/css/homepage.css" rel="stylesheet">';
                         <div class="product-card h-100 shadow-sm">
                             <div class="position-relative">
                                 <a href="/product/<?= $product['id'] ?>" class="text-decoration-none">
-                                    <?php if (!empty($product['image_url'])): ?>
-                                        <img src="<?= htmlspecialchars($product['image_url']) ?>" 
+                                    <?php 
+                                        $gridImg = ImageHelper::getImageSrc($product['image_url'] ?? null);
+                                    ?>
+                                    <?php if (!empty($gridImg)): ?>
+                                        <img src="<?= htmlspecialchars($gridImg) ?>" 
                                              class="card-img-top" alt="<?= htmlspecialchars($product['name']) ?>" 
-                                             style="height: 200px; object-fit: cover;">
+                                             style="height: 200px; object-fit: cover;" loading="lazy" decoding="async">
                                     <?php else: ?>
                                         <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
                                              style="height: 200px;">
