@@ -1,4 +1,4 @@
-<?php $title = 'Chi tiết đơn hàng #' . ($order['id'] ?? '') . ' - Restaurant Order System'; ?>
+<?php $title = 'Chi tiết đơn hàng #' . ($order['id'] ?? '') . ' - Sắc Việt'; ?>
 
 <div class="container py-5">
     <div class="row">
@@ -234,7 +234,7 @@ function cancelOrder(orderId) {
 }
 
 function reorder() {
-    if (confirm('Bạn có muốn đặt lại tất cả món ăn trong đơn hàng này?')) {
+    if (confirm('Bạn có muốn đặt lại tất cả sản phẩm trong đơn hàng này?')) {
         // Add all items to cart
         <?php foreach ($orderItems as $item): ?>
             <?php if (!empty($item['product_id']) && !empty($item['quantity'])): ?>
@@ -249,7 +249,7 @@ function reorder() {
         <?php endforeach; ?>
         
         setTimeout(() => {
-            showAlert('success', 'Đã thêm tất cả món ăn vào giỏ hàng');
+            showAlert('success', 'Đã thêm tất cả sản phẩm vào giỏ hàng');
             setTimeout(() => {
                 window.location.href = '/cart';
             }, 1000);

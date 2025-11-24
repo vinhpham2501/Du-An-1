@@ -1,4 +1,4 @@
-<?php $title = 'Đăng ký - Restaurant Order System'; ?>
+<?php $title = 'Đăng ký - Sắc Việt'; ?>
 
 <div class="container py-5">
     <div class="row justify-content-center">
@@ -8,7 +8,7 @@
                     <div class="text-center mb-4">
                         <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
                         <h2 class="card-title">Đăng ký tài khoản</h2>
-                        <p class="text-muted">Tạo tài khoản để đặt món ăn</p>
+                        <p class="text-muted">Tạo tài khoản để mua sắm sản phẩm</p>
                     </div>
                     
                     <?php if (isset($error)): ?>

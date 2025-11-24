@@ -34,7 +34,7 @@ class Product extends Model
         }
 
         if (isset($filters['category_id'])) {
-            $conditions[] = "p.category_id = ?";
+            $conditions[] = "p.MaDM = ?";
             $params[] = $filters['category_id'];
         }
 
@@ -44,7 +44,7 @@ class Product extends Model
         }
 
         if (isset($filters['search'])) {
-            $conditions[] = "(p.name LIKE ? OR p.description LIKE ?)";
+            $conditions[] = "(p.TenSP LIKE ? OR p.MoTa LIKE ?)";
             $params[] = '%' . $filters['search'] . '%';
             $params[] = '%' . $filters['search'] . '%';
         }
@@ -103,7 +103,7 @@ class Product extends Model
         $params[] = 1;
 
         if (isset($filters['category_id'])) {
-            $conditions[] = "p.category_id = ?";
+            $conditions[] = "p.MaDM = ?";
             $params[] = $filters['category_id'];
         }
 
@@ -113,7 +113,7 @@ class Product extends Model
         }
 
         if (isset($filters['search'])) {
-            $conditions[] = "(p.name LIKE ? OR p.description LIKE ?)";
+            $conditions[] = "(p.TenSP LIKE ? OR p.MoTa LIKE ?)";
             $params[] = '%' . $filters['search'] . '%';
             $params[] = '%' . $filters['search'] . '%';
         }

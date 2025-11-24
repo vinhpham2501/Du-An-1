@@ -1,4 +1,4 @@
-<?php use App\Helpers\ImageHelper; $title = htmlspecialchars($product['name']) . ' - Restaurant Order System'; ?>
+<?php use App\Helpers\ImageHelper; $title = htmlspecialchars($product['name']) . ' - Sắc Việt'; ?>
 
 <div class="container py-5">
     <nav aria-label="breadcrumb">
@@ -18,7 +18,7 @@
                      class="img-fluid rounded" alt="<?= htmlspecialchars($product['name']) ?>">
             <?php else: ?>
                 <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 400px;">
-                    <i class="fas fa-utensils fa-5x text-muted"></i>
+                    <i class="fas fa-shirt fa-5x text-muted"></i>
                 </div>
             <?php endif; ?>
         </div>
@@ -159,13 +159,13 @@
                                              class="card-img-top" style="height: 200px; object-fit: cover;">
                                     <?php else: ?>
                                         <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                            <i class="fas fa-utensils fa-3x text-muted"></i>
+                                            <i class="fas fa-shirt fa-3x text-muted"></i>
                                         </div>
                                     <?php endif; ?>
                                     
                                     <div class="card-body d-flex flex-column">
                                         <h6 class="card-title">
-                                            <a href="/product?id=<?= $relatedProduct['id'] ?>" class="text-decoration-none">
+                                            <a href="/product/<?= $relatedProduct['id'] ?>" class="text-decoration-none">
                                                 <?= htmlspecialchars($relatedProduct['name']) ?>
                                             </a>
                                         </h6>

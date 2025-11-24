@@ -1,4 +1,4 @@
-<?php $title = 'Giới thiệu - Restaurant Order System'; ?>
+<?php $title = 'Giới thiệu - Sắc Việt'; ?>
 
 <!-- Custom CSS for About Page -->
 <style>

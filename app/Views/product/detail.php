@@ -74,7 +74,7 @@
 
                     <!-- Description -->
                     <div class="description mb-4">
-                        <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>Mô tả món ăn</h5>
+                        <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>Mô tả sản phẩm</h5>
                         <p class="text-muted lh-lg"><?= nl2br(htmlspecialchars($product['description'])) ?></p>
                     </div>
 
@@ -117,7 +117,7 @@
                     <?php else: ?>
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
-                            Món ăn này hiện tại đã hết hàng. Vui lòng quay lại sau!
+                            Sản phẩm này hiện tại đã hết hàng. Vui lòng quay lại sau!
                         </div>
                     <?php endif; ?>
                 </div>
@@ -133,10 +133,10 @@
         <div class="row mb-4">
             <div class="col-12 text-center">
                 <h2 class="section-title">
-                    <i class="fas fa-utensils me-2"></i>
-                    Món ăn cùng loại
+                    <i class="fas fa-shirt me-2"></i>
+                    Sản phẩm cùng loại
                 </h2>
-                <p class="text-muted">Những món ăn khác bạn có thể quan tâm</p>
+                <p class="text-muted">Những sản phẩm khác bạn có thể quan tâm</p>
             </div>
         </div>
         
@@ -156,7 +156,7 @@
                                 <?php else: ?>
                                     <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
                                          style="height: 200px;">
-                                        <i class="fas fa-utensils fa-3x text-muted"></i>
+                                        <i class="fas fa-shirt fa-3x text-muted"></i>
                                     </div>
                                 <?php endif; ?>
                             </a>

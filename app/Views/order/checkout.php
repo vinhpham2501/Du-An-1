@@ -1,4 +1,4 @@
-<?php $title = 'Thanh toán - Restaurant Order System'; ?>
+<?php $title = 'Thanh toán - Sắc Việt'; ?>
 
 <div class="container py-5">
     <div class="row">

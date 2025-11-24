@@ -1,4 +1,4 @@
-<?php $title = 'Giỏ hàng - Restaurant Order System'; ?>
+<?php $title = 'Giỏ hàng - Sắc Việt'; ?>
 
 <div class="container py-5">
     <div class="row">
@@ -12,10 +12,10 @@
                 <div class="text-center py-5">
                     <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
                     <h4>Giỏ hàng trống</h4>
-                    <p class="text-muted">Hãy thêm một số món ăn vào giỏ hàng của bạn.</p>
-                    <a href="/" class="btn btn-primary">
-                        <i class="fas fa-utensils me-2"></i>
-                        Xem thực đơn
+                    <p class="text-muted">Hãy thêm một số sản phẩm vào giỏ hàng của bạn.</p>
+                    <a href="/products" class="btn btn-primary">
+                        <i class="fas fa-shirt me-2"></i>
+                        Xem sản phẩm
                     </a>
                 </div>
             <?php else: ?>
@@ -40,7 +40,7 @@
                                         
                                         <div class="col-md-4">
                                             <h6 class="mb-1">
-                                                <a href="/product?id=<?= $item['product']['id'] ?>" class="text-decoration-none">
+                                                <a href="/product/<?= $item['product']['id'] ?>" class="text-decoration-none">
                                                     <?= htmlspecialchars($item['product']['name']) ?>
                                                 </a>
                                             </h6>
