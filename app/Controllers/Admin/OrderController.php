@@ -113,54 +113,34 @@ class OrderController extends Controller
     {
         try {
             $currentStatus = $order['status'] ?? 'pending';
-            $currentPaymentStatus = $order['payment_status'] ?? 'pending';
             
-            // Don't update if already completed or cancelled
+            // Không cập nhật nếu đã hoàn thành hoặc đã hủy
             if (in_array($currentStatus, ['completed', 'cancelled'])) {
                 return false;
             }
-            
-            // Simple status progression
+
+            // Chuỗi trạng thái đơn giản
             $statusMap = [
                 'pending' => 'confirmed',
                 'confirmed' => 'preparing',
                 'preparing' => 'delivering',
                 'delivering' => 'completed'
             ];
-            
+
             $newStatus = $statusMap[$currentStatus] ?? $currentStatus;
-            
-            // Update payment status
-            $newPaymentStatus = $currentPaymentStatus;
-            if ($currentPaymentStatus === 'pending') {
-                if (in_array($newStatus, ['delivering', 'completed'])) {
-                    $newPaymentStatus = 'paid';
-                } else {
-                    $newPaymentStatus = 'cash';
-                }
+
+            if ($newStatus === $currentStatus) {
+                return false;
             }
-            
-            // Only update if there's a change
-            if ($newStatus !== $currentStatus || $newPaymentStatus !== $currentPaymentStatus) {
-                // Use the model's update method instead of direct database access
-                $updateData = [];
-                if ($newStatus !== $currentStatus) {
-                    $updateData['status'] = $newStatus;
-                }
-                if ($newPaymentStatus !== $currentPaymentStatus) {
-                    $updateData['payment_status'] = $newPaymentStatus;
-                }
-                
-                if (!empty($updateData)) {
-                    $result = $this->orderModel->update($id, $updateData);
-                    
-                    if ($result) {
-                        error_log("Updated order {$id}: {$currentStatus} -> {$newStatus}, {$currentPaymentStatus} -> {$newPaymentStatus}");
-                        return true;
-                    }
-                }
+
+            // Cập nhật trực tiếp cột TrangThai trong DON_HANG
+            $result = $this->orderModel->updateStatus($id, $newStatus);
+
+            if ($result) {
+                error_log("Updated order {$id}: {$currentStatus} -> {$newStatus}");
+                return true;
             }
-            
+
             return false;
         } catch (\Exception $e) {
             error_log("Simple update error: " . $e->getMessage());
@@ -185,26 +165,14 @@ class OrderController extends Controller
         if (!$order) {
             return $this->json(['success' => false, 'message' => 'Đơn hàng không tồn tại']);
         }
-        
-        // Cập nhật trạng thái đơn hàng
-        $updateData = ['status' => $status];
-        
-        // Logic tự động cập nhật trạng thái thanh toán
-        $paymentMethod = $order['payment_method'] ?? 'cod';
-        $currentPaymentStatus = $order['payment_status'] ?? 'pending';
-        
-        if ($paymentMethod === 'cod') {
-            // COD: Tự động cập nhật khi hoàn thành
-            if ($status === 'completed' && $currentPaymentStatus !== 'paid') {
-                $updateData['payment_status'] = 'paid';
-            } elseif ($status === 'delivering' && $currentPaymentStatus === 'pending') {
-                $updateData['payment_status'] = 'cash';
-            }
+
+        // Cập nhật trạng thái đơn hàng vào cột TrangThai
+        $updated = $this->orderModel->updateStatus($id, $status);
+
+        if (!$updated) {
+            return $this->json(['success' => false, 'message' => 'Không thể cập nhật trạng thái đơn hàng']);
         }
-        // Chuyển khoản: Giữ nguyên trạng thái thanh toán
-        
-        $this->orderModel->update($id, $updateData);
-        
+
         return $this->json(['success' => true, 'message' => 'Cập nhật trạng thái thành công']);
     }
 
