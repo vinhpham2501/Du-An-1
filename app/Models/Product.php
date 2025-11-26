@@ -8,6 +8,27 @@ class Product extends Model
 {
     protected $table = 'SAN_PHAM';
 
+    public function create($data)
+    {
+        $sql = "INSERT INTO {$this->table} (TenSP, MoTa, Gia, SoLuong, HinhAnh, TrangThai, MaDM)
+                VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $this->db->prepare($sql);
+        $soLuong = isset($data['quantity']) ? (int)$data['quantity'] : 0;
+        $ok = $stmt->execute([
+            $data['name'] ?? '',
+            $data['description'] ?? null,
+            $data['price'] ?? 0,
+            $soLuong,
+            $data['image_url'] ?? null,
+            isset($data['is_available']) ? (int)$data['is_available'] : 1,
+            $data['category_id'] ?? null,
+        ]);
+        if ($ok) {
+            return $this->db->lastInsertId();
+        }
+        return false;
+    }
+
     public function getAll($filters = [])
     {
         $sql = "SELECT 
@@ -247,5 +268,37 @@ class Product extends Model
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$id]);
         return $stmt->fetch();
+    }
+
+    public function update($id, $data)
+    {
+        $map = [
+            'name' => 'TenSP',
+            'description' => 'MoTa',
+            'price' => 'Gia',
+            'quantity' => 'SoLuong',
+            'image_url' => 'HinhAnh',
+            'is_available' => 'TrangThai',
+            'category_id' => 'MaDM',
+        ];
+        $set = [];
+        $params = [];
+        foreach ($data as $k => $v) {
+            if (isset($map[$k])) {
+                $set[] = $map[$k] . ' = ?';
+                $params[] = $v;
+            }
+        }
+        if (empty($set)) return false;
+        $sql = "UPDATE {$this->table} SET " . implode(', ', $set) . " WHERE MaSP = ?";
+        $params[] = $id;
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($params);
+    }
+
+    public function delete($id)
+    {
+        $stmt = $this->db->prepare("DELETE FROM {$this->table} WHERE MaSP = ?");
+        return $stmt->execute([$id]);
     }
 }

@@ -64,15 +64,14 @@
                                     <td><?= $user['id'] ?></td>
                                     <td>
                                         <div>
-                                            <strong><?= htmlspecialchars($user['full_name']) ?></strong><br>
-                                            <small class="text-muted">@<?= htmlspecialchars($user['username']) ?></small>
+                                            <strong><?= htmlspecialchars($user['full_name'] ?? '') ?></strong>
                                         </div>
                                     </td>
                                     <td>
                                         <div>
-                                            <div><?= htmlspecialchars($user['email']) ?></div>
-                                            <?php if ($user['phone']): ?>
-                                                <small class="text-muted"><?= htmlspecialchars($user['phone']) ?></small>
+                                            <div><?= htmlspecialchars($user['email'] ?? '') ?></div>
+                                            <?php if (!empty($user['phone'])): ?>
+                                                <small class="text-muted"><?= htmlspecialchars($user['phone'] ?? '') ?></small>
                                             <?php endif; ?>
                                         </div>
                                     </td>

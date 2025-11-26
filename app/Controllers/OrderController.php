@@ -6,12 +6,14 @@ use App\Core\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Address;
 
 class OrderController extends Controller
 {
     private $orderModel;
     private $orderItemModel;
     private $productModel;
+    private $addressModel;
 
     public function __construct()
     {
@@ -19,6 +21,7 @@ class OrderController extends Controller
         $this->orderModel = new Order();
         $this->orderItemModel = new OrderItem();
         $this->productModel = new Product();
+        $this->addressModel = new Address();
     }
 
     public function checkout()
@@ -64,7 +67,7 @@ class OrderController extends Controller
             $this->redirect('/cart');
         }
         
-        // Lấy thông tin giao hàng đã lưu từ đơn hàng gần nhất
+        // Lấy thông tin giao hàng đã lưu từ địa chỉ mặc định hoặc đơn hàng gần nhất
         $savedInfo = $this->getSavedDeliveryInfo($_SESSION['user_id']);
         
         return $this->render('order/checkout', [
@@ -128,13 +131,15 @@ class OrderController extends Controller
                 $this->redirect('/cart');
             }
             
+            // Lưu/ cập nhật địa chỉ giao hàng mặc định
+            $fullAddress = $deliveryAddress;
+            $addressId = $this->addressModel->createOrUpdateDefault($_SESSION['user_id'], $fullAddress, $note);
+
             // Create order
             $orderData = [
                 'user_id' => $_SESSION['user_id'],
+                'address_id' => $addressId ?: null,
                 'total_amount' => $total,
-                'delivery_name' => $deliveryName,
-                'delivery_phone' => $deliveryPhone,
-                'delivery_address' => $deliveryAddress,
                 'notes' => $note,
                 'status' => 'pending',
                 'payment_method' => $paymentMethod,
@@ -295,16 +300,15 @@ class OrderController extends Controller
 
     private function getSavedDeliveryInfo($userId)
     {
-        // Lấy thông tin giao hàng từ đơn hàng gần nhất
-        $lastOrder = $this->orderModel->getLastOrderByUserId($userId);
-        
-        if ($lastOrder) {
-            return [
-                'phone' => $lastOrder['delivery_phone'],
-                'address' => $lastOrder['delivery_address']
-            ];
+        // Ưu tiên địa chỉ giao hàng mặc định
+        $address = $this->addressModel->getDefaultForUser($userId);
+        $info = [
+            'phone' => $_SESSION['user_phone'] ?? '',
+            'address' => ''
+        ];
+        if ($address) {
+            $info['address'] = $address['DiaChi'];
         }
-        
-        return [];
+        return $info;
     }
 }

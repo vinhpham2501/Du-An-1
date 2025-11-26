@@ -4,15 +4,18 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Models\User;
+use App\Models\Address;
 
 class AuthController extends Controller
 {
     private $userModel;
+    private $addressModel;
 
     public function __construct()
     {
         parent::__construct();
         $this->userModel = new User();
+        $this->addressModel = new Address();
     }
 
     public function login()
@@ -38,6 +41,7 @@ class AuthController extends Controller
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['full_name'];
             $_SESSION['user_email'] = $user['email'];
+            $_SESSION['user_phone'] = $user['phone'] ?? '';
             $_SESSION['role'] = $user['role'];
             
             // Redirect based on role
@@ -115,6 +119,12 @@ class AuthController extends Controller
         $this->requireAuth();
         
         $user = $this->userModel->findById($_SESSION['user_id']);
+
+        // Lấy địa chỉ giao hàng mặc định từ bảng DIA_CHI_GIAO_HANG để hiển thị trong profile
+        $defaultAddress = $this->addressModel->getDefaultForUser($_SESSION['user_id']);
+        if ($defaultAddress && !empty($defaultAddress['DiaChi'])) {
+            $user['address'] = $defaultAddress['DiaChi'];
+        }
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $fullName = $_POST['name'] ?? '';
@@ -130,8 +140,14 @@ class AuthController extends Controller
                 'phone' => $phone,
                 'address' => $address
             ]);
+
+            // Lưu địa chỉ giao hàng mặc định để checkout tự động lấy ra
+            if (!empty($address)) {
+                $this->addressModel->createOrUpdateDefault($_SESSION['user_id'], $address, null);
+            }
             
             $_SESSION['user_name'] = $fullName;
+            $_SESSION['user_phone'] = $phone;
             $_SESSION['success'] = 'Cập nhật thông tin thành công!';
             $this->redirect('/profile');
         }

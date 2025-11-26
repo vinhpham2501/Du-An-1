@@ -186,9 +186,16 @@ class ProductController extends Controller
             return $this->json(['success' => false, 'message' => 'Sản phẩm không tồn tại']);
         }
         
-        $this->productModel->delete($productId);
-        
-        return $this->json(['success' => true, 'message' => 'Xóa sản phẩm thành công']);
+        try {
+            if ($this->productModel->delete($productId)) {
+                return $this->json(['success' => true, 'message' => 'Xóa sản phẩm thành công']);
+            }
+        } catch (\Throwable $e) {
+            // Có thể do ràng buộc FK (đã có trong đơn hàng). Fallback: ẩn sản phẩm
+        }
+        // Soft delete: đặt TrangThai = 0
+        $this->productModel->update($productId, ['is_available' => 0]);
+        return $this->json(['success' => true, 'message' => 'Sản phẩm đã được ẩn do đang được tham chiếu trong đơn hàng']);
     }
 
     private function uploadImage($file)

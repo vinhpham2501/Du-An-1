@@ -8,6 +8,25 @@ class Order extends Model
 {
     protected $table = 'DON_HANG';
 
+    public function create($data)
+    {
+        // Map input fields to database columns
+        $maKH = $data['user_id'] ?? null;
+        $maDC = $data['address_id'] ?? null; // optional
+        $tongTien = $data['total_amount'] ?? 0;
+        $trangThai = $this->mapStatus($data['status'] ?? 'pending');
+        $pttt = $data['payment_method'] ?? null;
+        $ghiChu = $data['notes'] ?? null;
+
+        $sql = "INSERT INTO {$this->table} (MaKH, MaDC, TongTien, TrangThai, PhuongThucThanhToan, GhiChu)
+                VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $this->db->prepare($sql);
+        if ($stmt->execute([$maKH, $maDC, $tongTien, $trangThai, $pttt, $ghiChu])) {
+            return $this->db->lastInsertId();
+        }
+        return false;
+    }
+
     public function findById($id)
     {
         $sql = "SELECT 
@@ -202,17 +221,27 @@ class Order extends Model
         return $stmt->execute([$status, $id]);
     }
 
-    // Ghi đè update để dùng khóa MaDH thay vì cột id chung
+    // Ghi đè update để map field app -> cột DB và dùng khóa MaDH
     public function update($id, $data)
     {
-        $fields = array_keys($data);
-        $setClause = implode(' = ?, ', $fields) . ' = ?';
-
-        $sql = "UPDATE {$this->table} SET {$setClause} WHERE MaDH = ?";
-
-        $params = array_values($data);
+        if (empty($data)) return false;
+        $map = [
+            'user_id' => 'MaKH',
+            'address_id' => 'MaDC',
+            'total_amount' => 'TongTien',
+            'status' => 'TrangThai',
+            'payment_method' => 'PhuongThucThanhToan',
+            'notes' => 'GhiChu',
+        ];
+        $set = [];
+        $params = [];
+        foreach ($data as $k => $v) {
+            $col = $map[$k] ?? $k; // cho phép truyền trực tiếp tên cột VN nếu cần
+            $set[] = $col . ' = ?';
+            $params[] = $v;
+        }
+        $sql = "UPDATE {$this->table} SET " . implode(', ', $set) . " WHERE MaDH = ?";
         $params[] = $id;
-
         $stmt = $this->db->prepare($sql);
         return $stmt->execute($params);
     }
@@ -259,5 +288,19 @@ class Order extends Model
         $sql = "DELETE FROM CHI_TIET_DON_HANG WHERE MaDH = ?";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$orderId]);
+    }
+
+    private function mapStatus($status)
+    {
+        // Map internal status to Vietnamese labels used in reports
+        $map = [
+            'pending' => 'Chờ duyệt',
+            'confirmed' => 'Đã xác nhận',
+            'preparing' => 'Đang chuẩn bị',
+            'delivering' => 'Đang giao',
+            'completed' => 'Hoàn tất',
+            'cancelled' => 'Hủy',
+        ];
+        return $map[$status] ?? $status;
     }
 }
