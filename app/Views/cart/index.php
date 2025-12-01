@@ -24,7 +24,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <?php foreach ($cartItems as $item): ?>
-                                    <div class="row align-items-center border-bottom py-3" data-product-id="<?= $item['product']['id'] ?>">
+                                    <div class="row align-items-center border-bottom py-3" data-product-id="<?= $item['product']['id'] ?>" data-key="<?= $item['key'] ?>">
                                         <div class="col-md-2">
                                             <?php if (!empty($item['product']['image_url'])): ?>
                                                 <img src="<?= htmlspecialchars($item['product']['image_url']) ?>" 
@@ -45,25 +45,39 @@
                                                 </a>
                                             </h6>
                                             <small class="text-muted"><?= htmlspecialchars($item['product']['category_name'] ?? '') ?></small>
+                                            
+                                            <!-- Color and Size Display -->
+                                            <div class="mt-1">
+                                                <?php if (!empty($item['color'])): ?>
+                                                    <span class="badge bg-secondary me-1">
+                                                        <i class="fas fa-palette me-1"></i><?= htmlspecialchars($item['color']) ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                                <?php if (!empty($item['size'])): ?>
+                                                    <span class="badge bg-secondary">
+                                                        <i class="fas fa-ruler me-1"></i><?= htmlspecialchars($item['size']) ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
                                         
                                         <div class="col-md-2">
                                             <span class="fw-bold">
-                                                <?= number_format($item['price']) ?>đ
+                                                <?= number_format($item['product']['price']) ?>đ
                                             </span>
                                         </div>
                                         
                                         <div class="col-md-2">
                                             <div class="input-group input-group-sm" style="width: 120px;">
                                                 <button class="btn btn-outline-secondary" type="button" 
-                                                        onclick="updateQuantity(<?= $item['product']['id'] ?>, -1)">
+                                                        onclick="updateQuantity('<?= $item['key'] ?>', -1)">
                                                     <i class="fas fa-minus"></i>
                                                 </button>
                                                 <input type="number" class="form-control text-center quantity-input" 
                                                        value="<?= $item['quantity'] ?>" min="1" max="99"
-                                                       onchange="setQuantity(<?= $item['product']['id'] ?>, this.value)">
+                                                       onchange="setQuantity('<?= $item['key'] ?>', this.value)">
                                                 <button class="btn btn-outline-secondary" type="button" 
-                                                        onclick="updateQuantity(<?= $item['product']['id'] ?>, 1)">
+                                                        onclick="updateQuantity('<?= $item['key'] ?>', 1)">
                                                     <i class="fas fa-plus"></i>
                                                 </button>
                                             </div>
@@ -71,13 +85,13 @@
                                         
                                         <div class="col-md-1 text-end">
                                             <span class="fw-bold item-total">
-                                                <?= number_format($item['total']) ?>đ
+                                                <?= number_format($item['item_total'] ?? 0) ?>đ
                                             </span>
                                         </div>
                                         
                                         <div class="col-md-1 text-end">
                                             <button class="btn btn-sm btn-outline-danger" 
-                                                    onclick="removeItem(<?= $item['product']['id'] ?>)">
+                                                    onclick="removeItem('<?= $item['key'] ?>')">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
@@ -102,7 +116,7 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between mb-3">
                                     <span>Tổng tiền:</span>
-                                    <span class="fw-bold h5" id="total-amount"><?= number_format($total) ?>đ</span>
+                                    <span class="fw-bold h5" id="total-amount"><?= number_format($total ?? 0) ?>đ</span>
                                 </div>
                                 
                                 <div class="d-grid gap-2">
@@ -133,36 +147,36 @@
 </div>
 
 <script>
-function updateQuantity(productId, delta) {
-    const row = document.querySelector(`[data-product-id="${productId}"]`);
+function updateQuantity(cartKey, delta) {
+    const row = document.querySelector(`[data-key="${cartKey}"]`);
     const quantityInput = row.querySelector('.quantity-input');
     let currentValue = parseInt(quantityInput.value);
     let newValue = currentValue + delta;
     
     if (newValue >= 1 && newValue <= 99) {
         quantityInput.value = newValue;
-        updateCart(productId, newValue);
+        updateCart(cartKey, newValue);
     } else if (newValue <= 0) {
-        removeItem(productId);
+        removeItem(cartKey);
     }
 }
 
-function setQuantity(productId, quantity) {
+function setQuantity(cartKey, quantity) {
     quantity = parseInt(quantity);
     if (quantity >= 1 && quantity <= 99) {
-        updateCart(productId, quantity);
+        updateCart(cartKey, quantity);
     } else if (quantity <= 0) {
-        removeItem(productId);
+        removeItem(cartKey);
     }
 }
 
-function updateCart(productId, quantity) {
+function updateCart(cartKey, quantity) {
     fetch('/cart/update', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: `product_id=${productId}&quantity=${quantity}`
+        body: `cart_key=${cartKey}&quantity=${quantity}`
     })
     .then(response => response.json())
     .then(data => {
@@ -178,14 +192,14 @@ function updateCart(productId, quantity) {
     });
 }
 
-function removeItem(productId) {
+function removeItem(cartKey) {
     if (confirm('Bạn có chắc muốn xóa món này khỏi giỏ hàng?')) {
         fetch('/cart/remove', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: `product_id=${productId}`
+            body: `cart_key=${cartKey}`
         })
         .then(response => response.json())
         .then(data => {

@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\ProductImage;
 use App\Models\ProductColor;
+use App\Models\ProductSize;
 
 class ProductController extends Controller
 {
@@ -14,6 +15,7 @@ class ProductController extends Controller
     private $categoryModel;
     private $productImageModel;
     private $productColorModel;
+    private $productSizeModel;
 
     public function __construct()
     {
@@ -24,6 +26,7 @@ class ProductController extends Controller
         $this->categoryModel = new Category();
         $this->productImageModel = new ProductImage();
         $this->productColorModel = new ProductColor();
+        $this->productSizeModel = new ProductSize();
     }
 
     public function index()
@@ -69,6 +72,7 @@ class ProductController extends Controller
             $isAvailable= (int)($_POST['is_available'] ?? 1);
 
             $colorsRaw  = $_POST['colors'] ?? '';
+            $sizesRaw   = $_POST['sizes'] ?? '';
             $galleryRaw = $_POST['gallery_image_urls'] ?? '';
 
             if (empty($name) || empty($price) || empty($categoryId)) {
@@ -125,6 +129,15 @@ class ProductController extends Controller
                     $this->productColorModel->addColors($productId, $colors);
                 }
 
+                // Size: nhập dạng "S, M, L, XL"
+                $sizes = [];
+                if (!empty($sizesRaw)) {
+                    $sizes = array_filter(array_map('trim', explode(',', $sizesRaw)));
+                }
+                if (!empty($sizes)) {
+                    $this->productSizeModel->addSizes($productId, $sizes);
+                }
+
                 // Hình ảnh
                 if (!empty($images)) {
                     $this->productImageModel->addImages($productId, $images);
@@ -157,6 +170,7 @@ class ProductController extends Controller
         // Lấy danh sách màu & ảnh cho view
         $images = $this->productImageModel->getByProduct($id);
         $colors = $this->productColorModel->getByProduct($id);
+        $sizes  = $this->productSizeModel->getByProduct($id);
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name       = $_POST['name'] ?? '';
@@ -168,6 +182,7 @@ class ProductController extends Controller
             $isAvailable= (int)($_POST['is_available'] ?? 1);
 
             $colorsRaw  = $_POST['colors'] ?? '';
+            $sizesRaw   = $_POST['sizes'] ?? '';
             $galleryRaw = $_POST['gallery_image_urls'] ?? '';
 
             if (empty($name) || empty($price) || empty($categoryId)) {
@@ -177,6 +192,7 @@ class ProductController extends Controller
                     'categories' => $this->categoryModel->getAll(),
                     'images'     => $images,
                     'colors'     => $colors,
+                    'sizes'      => $sizes,
                 ]);
             }
 
@@ -228,6 +244,16 @@ class ProductController extends Controller
                     $this->productColorModel->addColors($id, $colorsNew);
                 }
 
+                // Cập nhật size: xoá hết rồi thêm lại theo form => cho phép thêm/xoá
+                $this->productSizeModel->deleteByProduct($id);
+                $sizesNew = [];
+                if (!empty($sizesRaw)) {
+                    $sizesNew = array_filter(array_map('trim', explode(',', $sizesRaw)));
+                }
+                if (!empty($sizesNew)) {
+                    $this->productSizeModel->addSizes($id, $sizesNew);
+                }
+
                 // Cập nhật hình ảnh: xoá toàn bộ và thêm lại theo form
                 $this->productImageModel->deleteByProduct($id);
                 if (!empty($newImages)) {
@@ -243,6 +269,7 @@ class ProductController extends Controller
                     'categories' => $this->categoryModel->getAll(),
                     'images'     => $images,
                     'colors'     => $colors,
+                    'sizes'      => $sizes,
                 ]);
             }
         }
@@ -252,6 +279,7 @@ class ProductController extends Controller
             'categories' => $this->categoryModel->getAll(),
             'images'     => $images,
             'colors'     => $colors,
+            'sizes'      => $sizes,
         ]);
     }
 

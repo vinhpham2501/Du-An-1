@@ -105,7 +105,9 @@
                                                 <span class="text-primary fw-bold"><?= number_format($p['price']) ?>đ</span>
                                             <?php endif; ?>
                                         </div>
-                                        <button class="btn btn-sm btn-primary" onclick="addToCart(<?= $p['id'] ?>)"><i class="fas fa-cart-plus"></i></button>
+                                        <a href="/product/<?= $p['id'] ?>" class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -140,19 +142,3 @@
         </div>
     </div>
 </div>
-
-<script>
-function addToCart(productId) {
-    fetch('/cart/add', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: `product_id=${productId}&quantity=1`
-    })
-    .then(r => r.json())
-    .then(d => {
-        if (d.success) {
-            document.getElementById('cart-count')?.textContent = d.cartCount;
-        }
-    })
-}
-</script>

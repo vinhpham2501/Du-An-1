@@ -76,6 +76,14 @@ class App
         $this->router->post('/admin/products/{id}/edit', 'Admin\ProductController@edit');
         $this->router->post('/admin/products/delete', 'Admin\ProductController@delete');
         
+        // Category management
+        $this->router->get('/admin/categories', 'Admin\CategoryController@index');
+        $this->router->get('/admin/categories/create', 'Admin\CategoryController@create');
+        $this->router->post('/admin/categories/create', 'Admin\CategoryController@create');
+        $this->router->get('/admin/categories/{id}/edit', 'Admin\CategoryController@edit');
+        $this->router->post('/admin/categories/{id}/edit', 'Admin\CategoryController@edit');
+        $this->router->post('/admin/categories/delete', 'Admin\CategoryController@delete');
+        
         // Order management
         $this->router->get('/admin/orders', 'Admin\OrderController@index');
         $this->router->get('/admin/orders/{id}', 'Admin\OrderController@show');

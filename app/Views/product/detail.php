@@ -25,7 +25,7 @@
                                  src="<?= htmlspecialchars(\App\Helpers\ImageHelper::getImageSrc($images[0]['image_url'])) ?>" 
                                  class="img-fluid rounded shadow-lg w-100 h-100" 
                                  alt="<?= htmlspecialchars($product['name']) ?>"
-                                 style="object-fit: cover;"
+                                 style="object-fit: contain; background: #f8f9fa;"
                                  loading="eager" decoding="async">
                         </div>
                         
@@ -34,7 +34,7 @@
                             <?php foreach ($images as $index => $img): ?>
                                 <img src="<?= htmlspecialchars(\App\Helpers\ImageHelper::getImageSrc($img['image_url'])) ?>"
                                      class="img-thumbnail cursor-pointer <?= $index === 0 ? 'border-primary' : '' ?>"
-                                     style="width: 80px; height: 80px; object-fit: cover;"
+                                     style="width: 80px; height: 80px; object-fit: contain; background: #f8f9fa;"
                                      onclick="changeMainImage('<?= htmlspecialchars(\App\Helpers\ImageHelper::getImageSrc($img['image_url'])) ?>', this)"
                                      alt="Thumbnail <?= $index + 1 ?>">
                             <?php endforeach; ?>
@@ -118,6 +118,28 @@
                             </div>
                         <?php else: ?>
                             <span class="text-muted">Không có màu sắc</span>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="fw-semibold mb-2">Size:</div>
+                        <?php if (!empty($sizes)): ?>
+                            <div class="size-selector d-flex flex-wrap gap-2">
+                                <?php foreach ($sizes as $size): ?>
+                                    <button type="button" 
+                                            class="btn btn-outline-secondary btn-sm rounded-0 px-3 btn-size-option"
+                                            onclick="selectSize(this, '<?= htmlspecialchars($size['name']) ?>')"
+                                            data-size="<?= htmlspecialchars($size['name']) ?>">
+                                        <?= htmlspecialchars($size['name']) ?>
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <span class="text-muted">Không có size</span>
+                            <!-- Debug: Hiển thị số lượng size -->
+                            <small class="d-block text-muted mt-1">
+                                (Debug: Số size = <?= count($sizes ?? []) ?>)
+                            </small>
                         <?php endif; ?>
                     </div>
 
@@ -352,6 +374,40 @@ function selectColor(button, colorName) {
     }
 }
 
+// Size selection
+function selectSize(button, sizeName) {
+    // Remove active state from all size buttons
+    document.querySelectorAll('.btn-size-option').forEach(btn => {
+        btn.classList.remove('active', 'btn-primary');
+        btn.classList.add('btn-outline-secondary');
+    });
+    
+    // Add active state to clicked button
+    button.classList.remove('btn-outline-secondary');
+    button.classList.add('active', 'btn-primary');
+    
+    // Update selected size display
+    const selectedSizeDisplay = document.getElementById('selected-size-display');
+    if (selectedSizeDisplay) {
+        selectedSizeDisplay.textContent = sizeName;
+    }
+}
+
+// Auto-select first color and size on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-select first color if none selected
+    const firstColor = document.querySelector('.btn-color-option');
+    if (firstColor && !document.querySelector('.btn-color-option.active')) {
+        selectColor(firstColor, firstColor.dataset.color);
+    }
+    
+    // Auto-select first size if none selected
+    const firstSize = document.querySelector('.btn-size-option');
+    if (firstSize && !document.querySelector('.btn-size-option.active')) {
+        selectSize(firstSize, firstSize.dataset.size);
+    }
+});
+
 // Description tabs
 function selectDescTab(tab) {
     const links = document.querySelectorAll('.desc-tab-link');
@@ -416,17 +472,62 @@ function buyNow(productId) {
 
 // Add to cart with quantity
 function addToCartDetail(productId) {
+    console.log('addToCartDetail called with productId:', productId);
+    
     const quantity = parseInt(document.getElementById('quantity').value);
+    console.log('Quantity:', quantity);
+    
+    // Get selected color and size
+    const selectedColor = document.querySelector('.btn-color-option.active');
+    const selectedSize = document.querySelector('.btn-size-option.active');
+    
+    const colorName = selectedColor ? selectedColor.dataset.color : '';
+    const sizeName = selectedSize ? selectedSize.dataset.size : '';
+    
+    console.log('Selected elements:', { selectedColor, selectedSize });
+    console.log('Color and size:', { colorName, sizeName });
+    
+    // Validation: Require color and size if available
+    const hasColors = document.querySelectorAll('.btn-color-option').length > 0;
+    const hasSizes = document.querySelectorAll('.btn-size-option').length > 0;
+    
+    console.log('Has colors/sizes:', { hasColors, hasSizes });
+    
+    if (hasColors && !selectedColor) {
+        alert('Vui lòng chọn màu sắc!');
+        return;
+    }
+    
+    if (hasSizes && !selectedSize) {
+        alert('Vui lòng chọn size!');
+        return;
+    }
+    
+    // Debug: Log ra console
+    console.log('Adding to cart:', {
+        productId: productId,
+        quantity: quantity,
+        color: colorName,
+        size: sizeName,
+        selectedColor: selectedColor,
+        selectedSize: selectedSize
+    });
+    
+    const requestData = {
+        product_id: productId,
+        quantity: quantity,
+        color: colorName,
+        size: sizeName
+    };
+    
+    console.log('Request data:', requestData);
     
     fetch('/cart/add', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            product_id: productId,
-            quantity: quantity
-        })
+        body: JSON.stringify(requestData)
     })
     .then(response => response.json())
     .then(data => {

@@ -126,49 +126,29 @@
                                 </select>
                             </div>
 
-                            <!-- URL hình -->
+                            <!-- Hình ảnh sản phẩm -->
                             <div class="mb-3">
-                                <label for="image_url" class="form-label">URL hình ảnh</label>
-                                <input 
-                                    type="url" 
-                                    class="form-control" 
-                                    id="image_url"
-                                    name="image_url"
-                                    value="<?= htmlspecialchars($_POST['image_url'] ?? ($product['image_url'] ?? '')) ?>"
-                                    placeholder="https://example.com/image.jpg"
-                                >
-                                <div class="form-text">Hoặc upload file bên dưới</div>
-                            </div>
-
-                            <!-- Upload file -->
-                            <div class="mb-3">
-                                <label for="image_file" class="form-label">Tải lên hình ảnh</label>
+                                <label for="image_file" class="form-label">Tải lên hình ảnh chính</label>
                                 <input type="file" class="form-control" id="image_file" name="image_file" accept="image/jpeg,image/png,image/webp">
-                                <div class="form-text">Nếu chọn file, hệ thống sẽ ưu tiên ảnh tải lên và lưu tại /images/</div>
+                                <div class="form-text">Tải lên hình ảnh chính của sản phẩm (JPG, PNG, WebP)</div>
                             </div>
 
-                            <!-- Preview -->
-                            <div class="mb-3">
-                                <div id="image-preview">
-                                    <?php 
-                                        $imageSrc = $_POST['image_url'] ?? ($product['image_url'] ?? '');
-                                    ?>
-                                    <?php if (!empty($imageSrc)): ?>
-                                        <img id="preview-img" src="<?= htmlspecialchars($imageSrc) ?>" 
-                                             alt="<?= htmlspecialchars($product['name'] ?? '') ?>" 
-                                             class="img-thumbnail" style="max-width: 100%; height: 200px; object-fit: cover;">
-                                        <div class="mt-2">
-                                            <small class="text-muted">Xem trước hình ảnh</small>
-                                        </div>
-                                    <?php else: ?>
-                                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                            <i class="fas fa-image text-muted fa-3x"></i>
-                                        </div>
-
-                                    <?php endif; ?>
-
+                            <!-- Hình ảnh hiện có -->
+                            <?php if (!empty($images)): ?>
+                                <div class="mb-3">
+                                    <label class="form-label">Hình ảnh hiện có (<?= count($images) ?>)</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <?php foreach ($images as $img): ?>
+                                            <img src="<?= htmlspecialchars($img['image_url']) ?>" 
+                                                 alt="Product image" 
+                                                 class="img-thumbnail" 
+                                                 style="width: 80px; height: 80px; object-fit: contain; background: #f8f9fa;"
+                                                 title="<?= htmlspecialchars($img['image_url']) ?>">
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <div class="form-text mt-1">Các hình ảnh này sẽ bị thay thế khi cập nhật</div>
                                 </div>
-                            </div>
+                            <?php endif; ?>
 
                             <!-- Màu sắc -->
                             <div class="mb-3">
@@ -180,6 +160,20 @@
                                 <?php if (!empty($colors)): ?>
                                     <div class="mt-2">
                                         <small class="text-muted">Màu hiện tại: <?= htmlspecialchars(implode(', ', array_column($colors, 'name'))) ?></small>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <!-- Size -->
+                            <div class="mb-3">
+                                <label class="form-label">Size</label>
+                                <input type="text" class="form-control" name="sizes"
+                                       value="<?= htmlspecialchars($_POST['sizes'] ?? (isset($sizes) ? implode(', ', array_column($sizes, 'name')) : '')) ?>"
+                                       placeholder="S, M, L, XL (cách nhau bằng dấu phẩy)">
+                                <div class="form-text">Nhập các size, cách nhau bằng dấu phẩy</div>
+                                <?php if (!empty($sizes)): ?>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Size hiện tại: <?= htmlspecialchars(implode(', ', array_column($sizes, 'name'))) ?></small>
                                     </div>
                                 <?php endif; ?>
                             </div>

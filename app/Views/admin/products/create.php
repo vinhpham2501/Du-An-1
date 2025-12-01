@@ -92,27 +92,21 @@
                                 </select>
                             </div>
 
-                            <!-- URL hình ảnh -->
+                            <!-- Hình ảnh -->
                             <div class="mb-3">
-                                <label class="form-label">URL hình ảnh (HinhAnh)</label>
-                                <input type="url" class="form-control" id="image_url" name="image_url"
-                                       value="<?= htmlspecialchars($_POST['image_url'] ?? '') ?>"
-                                       placeholder="https://example.com/image.jpg">
-                                <div class="form-text">Dán đường dẫn ảnh trực tiếp (https://... .jpg, .png, .webp ...)</div>
-                            </div>
-
-                            <!-- Tải lên hình ảnh -->
-                            <div class="mb-3">
-                                <label for="image_file" class="form-label">Tải lên hình ảnh</label>
-                                <input type="file" class="form-control" id="image_file" name="image_file" accept="image/jpeg,image/png,image/webp">
-                                <div class="form-text">Nếu chọn file, hệ thống sẽ ưu tiên ảnh tải lên và lưu tại /images/</div>
-                            </div>
-
-                            <div class="mb-3">
-                                <div id="image-preview" class="<?= !empty($_POST['image_url']) ? '' : 'd-none' ?>">
-                                    <img id="preview-img" src="<?= htmlspecialchars($_POST['image_url'] ?? '') ?>" alt="Preview" 
-                                         class="img-thumbnail" style="max-width: 100%; height: 200px; object-fit: cover;">
+                                <label class="form-label">Hình ảnh sản phẩm</label>
+                                <div class="border border-dashed rounded p-3 text-center bg-light">
+                                    <input type="file" name="image_file" accept="image/*" class="form-control mb-2">
+                                    <div class="form-text small">Tải lên hình ảnh chính của sản phẩm (JPG, PNG, WebP)</div>
                                 </div>
+                            </div>
+
+                            <!-- Hình ảnh gallery -->
+                            <div class="mb-3">
+                                <label class="form-label">Hình ảnh thêm (URL)</label>
+                                <textarea class="form-control" name="gallery_image_urls" rows="3"
+                                          placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"><?= htmlspecialchars($_POST['gallery_image_urls'] ?? '') ?></textarea>
+                                <div class="form-text">Mỗi dòng một URL hình ảnh</div>
                             </div>
 
                             <!-- Màu sắc -->
@@ -124,12 +118,13 @@
                                 <div class="form-text">Nhập các màu, cách nhau bằng dấu phẩy</div>
                             </div>
 
-                            <!-- Hình ảnh gallery -->
+                            <!-- Size -->
                             <div class="mb-3">
-                                <label class="form-label">Hình ảnh thêm (URL)</label>
-                                <textarea class="form-control" name="gallery_image_urls" rows="3"
-                                          placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"><?= htmlspecialchars($_POST['gallery_image_urls'] ?? '') ?></textarea>
-                                <div class="form-text">Mỗi dòng một URL hình ảnh</div>
+                                <label class="form-label">Size</label>
+                                <input type="text" class="form-control" name="sizes"
+                                       value="<?= htmlspecialchars($_POST['sizes'] ?? '') ?>"
+                                       placeholder="S, M, L, XL (cách nhau bằng dấu phẩy)">
+                                <div class="form-text">Nhập các size, cách nhau bằng dấu phẩy</div>
                             </div>
 
                             <div class="card bg-light">

@@ -21,18 +21,27 @@ class CartController extends Controller
         $cartItems = [];
         $total = 0;
         
-        foreach ($cart as $productId => $quantity) {
+        foreach ($cart as $key => $item) {
+            // Parse key: productId_color_size
+            $parts = explode('_', $key);
+            $productId = $parts[0] ?? 0;
+            $color = $parts[1] ?? '';
+            $size = $parts[2] ?? '';
+            
             $product = $this->productModel->findById($productId);
             if ($product) {
                 $price = $product['price'];
+                $quantity = $item['quantity'] ?? 1;
                 $itemTotal = $price * $quantity;
                 $total += $itemTotal;
                 
                 $cartItems[] = [
                     'product' => $product,
                     'quantity' => $quantity,
-                    'price' => $price,
-                    'total' => $itemTotal
+                    'color' => $color,
+                    'size' => $size,
+                    'item_total' => $itemTotal,
+                    'key' => $key
                 ];
             }
         }
@@ -58,6 +67,11 @@ class CartController extends Controller
         
         $productId = $input['product_id'] ?? ($_POST['product_id'] ?? 0);
         $quantity = (int)($input['quantity'] ?? ($_POST['quantity'] ?? 1));
+        $color = $input['color'] ?? ($_POST['color'] ?? '');
+        $size = $input['size'] ?? ($_POST['size'] ?? '');
+        
+        // Debug: Log ra error_log để kiểm tra
+        error_log("Cart Add - ProductID: $productId, Quantity: $quantity, Color: $color, Size: $size");
         
         if (!$productId || $quantity < 1) {
             return $this->json(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
@@ -73,19 +87,39 @@ class CartController extends Controller
             $_SESSION['cart'] = [];
         }
         
+        // Create unique key for product variant
+        $cartKey = $productId . '_' . $color . '_' . $size;
+        
         // Add or update quantity
-        if (isset($_SESSION['cart'][$productId])) {
-            $_SESSION['cart'][$productId] += $quantity;
+        if (isset($_SESSION['cart'][$cartKey])) {
+            $_SESSION['cart'][$cartKey]['quantity'] += $quantity;
         } else {
-            $_SESSION['cart'][$productId] = $quantity;
+            $_SESSION['cart'][$cartKey] = [
+                'product_id' => $productId,
+                'color' => $color,
+                'size' => $size,
+                'quantity' => $quantity
+            ];
         }
         
-        $cartCount = array_sum($_SESSION['cart']);
+        // Debug: Log session data
+        error_log("Cart Key: $cartKey, Session Data: " . print_r($_SESSION['cart'][$cartKey], true));
+        
+        // Calculate total cart count
+        $cartCount = 0;
+        foreach ($_SESSION['cart'] as $item) {
+            $cartCount += $item['quantity'] ?? 1;
+        }
         
         return $this->json([
             'success' => true, 
             'message' => 'Đã thêm vào giỏ hàng',
-            'cartCount' => $cartCount
+            'cartCount' => $cartCount,
+            'debug' => [
+                'cartKey' => $cartKey,
+                'color' => $color,
+                'size' => $size
+            ]
         ]);
     }
 
@@ -95,22 +129,28 @@ class CartController extends Controller
             return $this->json(['success' => false, 'message' => 'Invalid request method']);
         }
         
-        $productId = $_POST['product_id'] ?? 0;
+        $cartKey = $_POST['cart_key'] ?? $_POST['product_id'] ?? 0;
         $quantity = (int)($_POST['quantity'] ?? 0);
         
-        if (!$productId) {
+        if (!$cartKey) {
             return $this->json(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
         }
         
         if ($quantity <= 0) {
             // Remove item
-            unset($_SESSION['cart'][$productId]);
+            unset($_SESSION['cart'][$cartKey]);
         } else {
             // Update quantity
-            $_SESSION['cart'][$productId] = $quantity;
+            if (isset($_SESSION['cart'][$cartKey])) {
+                $_SESSION['cart'][$cartKey]['quantity'] = $quantity;
+            }
         }
         
-        $cartCount = array_sum($_SESSION['cart']);
+        // Calculate total cart count
+        $cartCount = 0;
+        foreach ($_SESSION['cart'] as $item) {
+            $cartCount += $item['quantity'] ?? 1;
+        }
         
         return $this->json([
             'success' => true, 
@@ -125,15 +165,19 @@ class CartController extends Controller
             return $this->json(['success' => false, 'message' => 'Invalid request method']);
         }
         
-        $productId = $_POST['product_id'] ?? 0;
+        $cartKey = $_POST['cart_key'] ?? $_POST['product_id'] ?? 0;
         
-        if (!$productId) {
+        if (!$cartKey) {
             return $this->json(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
         }
         
-        unset($_SESSION['cart'][$productId]);
+        unset($_SESSION['cart'][$cartKey]);
         
-        $cartCount = array_sum($_SESSION['cart']);
+        // Calculate total cart count
+        $cartCount = 0;
+        foreach ($_SESSION['cart'] as $item) {
+            $cartCount += $item['quantity'] ?? 1;
+        }
         
         return $this->json([
             'success' => true, 
@@ -155,7 +199,12 @@ class CartController extends Controller
 
     public function getCount()
     {
-        $cartCount = isset($_SESSION['cart']) ? array_sum($_SESSION['cart']) : 0;
+        $cartCount = 0;
+        if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
+            foreach ($_SESSION['cart'] as $item) {
+                $cartCount += $item['quantity'] ?? 1;
+            }
+        }
         
         return $this->json(['cartCount' => $cartCount]);
     }

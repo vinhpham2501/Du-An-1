@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Review;
 use App\Models\ProductImage;
 use App\Models\ProductColor;
+use App\Models\ProductSize;
 
 class ProductController extends BaseController
 {
@@ -15,6 +16,7 @@ class ProductController extends BaseController
     private $reviewModel;
     private $productImageModel;
     private $productColorModel;
+    private $productSizeModel;
 
     public function __construct()
     {
@@ -23,6 +25,7 @@ class ProductController extends BaseController
         $this->reviewModel = new Review();
         $this->productImageModel = new ProductImage();
         $this->productColorModel = new ProductColor();
+        $this->productSizeModel = new ProductSize();
     }
 
     public function detail($id)
@@ -40,6 +43,9 @@ class ProductController extends BaseController
         
         // Get all colors for this product
         $colors = $this->productColorModel->getByProduct($id);
+
+        // Get all sizes for this product
+        $sizes = $this->productSizeModel->getByProduct($id);
 
         // Get rating summary
         $ratingSummary = $this->reviewModel->getAverageRating($id);
@@ -63,6 +69,7 @@ class ProductController extends BaseController
             'product' => $product,
             'images' => $images,
             'colors' => $colors,
+            'sizes' => $sizes,
             'relatedProducts' => $relatedProducts,
             'categories' => $categories,
             'reviews' => $reviews,

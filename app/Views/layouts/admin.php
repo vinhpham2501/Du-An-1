@@ -46,6 +46,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/admin/categories">
+                            <i class="fas fa-folder me-1"></i>Danh mục
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/admin/products">
                             <i class="fas fa-box me-1"></i>Sản phẩm
                         </a>
