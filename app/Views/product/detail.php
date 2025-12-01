@@ -46,40 +46,30 @@
             <div class="col-lg-6">
                 <div class="product-info">
                     <!-- Product Name -->
-                    <h1 class="product-title mb-3"><?= htmlspecialchars($product['name']) ?></h1>
-                    
-                    <!-- Category -->
-                    <div class="mb-3">
+                    <h1 class="product-title mb-2 text-uppercase fw-bold"><?= htmlspecialchars($product['name']) ?></h1>
+
+                    <?php 
+                        $avgRating = $product['avg_rating'] ?? 0;
+                        $totalReviews = $product['total_reviews'] ?? 0;
+                    ?>
+                    <div class="d-flex flex-wrap align-items-center mb-3 small text-muted">
+                        <span class="me-3">SKU: <?= htmlspecialchars($product['id']) ?></span>
+                        <div class="d-flex align-items-center">
+                            <div class="me-1">
+                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <i class="fas fa-star <?= $i <= round($avgRating) ? 'text-warning' : 'text-muted' ?>"></i>
+                                <?php endfor; ?>
+                            </div>
+                            <span class="ms-1">(<?= (int)$totalReviews ?> đánh giá)</span>
+                        </div>
+                    </div>
+
+                    <!-- Category, status & code -->
+                    <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
                         <span class="badge bg-primary fs-6">
                             <i class="fas fa-tag me-1"></i>
                             <?= htmlspecialchars($product['category_name']) ?>
                         </span>
-                    </div>
-
-                    <!-- Price -->
-                    <div class="price-section mb-4">
-                        <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="sale-price text-danger fs-2 fw-bold"><?= number_format($product['sale_price']) ?>đ</span>
-                                <span class="original-price text-muted fs-4 text-decoration-line-through"><?= number_format($product['price']) ?>đ</span>
-                                <span class="badge bg-warning text-dark fs-6">
-                                    <i class="fas fa-percent me-1"></i>
-                                    <?= round((($product['price'] - $product['sale_price']) / $product['price']) * 100) ?>% OFF
-                                </span>
-                            </div>
-                        <?php else: ?>
-                            <span class="current-price text-primary fs-2 fw-bold"><?= number_format($product['price']) ?>đ</span>
-                        <?php endif; ?>
-                    </div>
-
-                    <!-- Description -->
-                    <div class="description mb-4">
-                        <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>Mô tả sản phẩm</h5>
-                        <p class="text-muted lh-lg"><?= nl2br(htmlspecialchars($product['description'])) ?></p>
-                    </div>
-
-                    <!-- Availability Status -->
-                    <div class="availability mb-4">
                         <?php if ($product['is_available']): ?>
                             <span class="badge bg-success fs-6">
                                 <i class="fas fa-check-circle me-1"></i>Còn hàng
@@ -91,26 +81,116 @@
                         <?php endif; ?>
                     </div>
 
-                    <!-- Quantity and Add to Cart -->
+                    <!-- Price -->
+                    <div class="price-section mb-3">
+                        <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
+                            <div class="d-flex align-items-center flex-wrap gap-3">
+                                <span class="sale-price text-danger fs-2 fw-bold"><?= number_format($product['sale_price']) ?>đ</span>
+                                <span class="original-price text-muted fs-4 text-decoration-line-through"><?= number_format($product['price']) ?>đ</span>
+                                <span class="badge bg-warning text-dark fs-6">
+                                    <i class="fas fa-percent me-1"></i>
+                                    <?= round((($product['price'] - $product['sale_price']) / $product['price']) * 100) ?>% OFF
+                                </span>
+                            </div>
+                        <?php else: ?>
+                            <span class="current-price text-dark fs-2 fw-bold"><?= number_format($product['price']) ?>đ</span>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="fw-semibold mb-2">Màu sắc: <span class="fw-normal text-muted">Trắng ngà</span></div>
+                        <div class="size-selector d-flex flex-wrap gap-2 mb-2">
+                            <?php foreach (['S','M','L','XL','XXL'] as $index => $size): ?>
+                                <button type="button"
+                                        class="btn btn-outline-secondary btn-sm rounded-0 px-3 btn-size-option <?= $index === 1 ? 'active' : '' ?>"
+                                        onclick="selectSize(this)"
+                                        data-size="<?= $size ?>">
+                                    <?= $size ?>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <!-- Quantity and action buttons -->
                     <?php if ($product['is_available']): ?>
-                        <div class="add-to-cart-section">
-                            <div class="row align-items-center">
-                                <div class="col-md-4 mb-3">
-                                    <label for="quantity" class="form-label fw-semibold">Số lượng:</label>
-                                    <div class="input-group">
-                                        <button class="btn btn-outline-secondary" type="button" onclick="decreaseQuantity()">
-                                            <i class="fas fa-minus"></i>
-                                        </button>
-                                        <input type="number" class="form-control text-center" id="quantity" value="1" min="1" max="10">
-                                        <button class="btn btn-outline-secondary" type="button" onclick="increaseQuantity()">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="col-md-8 mb-3">
-                                    <button class="btn btn-primary btn-lg w-100" onclick="addToCartDetail(<?= $product['id'] ?>)">
-                                        <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ hàng
+                        <div class="add-to-cart-section mb-4">
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label fw-semibold">Số lượng</label>
+                                <div class="input-group" style="max-width: 160px;">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="decreaseQuantity()">
+                                        <i class="fas fa-minus"></i>
                                     </button>
+                                    <input type="number" class="form-control text-center" id="quantity" value="1" min="1" max="10">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="increaseQuantity()">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2">
+                                <button class="btn btn-dark btn-lg flex-fill text-uppercase" type="button" onclick="addToCartDetail(<?= $product['id'] ?>)">
+                                    Thêm vào giỏ
+                                </button>
+                                <button class="btn btn-outline-dark btn-lg flex-fill text-uppercase" type="button" onclick="buyNow(<?= $product['id'] ?>)">
+                                    Mua hàng
+                                </button>
+                                <button class="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center" type="button">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Description tabs -->
+                        <div class="product-description-tabs mt-3">
+                            <ul class="nav border-0 mb-3">
+                                <li class="nav-item me-3">
+                                    <button type="button" class="nav-link px-0 py-1 text-uppercase desc-tab-link active" data-tab="intro" onclick="selectDescTab('intro')">
+                                        Giới thiệu
+                                    </button>
+                                </li>
+                                <li class="nav-item me-3">
+                                    <button type="button" class="nav-link px-0 py-1 text-uppercase desc-tab-link" data-tab="detail" onclick="selectDescTab('detail')">
+                                        Chi tiết sản phẩm
+                                    </button>
+                                </li>
+                                <li class="nav-item">
+                                    <button type="button" class="nav-link px-0 py-1 text-uppercase desc-tab-link" data-tab="review" onclick="selectDescTab('review')">
+                                        Đánh giá
+                                    </button>
+                                </li>
+                            </ul>
+                            <div class="pt-2">
+                                <div class="desc-tab-pane" data-tab="intro">
+                                    <p class="text-muted lh-lg mb-0">
+                                        <?= nl2br(htmlspecialchars($product['description'])) ?>
+                                    </p>
+                                </div>
+                                <div class="desc-tab-pane d-none" data-tab="detail">
+                                    <p class="text-muted lh-lg mb-0">
+                                        <?= nl2br(htmlspecialchars($product['description'])) ?>
+                                    </p>
+                                </div>
+                                <div class="desc-tab-pane d-none" data-tab="review">
+                                    <?php if (empty($reviews)): ?>
+                                        <p class="text-muted mb-0">Chưa có đánh giá nào cho sản phẩm này.</p>
+                                    <?php else: ?>
+                                        <?php foreach ($reviews as $review): ?>
+                                            <div class="mb-3 pb-3 border-bottom">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <strong><?= htmlspecialchars($review['user_name']) ?></strong>
+                                                    <small class="text-muted"><?= date('d/m/Y H:i', strtotime($review['created_at'])) ?></small>
+                                                </div>
+                                                <div class="mb-1">
+                                                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                        <i class="fas fa-star <?= $i <= $review['rating'] ? 'text-warning' : 'text-muted' ?>"></i>
+                                                    <?php endfor; ?>
+                                                </div>
+                                                <?php if (!empty($review['comment'])): ?>
+                                                    <p class="mb-0"><?= nl2br(htmlspecialchars($review['comment'])) ?></p>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -132,18 +212,18 @@
     <div class="container">
         <div class="row mb-4">
             <div class="col-12 text-center">
-                <h2 class="section-title">
+                <h2 class="section-title text-uppercase">
                     <i class="fas fa-shirt me-2"></i>
-                    Sản phẩm cùng loại
+                    Sản phẩm tương tự
                 </h2>
-                <p class="text-muted">Những sản phẩm khác bạn có thể quan tâm</p>
+                <p class="text-muted">Những mẫu tương tự bạn có thể quan tâm</p>
             </div>
         </div>
         
         <div class="row">
             <?php foreach ($relatedProducts as $relatedProduct): ?>
                 <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="product-card h-100 shadow-sm">
+                    <div class="product-card h-100 shadow-sm border-0 rounded-3 overflow-hidden">
                         <div class="position-relative">
                             <a href="/product/<?= $relatedProduct['id'] ?>" class="text-decoration-none">
                                 <?php 
@@ -198,6 +278,20 @@
 </section>
 <?php endif; ?>
 
+<style>
+.product-description-tabs .nav-link {
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    color: #333;
+    font-weight: 500;
+}
+
+.product-description-tabs .nav-link.active {
+    border-bottom-color: #000;
+}
+</style>
+
 <script>
 // Quantity controls
 function increaseQuantity() {
@@ -214,6 +308,77 @@ function decreaseQuantity() {
     if (currentValue > 1) {
         quantityInput.value = currentValue - 1;
     }
+}
+
+// Size selector
+function selectSize(button) {
+    const buttons = document.querySelectorAll('.btn-size-option');
+    buttons.forEach(function (btn) {
+        btn.classList.remove('active');
+    });
+    button.classList.add('active');
+}
+
+// Description tabs
+function selectDescTab(tab) {
+    const links = document.querySelectorAll('.desc-tab-link');
+    const panes = document.querySelectorAll('.desc-tab-pane');
+
+    links.forEach(function (link) {
+        if (link.dataset.tab === tab) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+
+    panes.forEach(function (pane) {
+        if (pane.dataset.tab === tab) {
+            pane.classList.remove('d-none');
+        } else {
+            pane.classList.add('d-none');
+        }
+    });
+}
+
+// Buy now: add to cart then redirect to checkout
+function buyNow(productId) {
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+
+    fetch('/cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: quantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = '/checkout';
+        } else {
+            const toast = document.getElementById('cartToast');
+            const toastHeader = toast.querySelector('.toast-header');
+            const toastBody = toast.querySelector('.toast-body');
+
+            toastHeader.className = 'toast-header bg-danger text-white';
+            toastHeader.querySelector('strong').textContent = 'Lỗi';
+            toastHeader.querySelector('i').className = 'fas fa-exclamation-circle me-2';
+            toastBody.textContent = data.message || 'Có lỗi xảy ra, vui lòng thử lại!';
+
+            const bsToast = new bootstrap.Toast(toast, {
+                autohide: true,
+                delay: 4000
+            });
+            bsToast.show();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 }
 
 // Add to cart with quantity
