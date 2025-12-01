@@ -5,18 +5,24 @@ namespace App\Controllers;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Review;
+use App\Models\ProductImage;
+use App\Models\ProductColor;
 
 class ProductController extends BaseController
 {
     private $productModel;
     private $categoryModel;
     private $reviewModel;
+    private $productImageModel;
+    private $productColorModel;
 
     public function __construct()
     {
         $this->productModel = new Product();
         $this->categoryModel = new Category();
         $this->reviewModel = new Review();
+        $this->productImageModel = new ProductImage();
+        $this->productColorModel = new ProductColor();
     }
 
     public function detail($id)
@@ -28,6 +34,12 @@ class ProductController extends BaseController
             header('HTTP/1.0 404 Not Found');
             return $this->render('errors/404');
         }
+
+        // Get all images for this product
+        $images = $this->productImageModel->getByProduct($id);
+        
+        // Get all colors for this product
+        $colors = $this->productColorModel->getByProduct($id);
 
         // Get rating summary
         $ratingSummary = $this->reviewModel->getAverageRating($id);
@@ -49,6 +61,8 @@ class ProductController extends BaseController
 
         return $this->render('product/detail', [
             'product' => $product,
+            'images' => $images,
+            'colors' => $colors,
             'relatedProducts' => $relatedProducts,
             'categories' => $categories,
             'reviews' => $reviews,

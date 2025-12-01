@@ -49,14 +49,24 @@
                                 >
                             </div>
 
-                            <!-- Mô tả -->
+                            <!-- Giới thiệu -->
                             <div class="mb-3">
-                                <label class="form-label">Mô tả</label>
+                                <label class="form-label">Giới thiệu</label>
                                 <textarea 
                                     class="form-control" 
-                                    name="description" 
-                                    rows="4"
-                                ><?= htmlspecialchars($_POST['description'] ?? ($product['description'] ?? '')) ?></textarea>
+                                    name="intro" 
+                                    rows="3"
+                                ><?= htmlspecialchars($_POST['intro'] ?? ($product['intro'] ?? '')) ?></textarea>
+                            </div>
+
+                            <!-- Chi tiết sản phẩm -->
+                            <div class="mb-3">
+                                <label class="form-label">Chi tiết sản phẩm</label>
+                                <textarea 
+                                    class="form-control" 
+                                    name="detail" 
+                                    rows="5"
+                                ><?= htmlspecialchars($_POST['detail'] ?? ($product['detail'] ?? '')) ?></textarea>
                             </div>
 
                             <div class="row">
@@ -160,23 +170,39 @@
                                 </div>
                             </div>
 
-                            <!-- Info -->
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h6 class="card-title">Thông tin sản phẩm</h6>
-                                    <ul class="list-unstyled">
-                                        <li>
-                                            <i class="fas fa-calendar me-2"></i>
-                                            Ngày tạo: 
-                                            <?= isset($product['NgayTao']) ? date('d/m/Y', strtotime($product['NgayTao'])) : '---' ?>
-                                        </li>
+                            <!-- Màu sắc -->
+                            <div class="mb-3">
+                                <label class="form-label">Màu sắc</label>
+                                <input type="text" class="form-control" name="colors"
+                                       value="<?= htmlspecialchars($_POST['colors'] ?? (isset($colors) ? implode(', ', array_column($colors, 'name')) : '')) ?>"
+                                       placeholder="Đỏ, Xanh, Vàng (cách nhau bằng dấu phẩy)">
+                                <div class="form-text">Nhập các màu, cách nhau bằng dấu phẩy</div>
+                                <?php if (!empty($colors)): ?>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Màu hiện tại: <?= htmlspecialchars(implode(', ', array_column($colors, 'name'))) ?></small>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
 
-                                        <li>
-                                            <i class="fas fa-tag me-2"></i>
-                                            ID: #<?= $product['MaSP'] ?? '---' ?>
-                                        </li>
-                                    </ul>
-                                </div>
+                            <!-- Hình ảnh gallery -->
+                            <div class="mb-3">
+                                <label class="form-label">Hình ảnh thêm (URL)</label>
+                                <textarea class="form-control" name="gallery_image_urls" rows="3"
+                                          placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"><?= htmlspecialchars($_POST['gallery_image_urls'] ?? (isset($images) ? implode("\n", array_column($images, 'image_url')) : '')) ?></textarea>
+                                <div class="form-text">Mỗi dòng một URL hình ảnh</div>
+                                <?php if (!empty($images)): ?>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Ảnh hiện tại (<?= count($images) ?>):</small>
+                                        <div class="d-flex flex-wrap gap-2 mt-1">
+                                            <?php foreach ($images as $img): ?>
+                                                <img src="<?= htmlspecialchars($img['image_url']) ?>" 
+                                                     alt="Product image" 
+                                                     class="img-thumbnail" 
+                                                     style="width: 60px; height: 60px; object-fit: cover;">
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
                             </div>
 
                         </div>

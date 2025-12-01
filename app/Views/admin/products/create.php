@@ -35,10 +35,16 @@
                                        value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" required>
                             </div>
 
-                            <!-- Mô tả -->
+                            <!-- Giới thiệu -->
                             <div class="mb-3">
-                                <label class="form-label">Mô tả</label>
-                                <textarea class="form-control" name="description" rows="4"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
+                                <label class="form-label">Giới thiệu</label>
+                                <textarea class="form-control" name="intro" rows="3"><?= htmlspecialchars($_POST['intro'] ?? '') ?></textarea>
+                            </div>
+
+                            <!-- Chi tiết sản phẩm -->
+                            <div class="mb-3">
+                                <label class="form-label">Chi tiết sản phẩm</label>
+                                <textarea class="form-control" name="detail" rows="5"><?= htmlspecialchars($_POST['detail'] ?? '') ?></textarea>
                             </div>
 
                             <div class="row">
@@ -107,6 +113,23 @@
                                     <img id="preview-img" src="<?= htmlspecialchars($_POST['image_url'] ?? '') ?>" alt="Preview" 
                                          class="img-thumbnail" style="max-width: 100%; height: 200px; object-fit: cover;">
                                 </div>
+                            </div>
+
+                            <!-- Màu sắc -->
+                            <div class="mb-3">
+                                <label class="form-label">Màu sắc</label>
+                                <input type="text" class="form-control" name="colors"
+                                       value="<?= htmlspecialchars($_POST['colors'] ?? '') ?>"
+                                       placeholder="Đỏ, Xanh, Vàng (cách nhau bằng dấu phẩy)">
+                                <div class="form-text">Nhập các màu, cách nhau bằng dấu phẩy</div>
+                            </div>
+
+                            <!-- Hình ảnh gallery -->
+                            <div class="mb-3">
+                                <label class="form-label">Hình ảnh thêm (URL)</label>
+                                <textarea class="form-control" name="gallery_image_urls" rows="3"
+                                          placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"><?= htmlspecialchars($_POST['gallery_image_urls'] ?? '') ?></textarea>
+                                <div class="form-text">Mỗi dòng một URL hình ảnh</div>
                             </div>
 
                             <div class="card bg-light">

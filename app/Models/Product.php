@@ -10,16 +10,16 @@ class Product extends Model
 
     public function create($data)
     {
-        $sql = "INSERT INTO {$this->table} (TenSP, MoTa, Gia, SoLuong, HinhAnh, TrangThai, MaDM)
+        $sql = "INSERT INTO {$this->table} (TenSP, GioiThieu, ChiTiet, Gia, SoLuong, TrangThai, MaDM)
                 VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
         $soLuong = isset($data['quantity']) ? (int)$data['quantity'] : 0;
         $ok = $stmt->execute([
             $data['name'] ?? '',
-            $data['description'] ?? null,
+            $data['intro'] ?? ($data['description'] ?? null),
+            $data['detail'] ?? null,
             $data['price'] ?? 0,
             $soLuong,
-            $data['image_url'] ?? null,
             isset($data['is_available']) ? (int)$data['is_available'] : 1,
             $data['category_id'] ?? null,
         ]);
@@ -34,10 +34,16 @@ class Product extends Model
         $sql = "SELECT 
                     p.MaSP AS id,
                     p.TenSP AS name,
-                    p.MoTa AS description,
+                    p.GioiThieu AS intro,
+                    p.ChiTiet AS detail,
+                    p.GioiThieu AS description,
                     p.Gia AS price,
                     NULL AS sale_price,
-                    p.HinhAnh AS image_url,
+                    (SELECT img.HinhAnh 
+                     FROM SANPHAM_HINHANH img 
+                     WHERE img.MaSP = p.MaSP 
+                     ORDER BY img.MaHinh ASC 
+                     LIMIT 1) AS image_url,
                     p.NgayTao AS created_at,
                     p.TrangThai AS is_available,
                     0 AS is_featured,
@@ -66,7 +72,8 @@ class Product extends Model
         }
 
         if (isset($filters['search'])) {
-            $conditions[] = "(p.TenSP LIKE ? OR p.MoTa LIKE ?)";
+            $conditions[] = "(p.TenSP LIKE ? OR p.GioiThieu LIKE ? OR p.ChiTiet LIKE ?)";
+            $params[] = '%' . $filters['search'] . '%';
             $params[] = '%' . $filters['search'] . '%';
             $params[] = '%' . $filters['search'] . '%';
         }
@@ -137,7 +144,8 @@ class Product extends Model
         }
 
         if (isset($filters['search'])) {
-            $conditions[] = "(p.TenSP LIKE ? OR p.MoTa LIKE ?)";
+            $conditions[] = "(p.TenSP LIKE ? OR p.GioiThieu LIKE ? OR p.ChiTiet LIKE ?)";
+            $params[] = '%' . $filters['search'] . '%';
             $params[] = '%' . $filters['search'] . '%';
             $params[] = '%' . $filters['search'] . '%';
         }
@@ -152,10 +160,22 @@ class Product extends Model
     public function getByCategory($categoryId, $limit = null)
     {
         $sql = "SELECT 
-                    p.MaSP AS id, p.TenSP AS name, p.MoTa AS description,
-                    p.Gia AS price, NULL AS sale_price, p.HinhAnh AS image_url,
-                    p.NgayTao AS created_at, p.TrangThai AS is_available,
-                    0 AS is_featured, p.MaDM AS category_id
+                    p.MaSP AS id, 
+                    p.TenSP AS name, 
+                    p.GioiThieu AS intro,
+                    p.ChiTiet AS detail,
+                    p.GioiThieu AS description,
+                    p.Gia AS price, 
+                    NULL AS sale_price, 
+                    (SELECT img.HinhAnh 
+                     FROM SANPHAM_HINHANH img 
+                     WHERE img.MaSP = p.MaSP 
+                     ORDER BY img.MaHinh ASC 
+                     LIMIT 1) AS image_url,
+                    p.NgayTao AS created_at, 
+                    p.TrangThai AS is_available,
+                    0 AS is_featured, 
+                    p.MaDM AS category_id
                 FROM {$this->table} p
                 WHERE p.MaDM = ? AND p.TrangThai = 1 
                 ORDER BY p.NgayTao DESC";
@@ -174,10 +194,16 @@ class Product extends Model
         $sql = "SELECT 
                     p.MaSP AS id,
                     p.TenSP AS name,
-                    p.MoTa AS description,
+                    p.GioiThieu AS intro,
+                    p.ChiTiet AS detail,
+                    p.GioiThieu AS description,
                     p.Gia AS price,
                     NULL AS sale_price,
-                    p.HinhAnh AS image_url,
+                    (SELECT img.HinhAnh 
+                     FROM SANPHAM_HINHANH img 
+                     WHERE img.MaSP = p.MaSP 
+                     ORDER BY img.MaHinh ASC 
+                     LIMIT 1) AS image_url,
                     p.NgayTao AS created_at,
                     p.TrangThai AS is_available,
                     0 AS is_featured,
@@ -191,7 +217,7 @@ class Product extends Model
                 LEFT JOIN DON_HANG o ON oi.MaDH = o.MaDH 
                 WHERE p.TrangThai = 1 
                   AND (o.TrangThai IS NULL OR o.TrangThai IN ('Hoàn tất','Đang giao'))
-                GROUP BY p.MaSP, p.MaDM, p.TenSP, p.MoTa, p.Gia, p.HinhAnh, p.TrangThai, p.NgayTao, c.TenDM
+                GROUP BY p.MaSP, p.MaDM, p.TenSP, p.GioiThieu, p.ChiTiet, p.Gia, p.TrangThai, p.NgayTao, c.TenDM
                 ORDER BY total_sold DESC, p.NgayTao DESC 
                 LIMIT ?";
 
@@ -203,10 +229,23 @@ class Product extends Model
     public function getSaleProducts($limit = 10)
     {
         $sql = "SELECT 
-                    p.MaSP AS id, p.TenSP AS name, p.MoTa AS description,
-                    p.Gia AS price, NULL AS sale_price, p.HinhAnh AS image_url,
-                    p.NgayTao AS created_at, p.TrangThai AS is_available,
-                    0 AS is_featured, p.MaDM AS category_id, c.TenDM AS category_name
+                    p.MaSP AS id, 
+                    p.TenSP AS name, 
+                    p.GioiThieu AS intro,
+                    p.ChiTiet AS detail,
+                    p.GioiThieu AS description,
+                    p.Gia AS price, 
+                    NULL AS sale_price, 
+                    (SELECT img.HinhAnh 
+                     FROM SANPHAM_HINHANH img 
+                     WHERE img.MaSP = p.MaSP 
+                     ORDER BY img.MaHinh ASC 
+                     LIMIT 1) AS image_url,
+                    p.NgayTao AS created_at, 
+                    p.TrangThai AS is_available,
+                    0 AS is_featured, 
+                    p.MaDM AS category_id, 
+                    c.TenDM AS category_name
                 FROM {$this->table} p 
                 LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM
                 WHERE p.TrangThai = 1
@@ -221,10 +260,23 @@ class Product extends Model
     public function getNewProducts($limit = 10)
     {
         $sql = "SELECT 
-                    p.MaSP AS id, p.TenSP AS name, p.MoTa AS description,
-                    p.Gia AS price, NULL AS sale_price, p.HinhAnh AS image_url,
-                    p.NgayTao AS created_at, p.TrangThai AS is_available,
-                    0 AS is_featured, p.MaDM AS category_id, c.TenDM AS category_name
+                    p.MaSP AS id, 
+                    p.TenSP AS name, 
+                    p.GioiThieu AS intro,
+                    p.ChiTiet AS detail,
+                    p.GioiThieu AS description,
+                    p.Gia AS price, 
+                    NULL AS sale_price, 
+                    (SELECT img.HinhAnh 
+                     FROM SANPHAM_HINHANH img 
+                     WHERE img.MaSP = p.MaSP 
+                     ORDER BY img.MaHinh ASC 
+                     LIMIT 1) AS image_url,
+                    p.NgayTao AS created_at, 
+                    p.TrangThai AS is_available,
+                    0 AS is_featured, 
+                    p.MaDM AS category_id, 
+                    c.TenDM AS category_name
                 FROM {$this->table} p 
                 LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM
                 WHERE p.TrangThai = 1 
@@ -239,10 +291,23 @@ class Product extends Model
     public function getFeaturedProducts($limit = 8)
     {
         $sql = "SELECT 
-                    p.MaSP AS id, p.TenSP AS name, p.MoTa AS description,
-                    p.Gia AS price, NULL AS sale_price, p.HinhAnh AS image_url,
-                    p.NgayTao AS created_at, p.TrangThai AS is_available,
-                    0 AS is_featured, p.MaDM AS category_id, c.TenDM AS category_name
+                    p.MaSP AS id, 
+                    p.TenSP AS name, 
+                    p.GioiThieu AS intro,
+                    p.ChiTiet AS detail,
+                    p.GioiThieu AS description,
+                    p.Gia AS price, 
+                    NULL AS sale_price, 
+                    (SELECT img.HinhAnh 
+                     FROM SANPHAM_HINHANH img 
+                     WHERE img.MaSP = p.MaSP 
+                     ORDER BY img.MaHinh ASC 
+                     LIMIT 1) AS image_url,
+                    p.NgayTao AS created_at, 
+                    p.TrangThai AS is_available,
+                    0 AS is_featured, 
+                    p.MaDM AS category_id, 
+                    c.TenDM AS category_name
                 FROM {$this->table} p 
                 LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM
                 WHERE p.TrangThai = 1
@@ -257,10 +322,23 @@ class Product extends Model
     public function findById($id)
     {
         $sql = "SELECT 
-                    p.MaSP AS id, p.TenSP AS name, p.MoTa AS description,
-                    p.Gia AS price, NULL AS sale_price, p.HinhAnh AS image_url,
-                    p.NgayTao AS created_at, p.TrangThai AS is_available,
-                    0 AS is_featured, p.MaDM AS category_id, c.TenDM AS category_name
+                    p.MaSP AS id, 
+                    p.TenSP AS name, 
+                    p.GioiThieu AS intro,
+                    p.ChiTiet AS detail,
+                    p.GioiThieu AS description,
+                    p.Gia AS price, 
+                    NULL AS sale_price, 
+                    (SELECT img.HinhAnh 
+                     FROM SANPHAM_HINHANH img 
+                     WHERE img.MaSP = p.MaSP 
+                     ORDER BY img.MaHinh ASC 
+                     LIMIT 1) AS image_url,
+                    p.NgayTao AS created_at, 
+                    p.TrangThai AS is_available,
+                    0 AS is_featured, 
+                    p.MaDM AS category_id, 
+                    c.TenDM AS category_name
                 FROM {$this->table} p 
                 LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM
                 WHERE p.MaSP = ?";
@@ -273,12 +351,13 @@ class Product extends Model
     public function update($id, $data)
     {
         $map = [
-            'name' => 'TenSP',
-            'description' => 'MoTa',
-            'price' => 'Gia',
-            'quantity' => 'SoLuong',
-            'image_url' => 'HinhAnh',
-            'is_available' => 'TrangThai',
+            'name'        => 'TenSP',
+            'intro'       => 'GioiThieu',
+            'detail'      => 'ChiTiet',
+            'description' => 'GioiThieu',
+            'price'       => 'Gia',
+            'quantity'    => 'SoLuong',
+            'is_available'=> 'TrangThai',
             'category_id' => 'MaDM',
         ];
         $set = [];

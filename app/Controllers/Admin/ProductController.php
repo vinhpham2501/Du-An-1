@@ -5,11 +5,15 @@ namespace App\Controllers\Admin;
 use App\Core\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\ProductImage;
+use App\Models\ProductColor;
 
 class ProductController extends Controller
 {
     private $productModel;
     private $categoryModel;
+    private $productImageModel;
+    private $productColorModel;
 
     public function __construct()
     {
@@ -18,6 +22,8 @@ class ProductController extends Controller
         
         $this->productModel = new Product();
         $this->categoryModel = new Category();
+        $this->productImageModel = new ProductImage();
+        $this->productColorModel = new ProductColor();
     }
 
     public function index()
@@ -54,45 +60,81 @@ class ProductController extends Controller
     public function create()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $name = $_POST['name'] ?? '';
-            $description = $_POST['description'] ?? '';
-            $price = $_POST['price'] ?? 0;
-            $salePrice = $_POST['sale_price'] ?? null;
+            $name       = $_POST['name'] ?? '';
+            $intro      = $_POST['intro'] ?? '';
+            $detail     = $_POST['detail'] ?? '';
+            $price      = $_POST['price'] ?? 0;
+            $salePrice  = $_POST['sale_price'] ?? null;
             $categoryId = $_POST['category_id'] ?? 0;
-            $imageUrl = $_POST['image_url'] ?? '';
-            $isAvailable = (int)($_POST['is_available'] ?? 1);
-            
+            $isAvailable= (int)($_POST['is_available'] ?? 1);
+
+            $colorsRaw  = $_POST['colors'] ?? '';
+            $galleryRaw = $_POST['gallery_image_urls'] ?? '';
+
             if (empty($name) || empty($price) || empty($categoryId)) {
                 return $this->render('admin/products/create', [
-                    'error' => 'Vui lòng nhập đầy đủ thông tin bắt buộc',
+                    'error'      => 'Vui lòng nhập đầy đủ thông tin bắt buộc',
                     'categories' => $this->categoryModel->getAll()
                 ]);
             }
-            
-            // Prefer uploaded file over URL if provided
+
+            // Xử lý ảnh chính (URL hoặc file upload)
+            $mainImageUrl = $_POST['image_url'] ?? '';
+            $uploaded = null;
             if (!empty($_FILES['image_file']['tmp_name']) && ($_FILES['image_file']['error'] ?? UPLOAD_ERR_OK) === UPLOAD_ERR_OK) {
                 $uploaded = $this->uploadImage($_FILES['image_file']);
-                if ($uploaded) {
-                    $imageUrl = $uploaded; // store filename; ImageHelper will render /images/<filename>
+            }
+
+            $images = [];
+
+            // Ưu tiên ảnh upload, sau đó đến URL
+            if ($uploaded) {
+                $images[] = $uploaded;
+            } elseif (!empty($mainImageUrl)) {
+                $images[] = $mainImageUrl;
+            }
+
+            // Các URL ảnh gallery (mỗi dòng một URL)
+            if (!empty($galleryRaw)) {
+                $extra = preg_split('/\r\n|\r|\n/', $galleryRaw);
+                foreach ($extra as $url) {
+                    $url = trim($url);
+                    if ($url !== '') {
+                        $images[] = $url;
+                    }
                 }
             }
 
             $productId = $this->productModel->create([
-                'name' => $name,
-                'description' => $description,
-                'price' => $price,
-                'sale_price' => $salePrice ?: null,
-                'category_id' => $categoryId,
-                'image_url' => $imageUrl,
+                'name'         => $name,
+                'intro'        => $intro,
+                'detail'       => $detail,
+                'price'        => $price,
+                'sale_price'   => $salePrice ?: null,
+                'category_id'  => $categoryId,
                 'is_available' => $isAvailable
             ]);
             
             if ($productId) {
+                // Màu sắc: nhập dạng "Đỏ, Xanh, Vàng"
+                $colors = [];
+                if (!empty($colorsRaw)) {
+                    $colors = array_filter(array_map('trim', explode(',', $colorsRaw)));
+                }
+                if (!empty($colors)) {
+                    $this->productColorModel->addColors($productId, $colors);
+                }
+
+                // Hình ảnh
+                if (!empty($images)) {
+                    $this->productImageModel->addImages($productId, $images);
+                }
+
                 $_SESSION['success'] = 'Thêm sản phẩm thành công!';
                 $this->redirect('/admin/products');
             } else {
                 return $this->render('admin/products/create', [
-                    'error' => 'Có lỗi xảy ra, vui lòng thử lại',
+                    'error'      => 'Có lỗi xảy ra, vui lòng thử lại',
                     'categories' => $this->categoryModel->getAll()
                 ]);
             }
@@ -111,61 +153,105 @@ class ProductController extends Controller
             http_response_code(404);
             return $this->render('errors/404');
         }
+
+        // Lấy danh sách màu & ảnh cho view
+        $images = $this->productImageModel->getByProduct($id);
+        $colors = $this->productColorModel->getByProduct($id);
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $name = $_POST['name'] ?? '';
-            $description = $_POST['description'] ?? '';
-            $price = $_POST['price'] ?? 0;
-            $salePrice = $_POST['sale_price'] ?? null;
+            $name       = $_POST['name'] ?? '';
+            $intro      = $_POST['intro'] ?? '';
+            $detail     = $_POST['detail'] ?? '';
+            $price      = $_POST['price'] ?? 0;
+            $salePrice  = $_POST['sale_price'] ?? null;
             $categoryId = $_POST['category_id'] ?? 0;
-            $imageUrl = $_POST['image_url'] ?? '';
-            $isAvailable = (int)($_POST['is_available'] ?? 1);
-            
+            $isAvailable= (int)($_POST['is_available'] ?? 1);
+
+            $colorsRaw  = $_POST['colors'] ?? '';
+            $galleryRaw = $_POST['gallery_image_urls'] ?? '';
+
             if (empty($name) || empty($price) || empty($categoryId)) {
                 return $this->render('admin/products/edit', [
-                    'error' => 'Vui lòng nhập đầy đủ thông tin bắt buộc',
-                    'product' => $product,
-                    'categories' => $this->categoryModel->getAll()
+                    'error'      => 'Vui lòng nhập đầy đủ thông tin bắt buộc',
+                    'product'    => $product,
+                    'categories' => $this->categoryModel->getAll(),
+                    'images'     => $images,
+                    'colors'     => $colors,
                 ]);
             }
-            
-            // Prefer uploaded file over URL if provided
+
+            // Ảnh chính mới (nếu có)
+            $mainImageUrl = $_POST['image_url'] ?? '';
+            $uploaded = null;
             if (!empty($_FILES['image_file']['tmp_name']) && ($_FILES['image_file']['error'] ?? UPLOAD_ERR_OK) === UPLOAD_ERR_OK) {
                 $uploaded = $this->uploadImage($_FILES['image_file']);
-                if ($uploaded) {
-                    $imageUrl = $uploaded; // store filename
+            }
+
+            $newImages = [];
+
+            if ($uploaded) {
+                $newImages[] = $uploaded;
+            } elseif (!empty($mainImageUrl)) {
+                $newImages[] = $mainImageUrl;
+            }
+
+            if (!empty($galleryRaw)) {
+                $extra = preg_split('/\r\n|\r|\n/', $galleryRaw);
+                foreach ($extra as $url) {
+                    $url = trim($url);
+                    if ($url !== '') {
+                        $newImages[] = $url;
+                    }
                 }
             }
 
             $updateData = [
-                'name' => $name,
-                'description' => $description,
-                'price' => $price,
-                'sale_price' => $salePrice ?: null,
-                'category_id' => $categoryId,
-                'image_url' => $imageUrl,
+                'name'         => $name,
+                'intro'        => $intro,
+                'detail'       => $detail,
+                'price'        => $price,
+                'sale_price'   => $salePrice ?: null,
+                'category_id'  => $categoryId,
                 'is_available' => $isAvailable
             ];
-            
-            // Bỏ xử lý upload file: chỉ sử dụng URL ảnh từ form
             
             $result = $this->productModel->update($id, $updateData);
             
             if ($result) {
+                // Cập nhật màu: xoá hết rồi thêm lại theo form => cho phép thêm/xoá
+                $this->productColorModel->deleteByProduct($id);
+                $colorsNew = [];
+                if (!empty($colorsRaw)) {
+                    $colorsNew = array_filter(array_map('trim', explode(',', $colorsRaw)));
+                }
+                if (!empty($colorsNew)) {
+                    $this->productColorModel->addColors($id, $colorsNew);
+                }
+
+                // Cập nhật hình ảnh: xoá toàn bộ và thêm lại theo form
+                $this->productImageModel->deleteByProduct($id);
+                if (!empty($newImages)) {
+                    $this->productImageModel->addImages($id, $newImages);
+                }
+
                 $_SESSION['success'] = 'Cập nhật sản phẩm thành công!';
                 $this->redirect('/admin/products');
             } else {
                 return $this->render('admin/products/edit', [
-                    'error' => 'Có lỗi xảy ra khi cập nhật sản phẩm',
-                    'product' => $product,
-                    'categories' => $this->categoryModel->getAll()
+                    'error'      => 'Có lỗi xảy ra khi cập nhật sản phẩm',
+                    'product'    => $product,
+                    'categories' => $this->categoryModel->getAll(),
+                    'images'     => $images,
+                    'colors'     => $colors,
                 ]);
             }
         }
         
         return $this->render('admin/products/edit', [
-            'product' => $product,
-            'categories' => $this->categoryModel->getAll()
+            'product'    => $product,
+            'categories' => $this->categoryModel->getAll(),
+            'images'     => $images,
+            'colors'     => $colors,
         ]);
     }
 

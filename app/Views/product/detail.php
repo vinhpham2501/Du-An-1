@@ -18,21 +18,27 @@
             <!-- Product Image -->
             <div class="col-lg-6 mb-4">
                 <div class="product-image-container">
-                    <?php 
-                        $detailImageSrc = ImageHelper::getImageSrc($product['image_url'] ?? null);
-                    ?>
-                    <?php if (!empty($detailImageSrc)): ?>
+                    <?php if (!empty($images)): ?>
+                        <!-- Main Image -->
                         <div class="position-relative" style="width: 100%; height: 500px;">
-                            <img src="<?= htmlspecialchars($detailImageSrc) ?>" 
+                            <img id="main-image" 
+                                 src="<?= htmlspecialchars(\App\Helpers\ImageHelper::getImageSrc($images[0]['image_url'])) ?>" 
                                  class="img-fluid rounded shadow-lg w-100 h-100" 
                                  alt="<?= htmlspecialchars($product['name']) ?>"
                                  style="object-fit: cover;"
-                                 loading="eager" decoding="async"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="bg-light rounded shadow-lg position-absolute top-0 start-0 w-100 h-100 d-none align-items-center justify-content-center">
-                                <i class="fas fa-utensils fa-5x text-muted"></i>
-                            </div>
-        	            </div>
+                                 loading="eager" decoding="async">
+                        </div>
+                        
+                        <!-- Thumbnail Gallery -->
+                        <div class="d-flex gap-2 mt-3 overflow-auto">
+                            <?php foreach ($images as $index => $img): ?>
+                                <img src="<?= htmlspecialchars(\App\Helpers\ImageHelper::getImageSrc($img['image_url'])) ?>"
+                                     class="img-thumbnail cursor-pointer <?= $index === 0 ? 'border-primary' : '' ?>"
+                                     style="width: 80px; height: 80px; object-fit: cover;"
+                                     onclick="changeMainImage('<?= htmlspecialchars(\App\Helpers\ImageHelper::getImageSrc($img['image_url'])) ?>', this)"
+                                     alt="Thumbnail <?= $index + 1 ?>">
+                            <?php endforeach; ?>
+                        </div>
                     <?php else: ?>
                         <div class="bg-light d-flex align-items-center justify-content-center rounded shadow-lg" 
                              style="width: 100%; height: 500px;">
@@ -98,17 +104,21 @@
                     </div>
 
                     <div class="mb-3">
-                        <div class="fw-semibold mb-2">Màu sắc: <span class="fw-normal text-muted">Trắng ngà</span></div>
-                        <div class="size-selector d-flex flex-wrap gap-2 mb-2">
-                            <?php foreach (['S','M','L','XL','XXL'] as $index => $size): ?>
-                                <button type="button"
-                                        class="btn btn-outline-secondary btn-sm rounded-0 px-3 btn-size-option <?= $index === 1 ? 'active' : '' ?>"
-                                        onclick="selectSize(this)"
-                                        data-size="<?= $size ?>">
-                                    <?= $size ?>
-                                </button>
-                            <?php endforeach; ?>
-                        </div>
+                        <div class="fw-semibold mb-2">Màu sắc:</div>
+                        <?php if (!empty($colors)): ?>
+                            <div class="color-selector d-flex flex-wrap gap-2">
+                                <?php foreach ($colors as $color): ?>
+                                    <button type="button" 
+                                            class="btn btn-outline-secondary btn-sm rounded-0 px-3 btn-color-option"
+                                            onclick="selectColor(this, '<?= htmlspecialchars($color['name']) ?>')"
+                                            data-color="<?= htmlspecialchars($color['name']) ?>">
+                                        <?= htmlspecialchars($color['name']) ?>
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <span class="text-muted">Không có màu sắc</span>
+                        <?php endif; ?>
                     </div>
 
                     <!-- Quantity and action buttons -->
@@ -162,12 +172,12 @@
                             <div class="pt-2">
                                 <div class="desc-tab-pane" data-tab="intro">
                                     <p class="text-muted lh-lg mb-0">
-                                        <?= nl2br(htmlspecialchars($product['description'])) ?>
+                                        <?= nl2br(htmlspecialchars($product['intro'] ?? '')) ?>
                                     </p>
                                 </div>
                                 <div class="desc-tab-pane d-none" data-tab="detail">
                                     <p class="text-muted lh-lg mb-0">
-                                        <?= nl2br(htmlspecialchars($product['description'])) ?>
+                                        <?= nl2br(htmlspecialchars($product['detail'] ?? '')) ?>
                                     </p>
                                 </div>
                                 <div class="desc-tab-pane d-none" data-tab="review">
@@ -310,13 +320,36 @@ function decreaseQuantity() {
     }
 }
 
-// Size selector
-function selectSize(button) {
-    const buttons = document.querySelectorAll('.btn-size-option');
-    buttons.forEach(function (btn) {
-        btn.classList.remove('active');
+// Change main image
+function changeMainImage(src, thumbnail) {
+    const mainImg = document.getElementById('main-image');
+    if (mainImg) {
+        mainImg.src = src;
+        // Update thumbnail borders
+        document.querySelectorAll('.img-thumbnail').forEach(thumb => {
+            thumb.classList.remove('border-primary');
+        });
+        thumbnail.classList.add('border-primary');
+    }
+}
+
+// Color selection
+function selectColor(button, colorName) {
+    // Remove active state from all color buttons
+    document.querySelectorAll('.btn-color-option').forEach(btn => {
+        btn.classList.remove('active', 'btn-primary');
+        btn.classList.add('btn-outline-secondary');
     });
-    button.classList.add('active');
+    
+    // Add active state to clicked button
+    button.classList.remove('btn-outline-secondary');
+    button.classList.add('active', 'btn-primary');
+    
+    // Update selected color display
+    const selectedColorDisplay = document.getElementById('selected-color-display');
+    if (selectedColorDisplay) {
+        selectedColorDisplay.textContent = colorName;
+    }
 }
 
 // Description tabs
