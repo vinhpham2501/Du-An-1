@@ -85,6 +85,7 @@ class Order extends Model
 
     public function getOrderItems($orderId)
     {
+        // Lấy thông tin chi tiết sản phẩm trong đơn hàng, kèm ảnh đại diện từ bảng SANPHAM_HINHANH
         $sql = "SELECT 
                     oi.MaDH AS order_id,
                     oi.MaSP AS product_id,
@@ -92,10 +93,15 @@ class Order extends Model
                     oi.DonGia AS price,
                     oi.ThanhTien AS line_total,
                     p.TenSP AS name,
-                    p.HinhAnh AS image
+                    (SELECT img.HinhAnh 
+                     FROM SANPHAM_HINHANH img 
+                     WHERE img.MaSP = p.MaSP 
+                     ORDER BY img.MaHinh ASC 
+                     LIMIT 1) AS image
                 FROM CHI_TIET_DON_HANG oi 
                 JOIN SAN_PHAM p ON oi.MaSP = p.MaSP 
                 WHERE oi.MaDH = ?";
+
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$orderId]);
         return $stmt->fetchAll();

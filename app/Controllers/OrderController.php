@@ -38,7 +38,25 @@ class OrderController extends Controller
         $total = 0;
         
         try {
-            foreach ($cart as $productId => $quantity) {
+            foreach ($cart as $key => $item) {
+                // Hỗ trợ cả cấu trúc giỏ hàng cũ (productId => quantity)
+                // và cấu trúc mới (cartKey => ['product_id','quantity','color','size'])
+                if (is_array($item)) {
+                    $productId = (int)($item['product_id'] ?? 0);
+                    $quantity  = (int)($item['quantity'] ?? 1);
+                    $color     = $item['color'] ?? '';
+                    $size      = $item['size'] ?? '';
+                } else {
+                    $productId = (int)$key;
+                    $quantity  = (int)$item;
+                    $color     = '';
+                    $size      = '';
+                }
+
+                if (!$productId || $quantity <= 0) {
+                    continue;
+                }
+
                 $product = $this->productModel->findById($productId);
                 if ($product && $product['is_available']) {
                     $price = $product['price'];
@@ -46,10 +64,12 @@ class OrderController extends Controller
                     $total += $itemTotal;
                     
                     $cartItems[] = [
-                        'product' => $product,
+                        'product'  => $product,
                         'quantity' => $quantity,
-                        'price' => $price,
-                        'total' => $itemTotal
+                        'price'    => $price,
+                        'total'    => $itemTotal,
+                        'color'    => $color,
+                        'size'     => $size,
                     ];
                 }
             }
@@ -112,17 +132,37 @@ class OrderController extends Controller
             $cartItems = [];
             $total = 0;
             
-            foreach ($cart as $productId => $quantity) {
+            foreach ($cart as $key => $item) {
+                // Hỗ trợ cả cấu trúc giỏ hàng cũ và mới
+                if (is_array($item)) {
+                    $productId = (int)($item['product_id'] ?? 0);
+                    $quantity  = (int)($item['quantity'] ?? 1);
+                    $color     = $item['color'] ?? '';
+                    $size      = $item['size'] ?? '';
+                } else {
+                    $productId = (int)$key;
+                    $quantity  = (int)$item;
+                    $color     = '';
+                    $size      = '';
+                }
+
+                if (!$productId || $quantity <= 0) {
+                    continue;
+                }
+
                 $product = $this->productModel->findById($productId);
                 if ($product && $product['is_available']) {
                     $price = $product['price'];
                     $itemTotal = $price * $quantity;
                     $total += $itemTotal;
                     
+                    // OrderItem hiện tại chưa lưu màu/size, nhưng vẫn giữ trong mảng để mở rộng sau
                     $cartItems[] = [
                         'product_id' => $productId,
-                        'quantity' => $quantity,
-                        'price' => $price
+                        'quantity'   => $quantity,
+                        'price'      => $price,
+                        'color'      => $color,
+                        'size'       => $size,
                     ];
                 }
             }
@@ -264,17 +304,35 @@ class OrderController extends Controller
         $cart = $_SESSION['cart'] ?? [];
         $cartItems = [];
         
-        foreach ($cart as $productId => $quantity) {
+        foreach ($cart as $key => $item) {
+            if (is_array($item)) {
+                $productId = (int)($item['product_id'] ?? 0);
+                $quantity  = (int)($item['quantity'] ?? 1);
+                $color     = $item['color'] ?? '';
+                $size      = $item['size'] ?? '';
+            } else {
+                $productId = (int)$key;
+                $quantity  = (int)$item;
+                $color     = '';
+                $size      = '';
+            }
+
+            if (!$productId || $quantity <= 0) {
+                continue;
+            }
+
             $product = $this->productModel->findById($productId);
             if ($product) {
                 $price = $product['price'];
                 $itemTotal = $price * $quantity;
                 
                 $cartItems[] = [
-                    'product' => $product,
+                    'product'  => $product,
                     'quantity' => $quantity,
-                    'price' => $price,
-                    'total' => $itemTotal
+                    'price'    => $price,
+                    'total'    => $itemTotal,
+                    'color'    => $color,
+                    'size'     => $size,
                 ];
             }
         }
@@ -287,7 +345,19 @@ class OrderController extends Controller
         $cart = $_SESSION['cart'] ?? [];
         $total = 0;
         
-        foreach ($cart as $productId => $quantity) {
+        foreach ($cart as $key => $item) {
+            if (is_array($item)) {
+                $productId = (int)($item['product_id'] ?? 0);
+                $quantity  = (int)($item['quantity'] ?? 1);
+            } else {
+                $productId = (int)$key;
+                $quantity  = (int)$item;
+            }
+
+            if (!$productId || $quantity <= 0) {
+                continue;
+            }
+
             $product = $this->productModel->findById($productId);
             if ($product) {
                 $price = $product['price'];

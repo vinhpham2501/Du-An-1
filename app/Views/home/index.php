@@ -10,28 +10,19 @@
 
 <!-- Hero Banner Section (Traditional Clothing) -->
 <?php 
-    $bannerImageUrl = $bannerImageUrl ?? 'https://i.pinimg.com/1200x/47/f4/65/47f4657188bf0f0a9917cf9236da9957.jpg';
+	$bannerImageUrl = $bannerImageUrl ?? 'https://i.pinimg.com/1200x/47/f4/65/47f4657188bf0f0a9917cf9236da9957.jpg';
+	$secondBannerImageUrl = $secondBannerImageUrl ?? 'https://i.pinimg.com/736x/e5/2f/d5/e52fd5649cc83a9b9791322ddb895361.jpg';
+	$thirdBannerImageUrl = $thirdBannerImageUrl ?? 'https://i.pinimg.com/1200x/5d/47/0e/5d470e49425817f916483b7070e359b1.jpg';
+	$bannerImages = [
+		$bannerImageUrl,
+		$secondBannerImageUrl,
+		$thirdBannerImageUrl
+	];
+	$bannerImagesJson = htmlspecialchars(json_encode($bannerImages), ENT_QUOTES, 'UTF-8');
 ?>
-<section class="hero-banner" style="position:relative;background: url('<?= htmlspecialchars($bannerImageUrl) ?>') center/cover no-repeat;">
-    <div style="background: rgba(255, 240, 245, 0.6);">
-        <div class="container py-5 py-lg-6" style="min-height: 420px;">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <span class="badge bg-danger-subtle text-danger mb-3" style="font-size: .9rem;">Bộ sưu tập mới</span>
-                    <h1 class="display-5 fw-bold mb-3">Tỏa sáng cùng trang phục truyền thống</h1>
-                    <p class="lead text-muted mb-4">Khám phá áo dài, áo tứ thân, và nhiều thiết kế đậm bản sắc Việt.</p>
-                    <div>
-                        <a href="#productsContainer" class="btn btn-warning btn-lg me-3">
-                            <i class="fas fa-bag-shopping me-2"></i>Mua sắm ngay
-                        </a>
-                        <a href="/about" class="btn btn-outline-dark btn-lg">
-                            <i class="fas fa-circle-info me-2"></i>Tìm hiểu thêm
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<section class="hero-banner" 
+	data-banner-images="<?= $bannerImagesJson ?>"
+	style="position:relative;min-height: 100vh;background: url('<?= htmlspecialchars($bannerImageUrl) ?>') center/cover no-repeat;">
 </section>
 
 <!-- Features Icons Row -->
@@ -64,7 +55,7 @@
 </section>
 
 <!-- Hero Slider Section -->
-<section class="hero-slider-section">
+<section class="hero-slider-section" style="display: none;">
     <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
         <div class="carousel-indicators">
             <?php foreach ($featuredProducts as $index => $product): ?>
@@ -137,7 +128,7 @@
 </section>
 
 <!-- Top Selling Products Section -->
-<section class="py-5 bg-light">
+<section class="py-5 bg-light" style="display: none;">
     <div class="container">
         <div class="row mb-4">
             <div class="col-12 text-center">
@@ -220,7 +211,7 @@
 </section>
 
 <!-- Sale Products Section -->
-<section class="py-5">
+<section class="py-5" style="display: none;">
     <div class="container">
         <div class="row mb-4">
             <div class="col-12 text-center">
@@ -271,8 +262,13 @@
                                             <p class="card-text text-muted small"><?= htmlspecialchars(substr($product['description'], 0, 80)) ?>...</p>
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <div class="price">
-                                                    <span class="text-danger fw-bold"><?= number_format($product['sale_price']) ?>đ</span>
-                                                    <small class="text-muted text-decoration-line-through"><?= number_format($product['price']) ?>đ</small>
+                                                    <?php 
+                                                        // Đảm bảo number_format không nhận null
+                                                        $salePrice = $product['sale_price'] ?? ($product['price'] ?? 0);
+                                                        $basePrice = $product['price'] ?? 0;
+                                                    ?>
+                                                    <span class="text-danger fw-bold"><?= number_format($salePrice) ?>đ</span>
+                                                    <small class="text-muted text-decoration-line-through"><?= number_format($basePrice) ?>đ</small>
                                                 </div>
                                                 <button class="btn btn-primary rounded-circle p-2" onclick="addToCart(<?= $product['id'] ?>)" title="Thêm vào giỏ hàng">
                                                     <i class="fas fa-shopping-cart"></i>
@@ -300,7 +296,7 @@
 </section>
 
 <!-- New Products Section -->
-<section class="py-5 bg-light">
+<section class="py-5 bg-light" style="display: none;">
     <div class="container">
         <div class="row mb-4">
             <div class="col-12 text-center">
@@ -383,7 +379,7 @@
 </section>
 
 <!-- Main Products Section -->
-<section class="py-5">
+<section class="py-5" style="display: none;">
     <div class="container">
         <div class="row mb-4">
             <div class="col-12 text-center">

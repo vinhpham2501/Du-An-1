@@ -62,10 +62,37 @@ document.addEventListener('DOMContentLoaded', function() {
         initHeroSlider();
     }
     
+    // Auto-rotate hero banner background through multiple images
+    const heroBanner = document.querySelector('.hero-banner');
+    if (heroBanner) {
+        const imagesData = heroBanner.getAttribute('data-banner-images');
+        let images = [];
+
+        try {
+            if (imagesData) {
+                images = JSON.parse(imagesData);
+            }
+        } catch (e) {
+            console.error('Invalid hero banner images data', e);
+        }
+
+        if (Array.isArray(images) && images.length > 1) {
+            let currentIndex = 0;
+
+            setInterval(() => {
+                currentIndex = (currentIndex + 1) % images.length;
+                const nextImage = images[currentIndex];
+                if (nextImage) {
+                    heroBanner.style.background = `url('${nextImage}') center/cover no-repeat`;
+                }
+            }, 5000); // change every 5 seconds
+        }
+    }
+    
     // Handle image loading errors
     document.querySelectorAll('img').forEach(img => {
         img.addEventListener('error', function() {
-            this.src = '/images/placeholder-food.jpg';
+            this.src = '/images/logo1.1.png';
         });
     });
     
