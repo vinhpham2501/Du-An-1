@@ -10,6 +10,7 @@
 
     <div class="row g-4">
         <div class="col-lg-3">
+            <div class="position-sticky" style="top: 90px;">
             <div class="card">
                 <button class="card-header btn btn-link w-100 d-flex justify-content-between align-items-center text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#categoryFilter" aria-expanded="false" aria-controls="categoryFilter">
                     <h6 class="mb-0">Danh mục</h6>
@@ -135,6 +136,7 @@
                     <?php endforeach; ?>
                 </div>
             </div>
+            </div>
         </div>
         <div class="col-lg-9">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -155,7 +157,11 @@
                             <div class="card h-100 shadow-sm">
                                 <?php if ($img): ?>
                                     <a href="/product/<?= $p['id'] ?>">
-                                        <img src="<?= htmlspecialchars($img) ?>" class="card-img-top product-image" alt="<?= htmlspecialchars($p['name']) ?>" style="height: 420px; object-fit: cover; object-position: top;">
+                                        <img src="<?= htmlspecialchars($img) ?>"
+                                             class="card-img-top product-image"
+                                             alt="<?= htmlspecialchars($p['name']) ?>"
+                                             style="height: 420px; object-fit: cover; object-position: top;"
+                                        >
                                     </a>
                                 <?php else: ?>
                                     <a href="/product/<?= $p['id'] ?>" class="text-decoration-none">
@@ -172,7 +178,7 @@
                                     <div class="mt-auto d-flex justify-content-between align-items-center">
                                         <div>
                                             <?php if (!empty($p['sale_price'])): ?>
-                                                <span class="text-danger fw-bold"><?= number_format($p['sale_price']) ?>đ</span>
+                                                <span class="text-primary fw-bold"><?= number_format($p['sale_price']) ?>đ</span>
                                                 <small class="text-muted text-decoration-line-through ms-1"><?= number_format($p['price']) ?>đ</small>
                                             <?php else: ?>
                                                 <span class="text-primary fw-bold"><?= number_format($p['price']) ?>đ</span>

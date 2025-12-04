@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Cart count update
     updateCartCount();
+
+    // Initialize image zoom lightbox for product images
+    if (typeof initImageZoom === 'function') {
+        initImageZoom();
+    }
 });
 
 // Global functions
@@ -64,6 +69,40 @@ window.updateCartCount = function(count) {
             console.error('Error fetching cart count:', error);
         });
     }
+};
+
+// Image zoom lightbox
+window.initImageZoom = function() {
+    const backdrop = document.getElementById('imageLightbox');
+    const imgTarget = document.getElementById('imageLightboxImg');
+    if (!backdrop || !imgTarget) return;
+
+    // Delegate clicks for all zoomable images (img tag)
+    document.querySelectorAll('img.zoomable-image').forEach(img => {
+        img.style.cursor = 'zoom-in';
+        img.addEventListener('click', () => {
+            const src = img.getAttribute('data-full') || img.src;
+            imgTarget.src = src;
+            backdrop.classList.add('active');
+        });
+    });
+
+    // Delegate clicks for background-image blocks (e.g. Ao Dai story)
+    document.querySelectorAll('.zoomable-bg').forEach(box => {
+        box.style.cursor = 'zoom-in';
+        box.addEventListener('click', () => {
+            const src = box.getAttribute('data-full');
+            if (!src) return;
+            imgTarget.src = src;
+            backdrop.classList.add('active');
+        });
+    });
+
+    // Close on click backdrop
+    backdrop.addEventListener('click', () => {
+        backdrop.classList.remove('active');
+        imgTarget.src = '';
+    });
 };
 
 window.showNotification = function(type, message, duration = 3000) {

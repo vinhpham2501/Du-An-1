@@ -2,7 +2,7 @@
 
 <style>
 .dashboard-header {
-    background: linear-gradient(135deg, #0c3c78 0%, #193f5e 100%);
+    background: linear-gradient(135deg, #8B0000 0%, #8B0000 100%);
     color: #fff;
     padding: 2rem 0;
     margin: -18px -18px 2rem -18px;
@@ -47,19 +47,19 @@
 }
 
 .stat-card.primary {
-    background: linear-gradient(135deg, #3c78ff 0%, #0fd1ff 100%);
+    background: linear-gradient(135deg, #1c5aebff 0%, #2a53a7ff 100%);
 }
 
 .stat-card.success {
-    background: linear-gradient(135deg, #28c186 0%, #1cc88a 100%);
+    background: linear-gradient(135deg, #18ac42ff 0%, #66d570ff 100%);
 }
 
 .stat-card.info {
-    background: linear-gradient(135deg, #1d8cf8 0%, #6a11cb 100%);
+    background: linear-gradient(135deg, #e43434ff 0%, #d64e18ff 100%);
 }
 
 .stat-card.warning {
-    background: linear-gradient(135deg, #ff7f50 0%, #ffb347 100%);
+    background: linear-gradient(135deg, #1a90ebff 0%, #37d59eff 100%);
 }
 
 .stat-card i {
@@ -84,7 +84,7 @@
 }
 
 .chart-panel small {
-    color: #6c757d;
+    color: #0e6ec3ff;
 }
 
 .summary-chart-area {
@@ -100,7 +100,7 @@
 
 .table-modern th {
     background: #f7f8fa;
-    color: #3c4b64;
+    color: #173d7eff;
 }
 
 .product-item {
@@ -133,18 +133,18 @@
 }
 
 .pie-container {
-    flex: 0 0 55%;
-    max-width: 260px;
+    flex: 0 0 80%;       /* ~70% chiều ngang: biểu đồ + legend trạng thái */
+    max-width: 360px;
 }
 
 .category-legend {
-    flex: 1;
+    flex: 0 0 20%;       /* ~30% chiều ngang: danh mục theo doanh thu */
     list-style: none;
     padding-left: 0;
     margin-bottom: 0;
     font-size: 0.85rem;
-    text-align: left;
-    margin-left: auto;
+    text-align:center;      /* chữ danh mục canh trái trong nửa bên phải */
+    margin-left: 0;
 }
 
 .category-legend li {
@@ -164,6 +164,15 @@
 .category-legend .label-wrapper {
     display: flex;
     align-items: center;
+}
+
+/* Canh giữa tiêu đề nhỏ 'Top danh mục theo doanh thu' phía trên legend */
+.report-panel .chart-header {
+    text-align: center;
+}
+
+.report-panel .chart-header small {
+    display: block;
 }
 </style>
 
@@ -406,36 +415,43 @@ $topCategories = array_slice($categories ?? [], 0, 5);
 </div>
 
 <script>
-// Revenue Chart
+// ==============================
+// Biểu đồ doanh thu theo ngày
+// - Sử dụng dữ liệu PHP $dailyRevenue (date, revenue, orders)
+// - Vẽ 2 dataset: Doanh thu (cột màu tím) và Số đơn hàng (cột màu xanh lá)
+// ==============================
 const ctx = document.getElementById('revenueChart').getContext('2d');
 const revenueChart = new Chart(ctx, {
     type: 'bar',
     data: {
+        // Nhãn trục X: ngày dạng d/m lấy từ trường date
         labels: [
             <?php foreach ($dailyRevenue as $data): ?>
                 '<?= date('d/m', strtotime($data['date'])) ?>',
             <?php endforeach; ?>
         ],
         datasets: [{
+            // Dataset 1: Tổng doanh thu theo ngày (đơn vị: VND)
             label: 'Doanh thu',
             data: [
                 <?php foreach ($dailyRevenue as $data): ?>
                     <?= $data['revenue'] ?>,
                 <?php endforeach; ?>
             ],
-            backgroundColor: 'rgba(102, 126, 234, 0.8)',
-            borderColor: '#4e73df',
+            backgroundColor: 'rgba(9, 255, 78, 0.8)',
+            borderColor: '#76ff7fff',
             borderWidth: 1,
             borderRadius: 6
         }, {
+            // Dataset 2: Số lượng đơn hàng theo ngày
             label: 'Đơn hàng',
             data: [
                 <?php foreach ($dailyRevenue as $data): ?>
                     <?= $data['orders'] ?>,
                 <?php endforeach; ?>
             ],
-            backgroundColor: 'rgba(28, 200, 138, 0.85)',
-            borderColor: '#1cc88a',
+            backgroundColor: 'rgba(10, 96, 255, 0.85)',
+            borderColor: '#7d9dffff',
             borderWidth: 1,
             borderRadius: 6,
             yAxisID: 'y1'

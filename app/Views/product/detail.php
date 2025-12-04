@@ -23,7 +23,7 @@
                         <div class="position-relative" style="width: 100%; height: 500px;">
                             <img id="main-image" 
                                  src="<?= htmlspecialchars(\App\Helpers\ImageHelper::getImageSrc($images[0]['image_url'])) ?>" 
-                                 class="img-fluid rounded shadow-lg w-100 h-100" 
+                                 class="img-fluid rounded shadow-lg w-100 h-100 zoomable-image" 
                                  alt="<?= htmlspecialchars($product['name']) ?>"
                                  style="object-fit: contain; background: #f8f9fa;"
                                  loading="eager" decoding="async">
@@ -166,9 +166,7 @@
                                 <button class="btn btn-outline-dark btn-lg flex-fill text-uppercase" type="button" onclick="buyNow(<?= $product['id'] ?>)">
                                     Mua hàng
                                 </button>
-                                <button class="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center" type="button">
-                                    <i class="far fa-heart"></i>
-                                </button>
+                
                             </div>
                         </div>
 
@@ -349,6 +347,14 @@
 .product-description-tabs .nav-link.active {
     border-bottom-color: #000;
 }
+
+.btn-color-option.active,
+.btn-size-option.active {
+    border-color: #8b0000;
+    box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.15);
+    background-color: #fff;
+    color: #000;
+}
 </style>
 
 <script>
@@ -386,13 +392,11 @@ function changeMainImage(src, thumbnail) {
 function selectColor(button, colorName) {
     // Remove active state from all color buttons
     document.querySelectorAll('.btn-color-option').forEach(btn => {
-        btn.classList.remove('active', 'btn-primary');
-        btn.classList.add('btn-outline-secondary');
+        btn.classList.remove('active');
     });
     
     // Add active state to clicked button
-    button.classList.remove('btn-outline-secondary');
-    button.classList.add('active', 'btn-primary');
+    button.classList.add('active');
     
     // Update selected color display
     const selectedColorDisplay = document.getElementById('selected-color-display');
@@ -405,13 +409,11 @@ function selectColor(button, colorName) {
 function selectSize(button, sizeName) {
     // Remove active state from all size buttons
     document.querySelectorAll('.btn-size-option').forEach(btn => {
-        btn.classList.remove('active', 'btn-primary');
-        btn.classList.add('btn-outline-secondary');
+        btn.classList.remove('active');
     });
     
     // Add active state to clicked button
-    button.classList.remove('btn-outline-secondary');
-    button.classList.add('active', 'btn-primary');
+    button.classList.add('active');
     
     // Update selected size display
     const selectedSizeDisplay = document.getElementById('selected-size-display');

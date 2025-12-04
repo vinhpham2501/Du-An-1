@@ -69,17 +69,7 @@
                             </div>
                             
                             <div id="bank_info" class="alert alert-info mt-3" style="display: none;">
-                                <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Thông tin chuyển khoản</h6>
-                                <hr>
-                                <p class="mb-2"><strong>Ngân hàng:</strong> BIDV</p>
-                                <p class="mb-2"><strong>Số tài khoản:</strong> 5820167350</p>
-                                <p class="mb-2"><strong>Chủ tài khoản:</strong> PHAM TRUONG VINH</p>
-                                <p class="mb-2"><strong>Nội dung:</strong> <span class="text-danger">DH [Mã đơn hàng]</span></p>
-                                <hr>
-                                <small class="text-muted">
-                                    <i class="fas fa-exclamation-triangle me-1"></i>
-                                    Vui lòng chuyển khoản đúng nội dung để đơn hàng được xử lý nhanh chóng
-                                </small>
+                           <!--  -->
                             </div>
                         </div>
                         

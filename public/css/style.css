@@ -11,6 +11,18 @@
     --dark-color: #212529;
 }
 
+/* Outline primary buttons use brand red */
+.btn-outline-primary {
+    color: #8b0000 !important;
+    border-color: #8b0000 !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    background-color: #8b0000 !important;
+    color: #fff !important;
+}
+
 /* Override Bootstrap primary colors */
 .bg-primary {
     background-color: #8b0000 !important;
@@ -39,8 +51,33 @@ body {
 
 /* Header styles */
 .navbar-brand {
-    font-weight: bold;
-    font-size: 1.5rem;
+    font-weight: 800;
+    font-size: 1.8rem;
+}
+
+/* Make main user navbar darker and text easier to read */
+.navbar.navbar-dark.bg-primary {
+    background-color: #5a0000 !important;
+}
+
+.navbar .navbar-nav .nav-link {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.navbar .navbar-nav .nav-link:hover {
+    color: #ffc107 !important;
+}
+
+/* Admin navbar darker with clearer text */
+.navbar.navbar-dark.bg-dark {
+    background-color: #111827 !important; /* very dark navy */
+}
+
+.navbar.navbar-dark.bg-dark .navbar-brand span,
+.navbar.navbar-dark.bg-dark .navbar-nav .nav-link {
+    font-size: 1.05rem;
+    font-weight: 700;
 }
 
 /* Product card styles */
@@ -51,7 +88,7 @@ body {
 
 .product-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(139, 0, 0, 0.3);
 }
 
 .product-card .card-img-top {
@@ -128,6 +165,12 @@ body {
     font-size: 0.75rem;
 }
 
+/* Make active list-group items match primary red theme */
+.list-group-item.active {
+    background-color: #8b0000 !important;
+    border-color: #8b0000 !important;
+}
+
 /* Alert styles */
 .alert {
     border: none;
@@ -187,6 +230,25 @@ body {
 /* Footer styles */
 footer {
     margin-top: auto;
+}
+
+.social-link {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(139, 0, 0, 0.15);
+}
+
+.social-link:hover {
+    background: #8b0000;
+}
+
+.footer-links a:hover {
+    color: #8b0000;
+}
+
+.footer-contact li i {
+    color: #8b0000;
 }
 
 /* Responsive adjustments */

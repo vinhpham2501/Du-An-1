@@ -24,8 +24,8 @@
     <link href="/public/css/style.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Navigation (sticky) -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="/admin/dashboard">
                 <img src="/public/images/logo1.1.png" alt="Sắc Việt" class="admin-logo me-2" 

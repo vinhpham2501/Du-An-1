@@ -99,8 +99,8 @@
                     <li class="nav-item"><a class="nav-link" href="/contact">Liên hệ</a></li>
                 </ul>
 
-                <!-- SEARCH -->
-                <form class="d-flex me-3 search-box" action="/" method="GET">
+                <!-- SEARCH: chuyển về trang /products để xem kết quả tìm kiếm -->
+                <form class="d-flex me-3 search-box" action="/products" method="GET">
                     <input class="form-control" type="text" placeholder="Tìm kiếm..."
                         name="search"
                         value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
@@ -275,7 +275,8 @@
         <div class="footer-bottom">
             <div class="container">
                 <div class="row align-items-center">
-                    <div class="col-md-6 text-center text-md-start">
+                    <div class="col-md-6 text-center text-md-start d-flex flex-column flex-md-row align-items-center gap-2">
+                        <img src="/images/logo1.1.png" alt="Sắc Việt" style="height: 28px; width: auto;" onerror="this.style.display='none';">
                         <p class="mb-0">
                             &copy; 2025 <strong style="color: #ffc107;">Sắc Việt</strong> - PD12070. All rights reserved.
                         </p>
@@ -437,6 +438,37 @@
         50% { transform: scale(1.1); }
     }
     
+    /* Image lightbox overlay */
+    .image-lightbox-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.75);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1060;
+    }
+
+    .image-lightbox-backdrop.active {
+        display: flex;
+    }
+
+    .image-lightbox-content {
+        max-width: 90vw;
+        max-height: 90vh;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        border-radius: 12px;
+        overflow: hidden;
+        background: #000;
+    }
+
+    .image-lightbox-content img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    }
+
     @media (max-width: 768px) {
         .footer-top {
             padding: 40px 0 20px;
@@ -451,6 +483,13 @@
         }
     }
     </style>
+
+    <!-- Image Lightbox Overlay -->
+    <div id="imageLightbox" class="image-lightbox-backdrop">
+        <div class="image-lightbox-content">
+            <img src="" alt="Xem ảnh lớn" id="imageLightboxImg">
+        </div>
+    </div>
 
     <!-- Toast Container -->
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">

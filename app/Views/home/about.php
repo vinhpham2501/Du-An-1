@@ -258,7 +258,7 @@
                         đến những bộ cánh dân tộc đặc sắc, kết hợp giữa văn hóa truyền thống và phong cách hiện đại.
                     </p>
                     <div class="d-flex align-items-center mt-4">
-                        <img src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=60&h=60&fit=crop&crop=face&auto=format" 
+                        <img src="https://images.pexels.com/photos/34889454/pexels-photo-34889454.jpeg" 
                              class="rounded-circle me-3" width="60" height="60" alt="Founder">
                         <div>
                             <h6 class="mb-0">Phạm Bích Hiền</h6>
@@ -268,7 +268,7 @@
                 </div>
             </div>
             <div class="col-lg-6">
-                <img src="/public/uploads/tayphung.jpg"
+                <img src="https://images.pexels.com/photos/34889454/pexels-photo-34889454.jpeg"
                      class="img-fluid rounded-4 shadow-lg" alt="Bộ sưu tập Sắc Việt">
             </div>
         </div>
