@@ -82,6 +82,9 @@ class App
         $this->router->post('/admin/categories/create', 'Admin\CategoryController@create');
         $this->router->get('/admin/categories/{id}/edit', 'Admin\CategoryController@edit');
         $this->router->post('/admin/categories/{id}/edit', 'Admin\CategoryController@edit');
+        // Backward compatible routes: /admin/categories/edit/{id}
+        $this->router->get('/admin/categories/edit/{id}', 'Admin\CategoryController@edit');
+        $this->router->post('/admin/categories/edit/{id}', 'Admin\CategoryController@edit');
         $this->router->post('/admin/categories/delete', 'Admin\CategoryController@delete');
         
         // Order management

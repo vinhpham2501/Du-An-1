@@ -147,6 +147,11 @@
                                                 <?php endif; ?>
                                                 <div>
                                                     <h6 class="mb-0"><?= htmlspecialchars($item['name'] ?? 'N/A') ?></h6>
+                                                    <?php if (($order['status'] ?? '') === 'completed' && !empty($item['product_id'])): ?>
+                                                        <a href="/product/<?= $item['product_id'] ?>#reviews" class="btn btn-sm btn-outline-primary mt-1">
+                                                            Đánh giá sản phẩm
+                                                        </a>
+                                                    <?php endif; ?>
                                                 </div>
                                             </div>
                                         </td>

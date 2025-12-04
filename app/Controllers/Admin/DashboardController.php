@@ -50,6 +50,9 @@ class DashboardController extends Controller
                 'date_to' => $dateTo
             ]);
             
+            // Get categories and counts
+            $categories = $this->categoryModel->getAll();
+
             // Get counts
             $totalUsers = $this->userModel->count();
             $totalProducts = $this->productModel->count();
@@ -60,6 +63,7 @@ class DashboardController extends Controller
                 'dailyRevenue' => $dailyRevenue,
                 'topProducts' => $topProducts,
                 'recentOrders' => $recentOrders,
+                'categories' => $categories,
                 'totalUsers' => $totalUsers,
                 'totalProducts' => $totalProducts,
                 'totalCategories' => $totalCategories,

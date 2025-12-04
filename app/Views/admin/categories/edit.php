@@ -20,7 +20,7 @@
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="/admin/categories/edit/<?= $category['id'] ?>">
+            <form method="POST" action="/admin/categories/<?= $category['id'] ?>/edit">
                 <div class="row">
                     <div class="col-md-8">
                         <!-- ID danh mục -->

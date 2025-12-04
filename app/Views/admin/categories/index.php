@@ -53,7 +53,7 @@
                                     <td><?= date('d/m/Y', strtotime($category['created_at'])) ?></td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            <a href="/admin/categories/edit/<?= $category['id'] ?>" 
+                                            <a href="/admin/categories/<?= $category['id'] ?>/edit" 
                                                class="btn btn-outline-primary" title="Sửa">
                                                 <i class="fas fa-edit"></i>
                                             </a>

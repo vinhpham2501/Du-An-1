@@ -8,6 +8,16 @@ class Address extends Model
 {
     protected $table = 'DIA_CHI_GIAO_HANG';
 
+    public function findById($id)
+    {
+        $sql = "SELECT MaDC AS id, MaKH AS user_id, DiaChi, PhuongXa, QuanHuyen, TinhThanh, GhiChu, MacDinh
+                FROM {$this->table}
+                WHERE MaDC = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$id]);
+        return $stmt->fetch();
+    }
+
     public function getDefaultForUser($userId)
     {
         $sql = "SELECT MaDC AS id, MaKH AS user_id, DiaChi, PhuongXa, QuanHuyen, TinhThanh, GhiChu, MacDinh

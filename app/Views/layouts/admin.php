@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?? 'Admin Panel - Restaurant Management' ?></title>
+    <title><?= $title ?? 'Sắc Việt - Admin' ?></title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/images/logoo.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/images/logoo.png">
-    <link rel="shortcut icon" href="/images/logoo.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/logoo.png">
-    <meta name="msapplication-TileImage" content="/images/logoo.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/images/logo1.1.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/public/images/logo1.1.png">
+    <link rel="shortcut icon" href="/public/images/logo1.1.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/public/images/logo1.1.png">
+    <meta name="msapplication-TileImage" content="/public/images/logo1.1.png">
     <meta name="msapplication-TileColor" content="#2d89ef">
     <meta name="theme-color" content="#343a40">
     
@@ -28,10 +28,10 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="/admin/dashboard">
-                <img src="images/logoo.png" alt="Logo" class="admin-logo me-2" 
+                <img src="/public/images/logo1.1.png" alt="Sắc Việt" class="admin-logo me-2" 
                      onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
                 <i class="fas fa-tachometer-alt me-2" style="display: none;"></i>
-                <span class="fw-bold">Admin</span>
+                <span class="fw-bold">Sắc Việt Admin</span>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

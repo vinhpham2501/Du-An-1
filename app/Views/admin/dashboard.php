@@ -1,161 +1,169 @@
-<?php $title = 'Trang thống kê nhà hàng Restaurant'; ?>
+<?php $title = 'Bảng điều khiển - Sắc Việt Admin'; ?>
 
 <style>
 .dashboard-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, #0c3c78 0%, #193f5e 100%);
+    color: #fff;
     padding: 2rem 0;
-    margin: -1.5rem -1.5rem 2rem -1.5rem;
-    border-radius: 0 0 15px 15px;
+    margin: -18px -18px 2rem -18px;
+    border-radius: 0 0 20px 20px;
+}
+
+.dashboard-header h1 {
+    font-size: 1.85rem;
+    font-weight: 700;
 }
 
 .stat-card {
-    background: white;
-    border-radius: 15px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: none;
-    height: 100%;
+    border-radius: 16px;
+    padding: 1.4rem;
+    min-height: 160px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 30px rgba(15, 23, 42, 0.15);
 }
 
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+.stat-card .stat-label {
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+}
+
+.stat-card .stat-number {
+    font-size: 2.6rem;
+    font-weight: 700;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    right: 20px;
+    bottom: -30px;
+    pointer-events: none;
 }
 
 .stat-card.primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, #3c78ff 0%, #0fd1ff 100%);
 }
 
 .stat-card.success {
-    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
-    color: white;
+    background: linear-gradient(135deg, #28c186 0%, #1cc88a 100%);
 }
 
 .stat-card.info {
-    background: linear-gradient(135deg, #3498db 0%, #85c1e9 100%);
-    color: white;
+    background: linear-gradient(135deg, #1d8cf8 0%, #6a11cb 100%);
 }
 
 .stat-card.warning {
-    background: linear-gradient(135deg, #f39c12 0%, #f7dc6f 100%);
-    color: white;
+    background: linear-gradient(135deg, #ff7f50 0%, #ffb347 100%);
 }
 
-.stat-number {
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin: 0.5rem 0;
+.stat-card i {
+    font-size: 1.5rem;
 }
 
-.stat-label {
-    font-size: 0.9rem;
-    opacity: 0.9;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.chart-card {
-    background: white;
-    border-radius: 15px;
+.chart-panel,
+.report-panel {
+    background: #fff;
+    border-radius: 20px;
     padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
+    box-shadow: 0 15px 30px rgba(15, 23, 42, 0.08);
 }
 
-.chart-header {
-    border-bottom: 2px solid #f8f9fa;
-    padding-bottom: 1rem;
+.dual-chart-row .chart-panel {
+    min-height: 360px;
+}
+
+.chart-panel h5 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.chart-panel small {
+    color: #6c757d;
+}
+
+.summary-chart-area {
+    height: 360px;
+}
+
+.report-panel .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1.5rem;
 }
 
-.chart-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #2c3e50;
-    margin: 0;
-}
-
-.table-card {
-    background: white;
-    border-radius: 15px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-}
-
-.table-modern {
-    border: none;
-}
-
 .table-modern th {
-    border: none;
-    background: #f8f9fa;
-    font-weight: 600;
-    color: #2c3e50;
-    padding: 1rem;
-}
-
-.table-modern td {
-    border: none;
-    padding: 1rem;
-    vertical-align: middle;
-}
-
-.table-modern tbody tr {
-    border-bottom: 1px solid #f1f3f4;
-}
-
-.table-modern tbody tr:hover {
-    background: #f8f9fa;
-}
-
-.badge-modern {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-weight: 500;
+    background: #f7f8fa;
+    color: #3c4b64;
 }
 
 .product-item {
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.table-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 1.5rem 1.75rem;
+    box-shadow: 0 12px 25px rgba(15, 23, 42, 0.08);
+}
+
+.chart-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.summary-chart-area {
+    height: 280px;
+}
+
+.pie-layout {
     display: flex;
     align-items: center;
-    padding: 1rem;
-    border-bottom: 1px solid #f1f3f4;
-    transition: background 0.3s ease;
+    justify-content: space-between;
+    gap: 1.25rem;
+    width: 100%;
+    height: 100%;
 }
 
-.product-item:hover {
-    background: #f8f9fa;
+.pie-container {
+    flex: 0 0 55%;
+    max-width: 260px;
 }
 
-.product-item:last-child {
-    border-bottom: none;
-}
-
-.product-rank {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    margin-right: 1rem;
-}
-
-.icon-circle {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
+.category-legend {
+    flex: 1;
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+    font-size: 0.85rem;
+    text-align: left;
     margin-left: auto;
+}
+
+.category-legend li {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0.25rem 0;
+}
+
+.category-legend .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.category-legend .label-wrapper {
+    display: flex;
+    align-items: center;
 }
 </style>
 
@@ -164,8 +172,8 @@
     <div class="container-fluid">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h1 class="mb-2">Trang thống kê nhà hàng Restaurant</h1>
-                <p class="mb-0 opacity-75">Chào mừng bạn quay trở lại! Đây là tổng quan về hoạt động của website.</p>
+                <h1 class="mb-2">Tổng quan hoạt động - Sắc Việt</h1>
+                <p class="mb-0 opacity-75">Theo dõi nhanh đơn hàng, doanh thu và sản phẩm nổi bật trên hệ thống Sắc Việt.</p>
             </div>
             <div class="col-md-4 text-end">
                 <div class="d-flex gap-2 justify-content-end">
@@ -181,117 +189,122 @@
 </div>
 
 <!-- Statistics Cards -->
-<div class="row mb-4">
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stat-card primary">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stat-label">Tổng số đơn hàng</div>
-                    <div class="stat-number"><?= number_format($stats['total_orders']) ?></div>
-                    <small>Đơn hàng</small>
-                </div>
-                <div class="icon-circle" style="background: rgba(255,255,255,0.2);">
-                    <i class="fas fa-shopping-cart"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stat-card success">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stat-label">Doanh thu</div>
-                    <div class="stat-number"><?= number_format($stats['total_revenue']) ?>đ</div>
-                    <small>VND</small>
-                </div>
-                <div class="icon-circle" style="background: rgba(255,255,255,0.2);">
-                    <i class="fas fa-dollar-sign"></i>
+<div class="row mb-4 g-3">
+    <?php $insights = [
+        ['label' => 'Đơn hàng', 'value' => number_format($stats['total_orders']), 'icon' => 'fa-shopping-cart', 'class' => 'primary', 'detail' => 'Tổng đơn hàng'],
+        ['label' => 'Doanh thu', 'value' => number_format($stats['total_revenue']) . 'đ', 'icon' => 'fa-wallet', 'class' => 'success', 'detail' => 'Tổng doanh thu'],
+        ['label' => 'Sản phẩm', 'value' => number_format($totalProducts), 'icon' => 'fa-box', 'class' => 'info', 'detail' => 'Sản phẩm hiện có'],
+        ['label' => 'Thành viên', 'value' => number_format($totalUsers), 'icon' => 'fa-users', 'class' => 'warning', 'detail' => 'Người dùng đăng ký']
+    ]; ?>
+    <?php foreach ($insights as $insight): ?>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card <?= $insight['class'] ?>">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="stat-label"><?= $insight['detail'] ?></div>
+                        <div class="stat-number"><?= $insight['value'] ?></div>
+                        <small><?= $insight['label'] ?></small>
+                    </div>
+                    <div>
+                        <i class="fas <?= $insight['icon'] ?>"></i>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    <?php endforeach; ?>
+</div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stat-card info">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stat-label">Sản phẩm</div>
-                    <div class="stat-number"><?= number_format($totalProducts) ?></div>
-                    <small>Sản phẩm</small>
-                </div>
-                <div class="icon-circle" style="background: rgba(255,255,255,0.2);">
-                    <i class="fas fa-box"></i>
-                </div>
+<?php
+// Thống kê theo trạng thái đơn hàng cho biểu đồ tròn
+$statusLabelsChart = [
+    'pending' => 'Chờ xác nhận',
+    'confirmed' => 'Đã xác nhận',
+    'preparing' => 'Đang chuẩn bị',
+    'delivering' => 'Đang giao',
+    'completed' => 'Hoàn thành',
+    'cancelled' => 'Đã hủy'
+];
+
+// Dữ liệu cho biểu đồ tròn: theo trạng thái đơn hàng
+$statusStats = [];
+foreach ($recentOrders as $order) {
+    $statusKey = $order['status'] ?? 'pending';
+    $label = $statusLabelsChart[$statusKey] ?? ucfirst($statusKey);
+    if (!isset($statusStats[$label])) {
+        $statusStats[$label] = 0;
+    }
+    $statusStats[$label]++;
+}
+
+$statusChartData = array_slice($statusStats, 0, 5, true);
+
+// Danh sách danh mục cho phần "Top danh mục theo doanh thu"
+$categoryColors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'];
+$topCategories = array_slice($categories ?? [], 0, 5);
+?>
+
+<!-- Revenue Chart Row -->
+<div class="row mb-4 dual-chart-row">
+    <div class="col-xl-8 mb-4">
+        <div class="chart-panel">
+            <div class="chart-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-area me-2 text-primary"></i>
+                    Doanh thu theo ngày
+                </h5>
+                <small>Doanh thu và đơn hàng trong khoảng</small>
+            </div>
+            <div class="summary-chart-area">
+                <canvas id="revenueChart"></canvas>
             </div>
         </div>
     </div>
-
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stat-card warning">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stat-label">Thành viên</div>
-                    <div class="stat-number"><?= number_format($totalUsers) ?></div>
-                    <small>Người dùng</small>
-                </div>
-                <div class="icon-circle" style="background: rgba(255,255,255,0.2);">
-                    <i class="fas fa-users"></i>
+    <div class="col-xl-4 mb-4">
+        <div class="report-panel">
+            <div class="chart-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-pie-chart me-2 text-warning"></i>
+                    Cơ cấu danh mục
+                </h5>
+                <small>Top danh mục theo doanh thu</small>
+            </div>
+            <div class="summary-chart-area">
+                <div class="pie-layout">
+                    <div class="pie-container">
+                        <canvas id="assetChart"></canvas>
+                    </div>
+                    <ul class="category-legend">
+                        <?php $i = 0; foreach ($topCategories as $cat): ?>
+                            <li>
+                                <div class="label-wrapper">
+                                    <span class="dot" style="background: <?= $categoryColors[$i % count($categoryColors)] ?>"></span>
+                                    <span><?= htmlspecialchars($cat['name']) ?></span>
+                                </div>
+                            </li>
+                        <?php $i++; endforeach; ?>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Charts Row -->
+<!-- Bottom Row: Top products & Recent orders -->
 <div class="row mb-4">
-    <!-- Revenue Chart -->
-    <div class="col-xl-8 col-lg-7">
-        <div class="chart-card">
-            <div class="chart-header">
-                <h5 class="chart-title">
-                    <i class="fas fa-chart-line me-2 text-primary"></i>
-                    Biểu đồ doanh thu các ngày trong tháng
-                </h5>
-            </div>
-            <div class="chart-area">
-                <canvas id="revenueChart" height="300"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Order Status Chart -->
-    <div class="col-xl-4 col-lg-5">
-        <div class="chart-card">
-            <div class="chart-header">
-                <h5 class="chart-title">
-                    <i class="fas fa-chart-pie me-2 text-success"></i>
-                    Thống kê trạng thái đơn hàng
-                </h5>
-            </div>
-            <div class="chart-area">
-                <canvas id="statusChart" height="300"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Bottom Row -->
-<div class="row">
     <!-- Top Products -->
-    <div class="col-xl-6 col-lg-6">
-        <div class="table-card">
+    <div class="col-xl-6 col-lg-6 mb-4">
+        <div class="table-card h-100">
             <div class="chart-header">
-                <h5 class="chart-title">
+                <h5 class="chart-title mb-0">
                     <i class="fas fa-star me-2 text-warning"></i>
                     Top sản phẩm bán chạy
                 </h5>
             </div>
-            
+
             <?php if (empty($topProducts)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                    <p class="text-muted">Chưa có dữ liệu sản phẩm bán chạy</p>
+                    <p class="text-muted mb-0">Chưa có dữ liệu sản phẩm bán chạy</p>
                 </div>
             <?php else: ?>
                 <?php foreach ($topProducts as $index => $product): ?>
@@ -304,6 +317,7 @@
                         <div class="text-end">
                             <div class="text-success fw-bold"><?= number_format($product['revenue']) ?>đ</div>
                             <small class="text-muted">Doanh thu</small>
+
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -312,23 +326,23 @@
     </div>
 
     <!-- Recent Orders -->
-    <div class="col-xl-6 col-lg-6">
-        <div class="table-card">
+    <div class="col-xl-6 col-lg-6 mb-4">
+        <div class="table-card h-100">
             <div class="chart-header">
-                <h5 class="chart-title">
+                <h5 class="chart-title mb-0">
                     <i class="fas fa-clock me-2 text-info"></i>
-                    Danh sách đơn hàng mới
+                    Đơn hàng gần nhất
                 </h5>
             </div>
-            
+
             <?php if (empty($recentOrders)): ?>
                 <div class="text-center py-4">
                     <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                    <p class="text-muted">Chưa có đơn hàng nào</p>
+                    <p class="text-muted mb-0">Chưa có đơn hàng nào</p>
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
-                    <table class="table table-modern">
+                    <table class="table table-modern mb-0">
                         <thead>
                             <tr>
                                 <th>Mã đơn</th>
@@ -395,7 +409,7 @@
 // Revenue Chart
 const ctx = document.getElementById('revenueChart').getContext('2d');
 const revenueChart = new Chart(ctx, {
-    type: 'line',
+    type: 'bar',
     data: {
         labels: [
             <?php foreach ($dailyRevenue as $data): ?>
@@ -409,15 +423,10 @@ const revenueChart = new Chart(ctx, {
                     <?= $data['revenue'] ?>,
                 <?php endforeach; ?>
             ],
-            borderColor: '#667eea',
-            backgroundColor: 'rgba(102, 126, 234, 0.1)',
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: '#667eea',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-            pointRadius: 6
+            backgroundColor: 'rgba(102, 126, 234, 0.8)',
+            borderColor: '#4e73df',
+            borderWidth: 1,
+            borderRadius: 6
         }, {
             label: 'Đơn hàng',
             data: [
@@ -425,15 +434,10 @@ const revenueChart = new Chart(ctx, {
                     <?= $data['orders'] ?>,
                 <?php endforeach; ?>
             ],
+            backgroundColor: 'rgba(28, 200, 138, 0.85)',
             borderColor: '#1cc88a',
-            backgroundColor: 'rgba(28, 200, 138, 0.1)',
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: '#1cc88a',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-            pointRadius: 6,
+            borderWidth: 1,
+            borderRadius: 6,
             yAxisID: 'y1'
         }]
     },
@@ -487,47 +491,17 @@ const revenueChart = new Chart(ctx, {
     }
 });
 
-// Status Chart
-const statusCtx = document.getElementById('statusChart').getContext('2d');
-const statusChart = new Chart(statusCtx, {
+const assetCtx = document.getElementById('assetChart').getContext('2d');
+const assetChart = new Chart(assetCtx, {
     type: 'doughnut',
     data: {
-        labels: ['Hoàn thành', 'Đang xử lý', 'Đã hủy', 'Chờ xác nhận'],
+        // Biểu đồ tròn: theo trạng thái đơn hàng
+        labels: <?= json_encode(array_keys($statusChartData)) ?>,
         datasets: [{
-            data: [
-                <?php
-                // Calculate status counts
-                $statusCounts = [
-                    'completed' => 0,
-                    'processing' => 0,
-                    'cancelled' => 0,
-                    'pending' => 0
-                ];
-                foreach ($recentOrders as $order) {
-                    if ($order['status'] == 'completed') {
-                        $statusCounts['completed']++;
-                    } elseif (in_array($order['status'], ['confirmed', 'preparing', 'delivering'])) {
-                        $statusCounts['processing']++;
-                    } elseif ($order['status'] == 'cancelled') {
-                        $statusCounts['cancelled']++;
-                    } else {
-                        $statusCounts['pending']++;
-                    }
-                }
-                ?>
-                <?= $statusCounts['completed'] ?>,
-                <?= $statusCounts['processing'] ?>,
-                <?= $statusCounts['cancelled'] ?>,
-                <?= $statusCounts['pending'] ?>
-            ],
-            backgroundColor: [
-                '#1cc88a',
-                '#36b9cc', 
-                '#e74a3b',
-                '#f6c23e'
-            ],
+            data: <?= json_encode(array_values($statusChartData)) ?>,
+            backgroundColor: <?= json_encode($categoryColors) ?>,
             borderWidth: 0,
-            cutout: '60%'
+            hoverOffset: 10
         }]
     },
     options: {
@@ -535,16 +509,16 @@ const statusChart = new Chart(statusCtx, {
         maintainAspectRatio: false,
         plugins: {
             legend: {
-                position: 'bottom',
+                position: 'right',
                 labels: {
-                    usePointStyle: true,
-                    padding: 20
+                    boxWidth: 10,
+                    padding: 15
                 }
             }
-        }
+        },
+        cutout: '70%'
     }
 });
-
 function updateDateRange() {
     const dateFrom = document.getElementById('date_from').value;
     const dateTo = document.getElementById('date_to').value;

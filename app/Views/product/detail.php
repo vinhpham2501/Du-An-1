@@ -204,7 +204,7 @@
                                 </div>
                                 <div class="desc-tab-pane d-none" data-tab="review">
                                     <?php if (empty($reviews)): ?>
-                                        <p class="text-muted mb-0">Chưa có đánh giá nào cho sản phẩm này.</p>
+                                        <p class="text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
                                     <?php else: ?>
                                         <?php foreach ($reviews as $review): ?>
                                             <div class="mb-3 pb-3 border-bottom">
@@ -222,6 +222,33 @@
                                                 <?php endif; ?>
                                             </div>
                                         <?php endforeach; ?>
+                                    <?php endif; ?>
+
+                                    <hr>
+
+                                    <?php if (!empty($_SESSION['user_id'])): ?>
+                                        <h6 class="mb-2">Viết đánh giá của bạn</h6>
+                                        <form id="review-form" onsubmit="event.preventDefault(); submitReview(<?= (int)$product['id'] ?>);">
+                                            <div class="mb-2">
+                                                <label class="form-label mb-1">Chọn số sao:</label>
+                                                <div id="review-stars" class="text-warning fs-5">
+                                                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                        <i class="far fa-star review-star" data-value="<?= $i ?>" onclick="setReviewRating(<?= $i ?>)"></i>
+                                                    <?php endfor; ?>
+                                                </div>
+                                                <input type="hidden" id="review-rating" value="0">
+                                            </div>
+                                            <div class="mb-2">
+                                                <label for="review-comment" class="form-label mb-1">Nhận xét của bạn</label>
+                                                <textarea id="review-comment" class="form-control" rows="3" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary btn-sm mt-1">Gửi đánh giá</button>
+                                            <small id="review-message" class="d-block mt-1"></small>
+                                        </form>
+                                    <?php else: ?>
+                                        <p class="text-muted mb-0">
+                                            Vui lòng <a href="/login">đăng nhập</a> để viết đánh giá.
+                                        </p>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -427,6 +454,75 @@ function selectDescTab(tab) {
         } else {
             pane.classList.add('d-none');
         }
+    });
+}
+
+// Review rating selection
+function setReviewRating(value) {
+    const stars = document.querySelectorAll('#review-stars .review-star');
+    stars.forEach(star => {
+        const starValue = parseInt(star.getAttribute('data-value'));
+        if (starValue <= value) {
+            star.classList.remove('far');
+            star.classList.add('fas');
+        } else {
+            star.classList.remove('fas');
+            star.classList.add('far');
+        }
+    });
+
+    const ratingInput = document.getElementById('review-rating');
+    if (ratingInput) {
+        ratingInput.value = value;
+    }
+}
+
+// Submit review via AJAX
+function submitReview(productId) {
+    const ratingInput = document.getElementById('review-rating');
+    const commentInput = document.getElementById('review-comment');
+    const messageEl = document.getElementById('review-message');
+
+    if (!ratingInput || !commentInput || !messageEl) return;
+
+    const rating = parseInt(ratingInput.value) || 0;
+    const comment = commentInput.value.trim();
+
+    if (!rating || rating < 1 || rating > 5) {
+        messageEl.textContent = 'Vui lòng chọn số sao (1-5).';
+        messageEl.className = 'd-block mt-1 text-danger';
+        return;
+    }
+
+    const formData = new URLSearchParams();
+    formData.append('product_id', productId);
+    formData.append('rating', rating);
+    formData.append('comment', comment);
+
+    fetch('/add-review', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString()
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            messageEl.textContent = data.message || 'Đánh giá thành công!';
+            messageEl.className = 'd-block mt-1 text-success';
+            // Reload page to see new review and updated average rating
+            setTimeout(() => {
+                window.location.reload();
+            }, 800);
+        } else {
+            messageEl.textContent = data.message || 'Có lỗi xảy ra, vui lòng thử lại!';
+            messageEl.className = 'd-block mt-1 text-danger';
+        }
+    })
+    .catch(() => {
+        messageEl.textContent = 'Có lỗi xảy ra, vui lòng thử lại!';
+        messageEl.className = 'd-block mt-1 text-danger';
     });
 }
 

@@ -247,6 +247,28 @@ class OrderController extends Controller
                 return $this->render('errors/404');
             }
             
+            // Chuẩn hóa thông tin giao hàng để hiển thị
+            $deliveryName = $_SESSION['user_name'] ?? 'Khách hàng';
+            $deliveryPhone = $_SESSION['user_phone'] ?? '';
+            $deliveryAddress = '';
+
+            if (!empty($order['address_id'])) {
+                $address = $this->addressModel->findById($order['address_id']);
+                if ($address) {
+                    $parts = array_filter([
+                        $address['DiaChi'] ?? null,
+                        $address['PhuongXa'] ?? null,
+                        $address['QuanHuyen'] ?? null,
+                        $address['TinhThanh'] ?? null,
+                    ]);
+                    $deliveryAddress = implode(', ', $parts);
+                }
+            }
+
+            $order['delivery_name'] = $deliveryName;
+            $order['delivery_phone'] = $deliveryPhone;
+            $order['delivery_address'] = $deliveryAddress;
+
             $orderItems = $this->orderModel->getOrderItems($id);
             
             return $this->render('order/detail', [
