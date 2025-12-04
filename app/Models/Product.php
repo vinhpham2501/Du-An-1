@@ -78,6 +78,16 @@ class Product extends Model
             $params[] = '%' . $filters['search'] . '%';
         }
 
+        if (isset($filters['price_min'])) {
+            $conditions[] = "p.Gia >= ?";
+            $params[] = (int)$filters['price_min'];
+        }
+
+        if (isset($filters['price_max']) && (int)$filters['price_max'] > 0) {
+            $conditions[] = "p.Gia <= ?";
+            $params[] = (int)$filters['price_max'];
+        }
+
         if (isset($filters['exclude_id'])) {
             $conditions[] = "p.MaSP != ?";
             $params[] = $filters['exclude_id'];
@@ -150,6 +160,16 @@ class Product extends Model
             $params[] = '%' . $filters['search'] . '%';
         }
 
+        if (isset($filters['price_min'])) {
+            $conditions[] = "p.Gia >= ?";
+            $params[] = (int)$filters['price_min'];
+        }
+
+        if (isset($filters['price_max']) && (int)$filters['price_max'] > 0) {
+            $conditions[] = "p.Gia <= ?";
+            $params[] = (int)$filters['price_max'];
+        }
+
         $sql .= " WHERE " . implode(' AND ', $conditions);
 
         $stmt = $this->db->prepare($sql);
@@ -216,7 +236,7 @@ class Product extends Model
                 LEFT JOIN CHI_TIET_DON_HANG oi ON p.MaSP = oi.MaSP
                 LEFT JOIN DON_HANG o ON oi.MaDH = o.MaDH 
                 WHERE p.TrangThai = 1 
-                  AND (o.TrangThai IS NULL OR o.TrangThai IN ('Hoàn tất','Đang giao'))
+                  AND (o.TrangThai IS NULL OR o.TrangThai NOT IN ('Hủy'))
                 GROUP BY p.MaSP, p.MaDM, p.TenSP, p.GioiThieu, p.ChiTiet, p.Gia, p.TrangThai, p.NgayTao, c.TenDM
                 ORDER BY total_sold DESC, p.NgayTao DESC 
                 LIMIT ?";

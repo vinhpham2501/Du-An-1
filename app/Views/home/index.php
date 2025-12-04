@@ -8,22 +8,303 @@
 
 <?php // removed duplicate CSS include to avoid double-loading styles ?>
 
-<!-- Hero Banner Section (Traditional Clothing) -->
+<!-- Main Hero Carousel -->
 <?php 
-	$bannerImageUrl = $bannerImageUrl ?? 'https://i.pinimg.com/1200x/47/f4/65/47f4657188bf0f0a9917cf9236da9957.jpg';
-	$secondBannerImageUrl = $secondBannerImageUrl ?? 'https://i.pinimg.com/736x/e5/2f/d5/e52fd5649cc83a9b9791322ddb895361.jpg';
-	$thirdBannerImageUrl = $thirdBannerImageUrl ?? 'https://i.pinimg.com/1200x/5d/47/0e/5d470e49425817f916483b7070e359b1.jpg';
-	$bannerImages = [
-		$bannerImageUrl,
-		$secondBannerImageUrl,
-		$thirdBannerImageUrl
-	];
-	$bannerImagesJson = htmlspecialchars(json_encode($bannerImages), ENT_QUOTES, 'UTF-8');
+    // Cấu hình các slide hero: bạn chỉ cần thay link ảnh và nội dung bên dưới
+    $heroSlides = [
+        [
+            'image' => $bannerImageUrl ?? 'https://images.pexels.com/photos/32755016/pexels-photo-32755016.jpeg',
+            'kicker' => 'Tinh hoa Việt trên từng thước vải',
+            'title' => 'Gốm Sứ Bát Tràng',
+            'subtitle' => 'Bộ sưu tập mang đậm hơi thở làng nghề truyền thống',
+            'button_text' => 'Mua sắm ngay',
+            'button_link' => '/products',
+        ],
+        [
+            'image' => $secondBannerImageUrl ?? 'https://images.pexels.com/photos/30466704/pexels-photo-30466704.jpeg',
+            'kicker' => 'Nghệ thuật thủ công truyền thống',
+            'title' => 'Tuyệt Tác Sơn Mài',
+            'subtitle' => 'Tôn vinh vẻ đẹp Việt qua từng đường nét tinh xảo',
+            'button_text' => 'Xem bộ sưu tập',
+            'button_link' => '/products',
+        ],
+        [
+            'image' => $thirdBannerImageUrl ?? 'https://images.pexels.com/photos/34889454/pexels-photo-34889454.jpeg',
+            'kicker' => 'Sắc Việt trong từng trang phục',
+            'title' => 'Áo Dài Truyền Thống',
+            'subtitle' => 'Kết hợp tinh hoa cổ điển và hơi thở hiện đại',
+            'button_text' => 'Khám phá ngay',
+            'button_link' => '/products',
+        ],
+        [
+            'image' => $thirdBannerImageUrl ?? 'https://images.pexels.com/photos/33409159/pexels-photo-33409159.jpeg',
+            'kicker' => 'Sắc Việt trong từng trang phục',
+            'title' => 'Áo Dài Truyền Thống',
+            'subtitle' => 'Kết hợp tinh hoa cổ điển và hơi thở hiện đại',
+            'button_text' => 'Khám phá ngay',
+            'button_link' => '/products',
+        ],
+    ];
 ?>
-<section class="hero-banner" 
-	data-banner-images="<?= $bannerImagesJson ?>"
-	style="position:relative;min-height: 100vh;background: url('<?= htmlspecialchars($bannerImageUrl) ?>') center/cover no-repeat;">
+
+<section class="main-hero">
+    <div id="mainHeroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="6000">
+        <div class="carousel-indicators">
+            <?php foreach ($heroSlides as $index => $_slide): ?>
+                <button type="button" data-bs-target="#mainHeroCarousel" data-bs-slide-to="<?= $index ?>" class="<?= $index === 0 ? 'active' : '' ?>" aria-current="<?= $index === 0 ? 'true' : 'false' ?>" aria-label="Slide <?= $index + 1 ?>"></button>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="carousel-inner">
+            <?php foreach ($heroSlides as $index => $slide): ?>
+                <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
+                    <div class="main-hero-slide" style="background-image: url('<?= htmlspecialchars($slide['image']) ?>');">
+                        <div class="main-hero-overlay"></div>
+                        <div class="container h-100">
+                            <div class="row h-100 align-items-center">
+                                <div class="col-lg-7 col-md-9">
+                                    <div class="main-hero-caption text-white">
+                                        <p class="hero-kicker mb-3"><?= htmlspecialchars($slide['kicker']) ?></p>
+                                        <h1 class="hero-title mb-3"><?= htmlspecialchars($slide['title']) ?></h1>
+                                        <p class="hero-subtitle mb-4"><?= htmlspecialchars($slide['subtitle']) ?></p>
+                                        <a href="<?= htmlspecialchars($slide['button_link']) ?>" class="btn btn-primary btn-lg px-4">
+                                            <?= htmlspecialchars($slide['button_text']) ?>
+                                            <i class="fas fa-arrow-right ms-2"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#mainHeroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#mainHeroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
 </section>
+
+<!-- Featured Collection Section -->
+<?php if (!empty($featuredProducts)): ?>
+<section class="featured-collection-section py-5">
+    <div class="container">
+        <div class="row align-items-end mb-4">
+            <div class="col-md-8">
+                <p class="featured-kicker mb-1">Sản Phẩm nổi bật</p>
+                <h2 class="featured-title mb-0">Tinh Hoa Nghệ Thuật</h2>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="/products" class="featured-view-all-link">
+                    Xem tất cả <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <?php
+            // Ưu tiên lấy 4 sản phẩm nổi bật theo tên cụ thể người dùng muốn
+            $preferredNames = [
+                'áo giao lĩnh quấn thường',
+                'áo ngũ thân nam hoài cổ',
+                'áo tấc sa xước nữ',
+                'nhật bình lan hồ điệp',
+            ];
+
+            // Nguồn dữ liệu ưu tiên: danh sách products đang hiển thị trên home, sau đó mới tới featuredProducts
+            $baseList = $products ?? [];
+            if (empty($baseList) && !empty($featuredProducts)) {
+                $baseList = $featuredProducts;
+            }
+
+            $ordered = [];
+            $remaining = $baseList;
+
+            foreach ($preferredNames as $name) {
+                foreach ($remaining as $key => $p) {
+                    $productName = mb_strtolower($p['name'] ?? '', 'UTF-8');
+                    if (strpos($productName, $name) !== false) {
+                        $ordered[] = $p;
+                        unset($remaining[$key]);
+                        break;
+                    }
+                }
+            }
+
+            // Nếu chưa đủ 4 sản phẩm thì lấy bù từ phần còn lại
+            $featuredSource = array_values(array_merge($ordered, $remaining));
+        ?>
+
+        <div class="row g-4">
+            <?php $highlightIndex = 1; ?>
+            <?php foreach (array_slice($featuredSource, 0, 4) as $index => $product): ?>
+                <div class="col-6 col-md-3">
+                    <a href="/product/<?= $product['id'] ?>" class="featured-card-link text-decoration-none text-dark">
+                        <div class="featured-card <?= $index === $highlightIndex ? 'featured-card--highlight' : '' ?>">
+                            <div class="featured-card-image-wrapper">
+                                <?php $img = ImageHelper::getImageSrc($product['image_url'] ?? null); ?>
+                                <?php if (!empty($img)): ?>
+                                    <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="featured-card-image" loading="lazy" decoding="async">
+                                <?php else: ?>
+                                    <div class="featured-card-image placeholder d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-shirt fa-3x text-muted"></i>
+                                    </div>
+                                <?php endif; ?>
+
+                                <?php if ($index === $highlightIndex): ?>
+                                    <span class="featured-badge">Khải phá</span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="featured-card-body text-center mt-3">
+                                <h5 class="mb-1"><?= htmlspecialchars($product['name']) ?></h5>
+                                <p class="text-muted mb-0 small">
+                                    <?= number_format($product['price']) ?>đ
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Ao Dai Story Section -->
+<section class="ao-dai-story-section py-5">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-6">
+                <div class="ao-dai-story-image-wrapper">
+                    <?php
+                        $aoDaiStoryImage = $aoDaiStoryImage ?? 'https://images.pexels.com/photos/34889454/pexels-photo-34889454.jpeg';
+                    ?>
+                    <div class="ao-dai-story-image" style="background-image: url('<?= htmlspecialchars($aoDaiStoryImage) ?>');"></div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="ao-dai-story-content text-white">
+                    <p class="story-kicker mb-2">Bộ Sưu Tập Áo Dài Việt</p>
+                    <h2 class="story-title mb-2">Áo Dài</h2>
+                    <h3 class="story-subtitle mb-4">Vẻ Đẹp Thuần Việt</h3>
+                    <p class="story-text mb-4">
+                        Lấy cảm hứng từ hình ảnh người phụ nữ Việt Nam dịu dàng, áo dài là sự kết hợp tinh tế giữa đường nét truyền thống và form dáng hiện đại. 
+                        Từng đường may, tà áo, cổ tay đều được chăm chút để tôn lên vẻ đẹp thanh lịch, kín đáo nhưng vẫn vô cùng quyến rũ.
+                    </p>
+                    <p class="story-text mb-4">
+                        Tại Sắc Việt, mỗi thiết kế áo dài là một câu chuyện về chất liệu, hoa văn và văn hoá – để khi khoác lên mình, bạn không chỉ mặc một bộ trang phục, 
+                        mà còn mang theo niềm tự hào về bản sắc Việt.
+                    </p>
+                    <a href="/products" class="btn btn-outline-light px-4">
+                        Xem Bộ Sưu Tập
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Accessories Featured Section -->
+<?php
+    // Lấy danh sách phụ kiện từ products theo tên danh mục chứa 'phụ kiện'
+    $accessoryProducts = [];
+    if (!empty($products)) {
+        foreach ($products as $p) {
+            $catName = mb_strtolower($p['category_name'] ?? '', 'UTF-8');
+            if (strpos($catName, 'phụ kiện') !== false) {
+                $accessoryProducts[] = $p;
+            }
+        }
+    }
+
+    // Nếu chưa có dữ liệu từ products thì fallback sang featuredProducts
+    if (empty($accessoryProducts) && !empty($featuredProducts)) {
+        foreach ($featuredProducts as $p) {
+            $catName = mb_strtolower($p['category_name'] ?? '', 'UTF-8');
+            if (strpos($catName, 'phụ kiện') !== false) {
+                $accessoryProducts[] = $p;
+            }
+        }
+    }
+?>
+
+<?php if (!empty($accessoryProducts)): ?>
+<section class="accessory-featured-section py-5">
+    <div class="container">
+        <div class="row align-items-end mb-4">
+            <div class="col-md-8">
+                <p class="featured-kicker mb-1">Sản phẩm nổi bật</p>
+                <h2 class="featured-title mb-0">Tuyệt Tác Thủ Công</h2>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="/products?category_id=<?= htmlspecialchars($accessoryProducts[0]['category_id']) ?>" class="featured-view-all-link">
+                    Xem tất cả phụ kiện <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <?php
+            $accessoryPrimary = $accessoryProducts[0];
+            $accessoryOthers = array_slice($accessoryProducts, 1, 4);
+        ?>
+
+        <div class="row g-4 accessory-grid">
+            <div class="col-lg-7">
+                <a href="/product/<?= $accessoryPrimary['id'] ?>" class="accessory-card-link text-decoration-none text-white">
+                    <div class="accessory-card accessory-card--primary">
+                        <?php $img = ImageHelper::getImageSrc($accessoryPrimary['image_url'] ?? null); ?>
+                        <?php if (!empty($img)): ?>
+                            <div class="accessory-card-image" style="background-image: url('<?= htmlspecialchars($img) ?>');"></div>
+                        <?php else: ?>
+                            <div class="accessory-card-image accessory-placeholder d-flex align-items-center justify-content-center">
+                                <i class="fas fa-gem fa-3x text-muted"></i>
+                            </div>
+                        <?php endif; ?>
+                        <div class="accessory-card-overlay"></div>
+                        <div class="accessory-card-body">
+                            <h5 class="mb-1"><?= htmlspecialchars($accessoryPrimary['name']) ?></h5>
+                            <p class="mb-1 accessory-price"><?= number_format($accessoryPrimary['price']) ?>đ</p>
+                            <span class="btn btn-light btn-sm rounded-pill px-3">Xem chi tiết</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="row g-3">
+                    <?php foreach ($accessoryOthers as $p): ?>
+                        <div class="col-sm-6">
+                            <a href="/product/<?= $p['id'] ?>" class="accessory-card-link text-decoration-none text-white">
+                                <div class="accessory-card accessory-card--small">
+                                    <?php $img = ImageHelper::getImageSrc($p['image_url'] ?? null); ?>
+                                    <?php if (!empty($img)): ?>
+                                        <div class="accessory-card-image" style="background-image: url('<?= htmlspecialchars($img) ?>');"></div>
+                                    <?php else: ?>
+                                        <div class="accessory-card-image accessory-placeholder d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-gem fa-2x text-muted"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                    <div class="accessory-card-overlay"></div>
+                                    <div class="accessory-card-body accessory-card-body--small">
+                                        <h6 class="mb-1"><?= htmlspecialchars($p['name']) ?></h6>
+                                        <p class="mb-0 accessory-price small"><?= number_format($p['price']) ?>đ</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
 
 <!-- Features Icons Row -->
 <section class="py-5 bg-light">
@@ -54,78 +335,7 @@
     </div>
 </section>
 
-<!-- Hero Slider Section -->
-<section class="hero-slider-section" style="display: none;">
-    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
-        <div class="carousel-indicators">
-            <?php foreach ($featuredProducts as $index => $product): ?>
-                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="<?= $index ?>" 
-                        <?= $index === 0 ? 'class="active"' : '' ?>></button>
-            <?php endforeach; ?>
-        </div>
-        
-        <div class="carousel-inner">
-            <?php foreach ($featuredProducts as $index => $product): ?>
-                <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
-                    <div class="hero-slide" style="background: linear-gradient(135deg, 
-                        <?php 
-                        $gradients = [
-                            'rgba(74, 144, 226, 0.8), rgba(143, 88, 188, 0.8)',
-                            'rgba(255, 94, 77, 0.8), rgba(255, 154, 0, 0.8)', 
-                            'rgba(67, 206, 162, 0.8), rgba(24, 90, 157, 0.8)',
-                            'rgba(247, 151, 30, 0.8), rgba(255, 61, 87, 0.8)'
-                        ];
-                        echo $gradients[$index % 4];
-                        ?>)">
-                        <div class="container">
-                            <div class="row align-items-center min-vh-60">
-                                <div class="col-lg-6">
-                                    <div class="hero-content text-white">
-                                        <span class="badge bg-warning text-dark mb-3 fs-6">Sản phẩm nổi bật</span>
-                                        <h1 class="display-4 fw-bold mb-4"><?= htmlspecialchars($product['name']) ?></h1>
-                                        <p class="lead mb-4"><?= htmlspecialchars($product['description']) ?></p>
-                                        <div class="hero-buttons">
-                                            <a href="/product/<?= $product['id'] ?>" class="btn btn-warning btn-lg me-3">
-                                                <i class="fas fa-eye me-2"></i>Xem chi tiết
-                                            </a>
-                                            <button class="btn btn-outline-light btn-lg" onclick="addToCart(<?= $product['id'] ?>)">
-                                                <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="hero-image text-center">
-                                        <div class="dish-image-container">
-                                            <?php 
-                                                $slideImg = ImageHelper::getImageSrc($product['image_url'] ?? null);
-                                            ?>
-                                            <?php if (!empty($slideImg)): ?>
-                                                <img src="<?= htmlspecialchars($slideImg) ?>" 
-                                                     alt="<?= htmlspecialchars($product['name']) ?>" class="dish-image" decoding="async" fetchpriority="high">
-                                            <?php else: ?>
-                                                <div class="dish-image d-flex align-items-center justify-content-center bg-light">
-                                                    <i class="fas fa-shirt fa-5x text-muted"></i>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-        
-        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-            <i class="fas fa-chevron-right"></i>
-        </button>
-    </div>
-</section>
+<!-- (Hero slider cũ đã được thay bằng main-hero ở trên) -->
 
 <!-- Top Selling Products Section -->
 <section class="py-5 bg-light" style="display: none;">

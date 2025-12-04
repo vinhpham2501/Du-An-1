@@ -229,7 +229,31 @@ class OrderController extends Controller
         $this->requireAuth();
         
         $orders = $this->orderModel->getByUserId($_SESSION['user_id']);
-        
+
+        // Chuẩn hóa thông tin giao hàng cho từng đơn để tránh hiển thị N/A
+        $defaultName = $_SESSION['user_name'] ?? 'Khách hàng';
+        $defaultPhone = $_SESSION['user_phone'] ?? '';
+
+        foreach ($orders as &$order) {
+            $order['delivery_name'] = $defaultName;
+            $order['delivery_phone'] = $defaultPhone;
+            $order['delivery_address'] = '';
+
+            if (!empty($order['address_id'])) {
+                $address = $this->addressModel->findById($order['address_id']);
+                if ($address) {
+                    $parts = array_filter([
+                        $address['DiaChi'] ?? null,
+                        $address['PhuongXa'] ?? null,
+                        $address['QuanHuyen'] ?? null,
+                        $address['TinhThanh'] ?? null,
+                    ]);
+                    $order['delivery_address'] = implode(', ', $parts);
+                }
+            }
+        }
+        unset($order);
+
         return $this->render('order/my-orders', [
             'orders' => $orders
         ]);

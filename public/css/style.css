@@ -1,7 +1,7 @@
 /* Custom CSS for Restaurant Order System */
 
 :root {
-    --primary-color: #0d6efd;
+    --primary-color: #8b0000;
     --secondary-color: #6c757d;
     --success-color: #198754;
     --danger-color: #dc3545;
@@ -9,6 +9,26 @@
     --info-color: #0dcaf0;
     --light-color: #f8f9fa;
     --dark-color: #212529;
+}
+
+/* Override Bootstrap primary colors */
+.bg-primary {
+    background-color: #8b0000 !important;
+}
+
+.btn-primary {
+    background-color: #8b0000 !important;
+    border-color: #8b0000 !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #a00000 !important;
+    border-color: #a00000 !important;
+}
+
+.text-primary {
+    color: #8b0000 !important;
 }
 
 /* General styles */
@@ -40,6 +60,38 @@ body {
 
 .product-card:hover .card-img-top {
     transform: scale(1.05);
+}
+
+/* Category filter toggle icon */
+.filter-toggle-icon {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card-header.btn.collapsed .filter-toggle-icon {
+    transform: rotate(0deg);
+}
+
+.card-header.btn:not(.collapsed) .filter-toggle-icon {
+    transform: rotate(180deg);
+}
+
+/* Product image animations */
+.product-image,
+.product-image-placeholder {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: pointer;
+}
+
+.product-image:hover,
+.product-image-placeholder:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.product-image:active,
+.product-image-placeholder:active {
+    transform: scale(0.98);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* Hero section */

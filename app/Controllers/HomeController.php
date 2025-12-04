@@ -46,6 +46,10 @@ class HomeController extends Controller
                 $filters['search'] = $_GET['search'];
             }
 
+            if (isset($_GET['price_max']) && (int)$_GET['price_max'] > 0) {
+                $filters['price_max'] = (int)$_GET['price_max'];
+            }
+
             $products = $this->productModel->getAll($filters);
             $totalProducts = $this->productModel->count($filters);
             $categories = $this->categoryModel->getAll();

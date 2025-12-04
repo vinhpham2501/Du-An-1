@@ -113,24 +113,35 @@
                                                                                  <span class="badge bg-<?= $color ?>"><?= $label ?></span>
                                      </td>
                                      <td>
-                                         <?php
-                                         $paymentColors = [
-                                             'pending' => 'warning',
-                                             'paid' => 'success',
-                                             'cash' => 'info',
-                                             'bank_transfer' => 'primary'
-                                         ];
-                                         $paymentLabels = [
-                                             'pending' => 'Chưa thanh toán',
-                                             'paid' => 'Đã thanh toán',
-                                             'cash' => 'Tiền mặt',
-                                             'bank_transfer' => 'Chuyển khoản'
-                                         ];
-                                         $paymentColor = $paymentColors[$order['payment_status']] ?? 'secondary';
-                                         $paymentLabel = $paymentLabels[$order['payment_status']] ?? $order['payment_status'];
-                                         ?>
-                                         <span class="badge bg-<?= $paymentColor ?>"><?= $paymentLabel ?></span>
-                                     </td>
+                                        <?php
+                                        $paymentColors = [
+                                            'pending' => 'warning',
+                                            'paid' => 'success',
+                                            'cash' => 'info',
+                                            'bank_transfer' => 'primary'
+                                        ];
+                                        $paymentLabels = [
+                                            'pending' => 'Chưa thanh toán',
+                                            'paid' => 'Đã thanh toán',
+                                            'cash' => 'Tiền mặt',
+                                            'bank_transfer' => 'Chuyển khoản'
+                                        ];
+                                        $paymentStatus = $order['payment_status'] ?? 'pending';
+                                        $paymentColor = $paymentColors[$paymentStatus] ?? 'secondary';
+                                        $paymentLabel = $paymentLabels[$paymentStatus] ?? $paymentStatus;
+                                        ?>
+                                        <span class="badge bg-<?= $paymentColor ?> me-1"><?= $paymentLabel ?></span>
+
+                                        <?php if ($paymentStatus === 'pending'): ?>
+                                            <button class="btn btn-sm btn-outline-success" onclick="updatePaymentStatus(<?= $order['id'] ?>, 'paid')" title="Đánh dấu đã thanh toán">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        <?php elseif ($paymentStatus === 'paid'): ?>
+                                            <button class="btn btn-sm btn-outline-warning" onclick="updatePaymentStatus(<?= $order['id'] ?>, 'pending')" title="Chuyển về chưa thanh toán">
+                                                <i class="fas fa-undo"></i>
+                                            </button>
+                                        <?php endif; ?>
+                                    </td>
                                      <td>
                                          <?= date('d/m/Y H:i', strtotime($order['created_at'])) ?>
                                      </td>
@@ -195,5 +206,29 @@ function showAlert(type, message) {
     setTimeout(() => {
         alertDiv.remove();
     }, 3000);
+}
+
+function updatePaymentStatus(orderId, paymentStatus) {
+    fetch(`/admin/orders/${orderId}/update-payment`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `payment_status=${encodeURIComponent(paymentStatus)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('success', data.message);
+            setTimeout(() => {
+                location.reload();
+            }, 1200);
+        } else {
+            showAlert('danger', data.message || 'Không thể cập nhật trạng thái thanh toán');
+        }
+    })
+    .catch(error => {
+        showAlert('danger', 'Có lỗi xảy ra, vui lòng thử lại');
+    });
 }
 </script>

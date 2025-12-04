@@ -17,11 +17,12 @@ class Order extends Model
         $trangThai = $this->mapStatus($data['status'] ?? 'pending');
         $pttt = $data['payment_method'] ?? null;
         $ghiChu = $data['notes'] ?? null;
+        $paymentStatus = $data['payment_status'] ?? 'pending';
 
-        $sql = "INSERT INTO {$this->table} (MaKH, MaDC, TongTien, TrangThai, PhuongThucThanhToan, GhiChu)
-                VALUES (?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO {$this->table} (MaKH, MaDC, TongTien, TrangThai, PhuongThucThanhToan, GhiChu, TrangThaiThanhToan)
+                VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
-        if ($stmt->execute([$maKH, $maDC, $tongTien, $trangThai, $pttt, $ghiChu])) {
+        if ($stmt->execute([$maKH, $maDC, $tongTien, $trangThai, $pttt, $ghiChu, $paymentStatus])) {
             return $this->db->lastInsertId();
         }
         return false;
@@ -37,7 +38,8 @@ class Order extends Model
                     TongTien AS total_amount,
                     TrangThai AS status,
                     PhuongThucThanhToan AS payment_method,
-                    GhiChu AS notes
+                    GhiChu AS notes,
+                    TrangThaiThanhToan AS payment_status
                 FROM {$this->table} WHERE MaDH = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$id]);
@@ -62,7 +64,8 @@ class Order extends Model
                     TongTien AS total_amount,
                     TrangThai AS status,
                     PhuongThucThanhToan AS payment_method,
-                    GhiChu AS notes
+                    GhiChu AS notes,
+                    TrangThaiThanhToan AS payment_status
                 FROM {$this->table} WHERE MaKH = ? ORDER BY NgayDat DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$userId]);
@@ -160,6 +163,7 @@ class Order extends Model
                         o.NgayDat AS created_at,
                         o.TongTien AS total_amount,
                         o.TrangThai AS status,
+                        o.TrangThaiThanhToan AS payment_status,
                         u.HoTen AS user_name,
                         u.Email AS user_email
                     FROM {$this->table} o 
@@ -234,10 +238,11 @@ class Order extends Model
         $map = [
             'user_id' => 'MaKH',
             'address_id' => 'MaDC',
-            'total_amount' => 'TongTien',
-            'status' => 'TrangThai',
+            'total_amount'   => 'TongTien',
+            'status'         => 'TrangThai',
             'payment_method' => 'PhuongThucThanhToan',
-            'notes' => 'GhiChu',
+            'payment_status' => 'TrangThaiThanhToan',
+            'notes'          => 'GhiChu',
         ];
         $set = [];
         $params = [];

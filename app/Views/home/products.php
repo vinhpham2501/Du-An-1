@@ -11,16 +11,41 @@
     <div class="row g-4">
         <div class="col-lg-3">
             <div class="card">
-                <div class="card-header">
+                <button class="card-header btn btn-link w-100 d-flex justify-content-between align-items-center text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#categoryFilter" aria-expanded="false" aria-controls="categoryFilter">
                     <h6 class="mb-0">Danh mục</h6>
-                </div>
-                <div class="list-group list-group-flush">
-                    <a href="/products" class="list-group-item list-group-item-action <?= empty($_GET['category_id']) ? 'active' : '' ?>">Tất cả</a>
-                    <?php foreach ($categories as $cat): ?>
-                        <a href="/products?category_id=<?= $cat['id'] ?>" class="list-group-item list-group-item-action <?= (($_GET['category_id'] ?? null) == $cat['id']) ? 'active' : '' ?>">
-                            <?= htmlspecialchars($cat['name']) ?>
-                        </a>
-                    <?php endforeach; ?>
+                    <span class="filter-toggle-icon"><i class="fas fa-chevron-down"></i></span>
+                </button>
+                <div id="categoryFilter" class="collapse">
+                    <div class="card-body">
+                    <?php $currentCategory = $_GET['category_id'] ?? ''; ?>
+                    <form method="GET" action="/products" class="small">
+                        <?php if (!empty($_GET['search'])): ?>
+                            <input type="hidden" name="search" value="<?= htmlspecialchars($_GET['search']) ?>">
+                        <?php endif; ?>
+                        <?php if (!empty($_GET['sort'])): ?>
+                            <input type="hidden" name="sort" value="<?= htmlspecialchars($_GET['sort']) ?>">
+                        <?php endif; ?>
+                        <?php if (!empty($_GET['price_max'])): ?>
+                            <input type="hidden" name="price_max" value="<?= htmlspecialchars($_GET['price_max']) ?>">
+                        <?php endif; ?>
+
+                        <div class="form-check mb-1">
+                            <input class="form-check-input" type="radio" name="category_id" id="cat_all" value="" <?= $currentCategory === '' ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="cat_all">Tất cả</label>
+                        </div>
+
+                        <?php foreach ($categories as $cat): ?>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input" type="radio" name="category_id" id="cat_<?= $cat['id'] ?>" value="<?= $cat['id'] ?>" <?= ($currentCategory == $cat['id']) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="cat_<?= $cat['id'] ?>">
+                                    <?= htmlspecialchars($cat['name']) ?>
+                                </label>
+                            </div>
+                        <?php endforeach; ?>
+
+                        <button type="submit" class="btn btn-sm btn-primary w-100 mt-2">Lọc danh mục</button>
+                    </form>
+                    </div>
                 </div>
             </div>
             <div class="card mt-3">
@@ -32,11 +57,59 @@
                         <?php if (!empty($_GET['category_id'])): ?>
                             <input type="hidden" name="category_id" value="<?= htmlspecialchars($_GET['category_id']) ?>">
                         <?php endif; ?>
+                        <?php if (!empty($_GET['sort'])): ?>
+                            <input type="hidden" name="sort" value="<?= htmlspecialchars($_GET['sort']) ?>">
+                        <?php endif; ?>
+                        <?php if (!empty($_GET['price_max'])): ?>
+                            <input type="hidden" name="price_max" value="<?= htmlspecialchars($_GET['price_max']) ?>">
+                        <?php endif; ?>
                         <div class="input-group">
-                            <input type="text" class="form-control" name="search" placeholder="Tìm món..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                            <input type="text" class="form-control" name="search" placeholder="Tìm quần áo..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
                             <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
                         </div>
                     </form>
+                </div>
+            </div>
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Khoảng giá</h6>
+                </div>
+                <div class="card-body">
+                    <?php $currentPriceMax = (int)($_GET['price_max'] ?? 0); ?>
+                    <form method="GET" action="/products">
+                        <?php if (!empty($_GET['category_id'])): ?>
+                            <input type="hidden" name="category_id" value="<?= htmlspecialchars($_GET['category_id']) ?>">
+                        <?php endif; ?>
+                        <?php if (!empty($_GET['search'])): ?>
+                            <input type="hidden" name="search" value="<?= htmlspecialchars($_GET['search']) ?>">
+                        <?php endif; ?>
+                        <?php if (!empty($_GET['sort'])): ?>
+                            <input type="hidden" name="sort" value="<?= htmlspecialchars($_GET['sort']) ?>">
+                        <?php endif; ?>
+
+                        <label for="price_max" class="form-label small mb-1">
+                            Giá tối đa: <span id="price-max-value"><?= $currentPriceMax > 0 ? number_format($currentPriceMax) . 'đ' : 'Không giới hạn' ?></span>
+                        </label>
+                        <input type="range" class="form-range" id="price_max" name="price_max" min="0" max="5000000" step="50000" value="<?= $currentPriceMax > 0 ? $currentPriceMax : 0 ?>">
+
+                        <button type="submit" class="btn btn-sm btn-outline-primary w-100 mt-2">Lọc theo giá</button>
+                    </form>
+                    <script>
+                        (function() {
+                            var slider = document.getElementById('price_max');
+                            var label = document.getElementById('price-max-value');
+                            if (slider && label) {
+                                slider.addEventListener('input', function() {
+                                    var v = parseInt(this.value || '0', 10);
+                                    if (v <= 0) {
+                                        label.textContent = 'Không giới hạn';
+                                    } else {
+                                        label.textContent = v.toLocaleString('vi-VN') + 'đ';
+                                    }
+                                });
+                            }
+                        })();
+                    </script>
                 </div>
             </div>
             <div class="card mt-3">
@@ -82,11 +155,11 @@
                             <div class="card h-100 shadow-sm">
                                 <?php if ($img): ?>
                                     <a href="/product/<?= $p['id'] ?>">
-                                        <img src="<?= htmlspecialchars($img) ?>" class="card-img-top" alt="<?= htmlspecialchars($p['name']) ?>" style="height: 200px; object-fit: cover;">
+                                        <img src="<?= htmlspecialchars($img) ?>" class="card-img-top product-image" alt="<?= htmlspecialchars($p['name']) ?>" style="height: 420px; object-fit: cover; object-position: top;">
                                     </a>
                                 <?php else: ?>
                                     <a href="/product/<?= $p['id'] ?>" class="text-decoration-none">
-                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center product-image-placeholder" style="height: 420px;">
                                             <i class="fas fa-utensils fa-2x text-muted"></i>
                                         </div>
                                     </a>
