@@ -64,6 +64,7 @@ class AuthController extends Controller
             $confirmPassword = $_POST['confirm_password'] ?? '';
             $phone = $_POST['phone'] ?? '';
             $address = $_POST['address'] ?? '';
+            $gender = $_POST['gender'] ?? null;
             
             // Validation
             if (empty($fullName) || empty($email) || empty($password)) {
@@ -94,6 +95,7 @@ class AuthController extends Controller
                 'password' => $password,
                 'phone' => $phone,
                 'address' => $address,
+                'gender' => $gender,
                 'role' => 'user'
             ]);
             
@@ -106,6 +108,32 @@ class AuthController extends Controller
         }
         
         return $this->render('auth/register');
+    }
+
+    public function forgotPassword()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = trim($_POST['email'] ?? '');
+            if ($email === '') {
+                return $this->render('auth/forgot-password', ['error' => 'Vui lòng nhập email']);
+            }
+
+            $user = $this->userModel->findByEmail($email);
+            // For now, do not send email; just show a friendly message if user exists
+            if ($user) {
+                // In production, generate token and send email here
+                return $this->render('auth/forgot-password', [
+                    'success' => 'Nếu email tồn tại, chúng tôi đã gửi liên kết đặt lại mật khẩu. Vui lòng kiểm tra hộp thư.'
+                ]);
+            }
+
+            // Do not reveal whether email exists to avoid user enumeration
+            return $this->render('auth/forgot-password', [
+                'success' => 'Nếu email tồn tại, chúng tôi đã gửi liên kết đặt lại mật khẩu. Vui lòng kiểm tra hộp thư.'
+            ]);
+        }
+
+        return $this->render('auth/forgot-password');
     }
 
     public function logout()

@@ -24,7 +24,20 @@ if (file_exists($envFile) && is_readable($envFile)) {
         }
     }
 }
-
+$secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+// Cookie sống đến khi đóng trình duyệt (lifetime = 0)
+if (PHP_VERSION_ID >= 70300) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'secure' => $secure,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+} else {
+    // Fallback cho PHP cũ
+    session_set_cookie_params(0, '/');
+}
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
