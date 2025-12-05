@@ -278,7 +278,7 @@
                     <div class="col-md-6 text-center text-md-start d-flex flex-column flex-md-row align-items-center gap-2">
                         <img src="/images/logo1.1.png" alt="Sắc Việt" style="height: 28px; width: auto;" onerror="this.style.display='none';">
                         <p class="mb-0">
-                            &copy; 2025 <strong style="color: #ffc107;">Sắc Việt</strong> - PD12070. All rights reserved.
+                            &copy; 2025 <strong style="color: #ffc107;">Sắc Việt</strong> - All rights reserved.
                         </p>
                     </div>
                     <div class="col-md-6 text-center text-md-end">

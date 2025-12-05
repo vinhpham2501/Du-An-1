@@ -37,7 +37,7 @@
             'button_link' => '/products',
         ],
         [
-            'image' => $thirdBannerImageUrl ?? 'https://images.pexels.com/photos/33409159/pexels-photo-33409159.jpeg',
+            'image' => $thirdBannerImageUrl ?? 'https://i.pinimg.com/1200x/80/99/d7/8099d72d4e89dc5992973af924476f21.jpg',
             'kicker' => 'Biểu tượng bất hủ của người Việt',
             'title' => 'Nón Lá Truyền Thống',
             'subtitle' => 'inh tế trên từng thớ lá – từ làng nghề đến tay bạn',
@@ -313,7 +313,7 @@
         <div class="ratio ratio-16x9 heritage-video-frame">
             <?php
                 // TODO: Bạn dán mã nhúng (iframe) hoặc sửa src video ở đây
-                $heritageVideoUrl = $heritageVideoUrl ?? 'https://www.youtube.com/embed/0GGvA32Kzhw?si=bjKSvx1LNlOsM-rC';
+                $heritageVideoUrl = $heritageVideoUrl ?? 'https://www.youtube.com/embed/J0K1MpmZp5E?si=_Wnh4KwhRwXbdN3Z';
             ?>
             <iframe
                 src="<?= htmlspecialchars($heritageVideoUrl) ?>"

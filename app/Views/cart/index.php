@@ -1,6 +1,74 @@
 <?php $title = 'Giỏ hàng - Sắc Việt'; ?>
 
-<div class="container py-5">
+<style>
+/* Cart page brand colors */
+.cart-page h2 {
+    color: #8b0000 !important;
+}
+
+.cart-page h2 i {
+    color: #ffc107;
+}
+
+.cart-page .card {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.cart-page .card-header {
+    background: linear-gradient(135deg, #8b0000, #5a0000);
+    color: white;
+    border: none;
+}
+
+.cart-page .btn-primary {
+    background-color: #8b0000 !important;
+    border-color: #8b0000 !important;
+}
+
+.cart-page .btn-primary:hover {
+    background-color: #5a0000 !important;
+    border-color: #5a0000 !important;
+}
+
+.cart-page .btn-outline-primary {
+    color: #8b0000 !important;
+    border-color: #8b0000 !important;
+}
+
+.cart-page .btn-outline-primary:hover {
+    background-color: #8b0000 !important;
+    color: white !important;
+}
+
+.cart-page .btn-outline-secondary {
+    color: #000 !important;
+    border-color: #000 !important;
+}
+
+.cart-page .btn-outline-secondary:hover {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.cart-page .item-total {
+    color: #8b0000 !important;
+}
+
+.cart-page #total-amount {
+    color: #8b0000 !important;
+}
+
+.cart-page .text-decoration-none {
+    color: #8b0000 !important;
+}
+
+.cart-page .text-decoration-none:hover {
+    color: #ffc107 !important;
+}
+</style>
+
+<div class="container py-5 cart-page">
     <div class="row">
         <div class="col-12">
             <h2 class="mb-4">
