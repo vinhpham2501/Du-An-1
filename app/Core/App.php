@@ -43,6 +43,8 @@ class App
         $this->router->post('/login', 'AuthController@login');
         $this->router->get('/register', 'AuthController@register');
         $this->router->post('/register', 'AuthController@register');
+        $this->router->get('/forgot-password', 'AuthController@forgotPassword');
+        $this->router->post('/forgot-password', 'AuthController@forgotPassword');
         $this->router->get('/logout', 'AuthController@logout');
         $this->router->get('/profile', 'AuthController@profile');
         $this->router->post('/profile', 'AuthController@profile');
