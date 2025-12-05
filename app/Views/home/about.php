@@ -3,7 +3,7 @@
 <!-- Custom CSS for About Page -->
 <style>
 .hero-about {
-    background: linear-gradient(135deg, rgba(139, 0, 0, 0.9), rgba(90, 0, 0, 0.8)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+    background: linear-gradient(135deg, rgba(223, 185, 185, 0.9), rgba(90, 0, 0, 0.8)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
     background-size: cover;
     background-position: center;
     min-height: 60vh;

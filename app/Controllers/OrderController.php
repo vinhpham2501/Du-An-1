@@ -328,19 +328,21 @@ class OrderController extends Controller
             return $this->json(['success' => false, 'message' => 'Đơn hàng không tồn tại']);
         }
         
-        // Không cho phép hủy nếu đơn hàng đã ở trạng thái delivering trở lên
-        $nonCancellableStatuses = ['delivering', 'completed'];
-        if (in_array($order['status'], $nonCancellableStatuses)) {
+        // Trong DB, cột TrangThai đang lưu tiếng Việt (Chờ duyệt, Đang chuẩn bị, Đang giao, Hoàn tất, Hủy)
+        // Không cho phép hủy nếu đơn hàng đã ở trạng thái Đang giao hoặc Hoàn tất
+        $nonCancellableStatuses = ['Đang giao', 'Hoàn tất'];
+        if (in_array($order['status'], $nonCancellableStatuses, true)) {
             return $this->json(['success' => false, 'message' => 'Đơn hàng đang giao hoặc đã hoàn thành không thể hủy']);
         }
-        
-        // Chỉ cho phép hủy khi đơn hàng ở trạng thái pending hoặc confirmed
-        $cancellableStatuses = ['pending', 'confirmed', 'preparing'];
-        if (!in_array($order['status'], $cancellableStatuses)) {
+
+        // Cho phép hủy khi đơn hàng ở trạng thái Chờ duyệt / Đã xác nhận / Đang chuẩn bị
+        $cancellableStatuses = ['Chờ duyệt', 'Đã xác nhận', 'Đang chuẩn bị'];
+        if (!in_array($order['status'], $cancellableStatuses, true)) {
             return $this->json(['success' => false, 'message' => 'Không thể hủy đơn hàng này']);
         }
-        
-        $this->orderModel->update($orderId, ['status' => 'cancelled']);
+
+        // Cập nhật trực tiếp cột TrangThai sang 'Hủy'
+        $this->orderModel->update($orderId, ['TrangThai' => 'Hủy']);
         
         return $this->json(['success' => true, 'message' => 'Hủy đơn hàng thành công']);
     }

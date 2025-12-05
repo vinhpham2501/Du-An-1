@@ -62,7 +62,7 @@ class AuthController extends Controller
             $email = $_POST['email'] ?? '';
             $password = $_POST['password'] ?? '';
             $confirmPassword = $_POST['confirm_password'] ?? '';
-            $phone = $_POST['phone'] ?? '';
+            $phone = trim($_POST['phone'] ?? '');
             $address = $_POST['address'] ?? '';
             
             // Validation
@@ -83,19 +83,38 @@ class AuthController extends Controller
                 return $this->render('auth/register', ['error' => 'Email đã tồn tại']);
             }
             
-            // Generate username from email
+            // Generate username from email (hiện không lưu vào bảng KHACH_HANG nhưng giữ lại nếu cần mở rộng)
             $username = explode('@', $email)[0];
-            
-            // Create user
-            $userId = $this->userModel->create([
-                'username' => $username,
+
+            // Chuẩn bị dữ liệu tạo user, chỉ thêm phone nếu người dùng thực sự nhập
+            $userData = [
                 'full_name' => $fullName,
-                'email' => $email,
-                'password' => $password,
-                'phone' => $phone,
-                'address' => $address,
-                'role' => 'user'
-            ]);
+                'email'     => $email,
+                'password'  => $password,
+                'role'      => 'user',
+            ];
+
+            if ($phone !== '') {
+                $userData['phone'] = $phone;
+            }
+
+            // Create user trong bảng KHACH_HANG, xử lý lỗi trùng dữ liệu (email/SĐT) thay vì báo 500
+            try {
+                $userId = $this->userModel->create($userData);
+            } catch (\PDOException $e) {
+                // Lỗi ràng buộc (ví dụ UNIQUE) trong MySQL thường có SQLSTATE 23000
+                if ($e->getCode() === '23000') {
+                    return $this->render('auth/register', [
+                        'error' => 'Email hoặc số điện thoại đã được sử dụng, vui lòng thử lại thông tin khác.',
+                    ]);
+                }
+
+                // Các lỗi khác: ghi log và trả về thông báo chung
+                error_log('Register error: ' . $e->getMessage());
+                return $this->render('auth/register', [
+                    'error' => 'Có lỗi xảy ra trong quá trình đăng ký, vui lòng thử lại sau.',
+                ]);
+            }
             
             if ($userId) {
                 $_SESSION['success'] = 'Đăng ký thành công! Vui lòng đăng nhập.';

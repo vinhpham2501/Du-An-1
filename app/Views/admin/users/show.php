@@ -30,9 +30,10 @@
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>ID:</strong> <?= $user['id'] ?></p>
-                            <p><strong>Username:</strong> @<?= htmlspecialchars($user['username']) ?></p>
-                            <p><strong>Họ tên:</strong> <?= htmlspecialchars($user['full_name']) ?></p>
-                            <p><strong>Email:</strong> <?= htmlspecialchars($user['email']) ?></p>
+                            <?php $username = explode('@', $user['email'] ?? '')[0]; ?>
+                            <p><strong>Username:</strong> @<?= htmlspecialchars($username) ?></p>
+                            <p><strong>Họ tên:</strong> <?= htmlspecialchars($user['full_name'] ?? '') ?></p>
+                            <p><strong>Email:</strong> <?= htmlspecialchars($user['email'] ?? '') ?></p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>Vai trò:</strong> 
@@ -51,12 +52,20 @@
                                 <span class="badge bg-<?= $color ?>"><?= $label ?></span>
                             </p>
                             <p><strong>Số điện thoại:</strong> <?= htmlspecialchars($user['phone'] ?? 'Chưa cập nhật') ?></p>
-                            <p><strong>Ngày tạo:</strong> <?= date('d/m/Y H:i', strtotime($user['created_at'])) ?></p>
-                            <p><strong>Cập nhật lần cuối:</strong> <?= date('d/m/Y H:i', strtotime($user['updated_at'])) ?></p>
+                            <?php
+                                $createdAt = $user['created_at'] ?? null;
+                                $updatedAt = $user['updated_at'] ?? null;
+                            ?>
+                            <p><strong>Ngày tạo:</strong>
+                                <?= $createdAt ? date('d/m/Y H:i', strtotime($createdAt)) : 'Chưa có dữ liệu' ?>
+                            </p>
+                            <p><strong>Cập nhật lần cuối:</strong>
+                                <?= $updatedAt ? date('d/m/Y H:i', strtotime($updatedAt)) : 'Chưa cập nhật' ?>
+                            </p>
                         </div>
                     </div>
                     
-                    <?php if ($user['address']): ?>
+                    <?php if (!empty($user['address'] ?? null)): ?>
                         <div class="mt-3">
                             <p><strong>Địa chỉ:</strong></p>
                             <p class="text-muted"><?= nl2br(htmlspecialchars($user['address'])) ?></p>
