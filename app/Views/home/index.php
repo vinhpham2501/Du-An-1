@@ -239,7 +239,7 @@
     <div class="container">
         <div class="row align-items-end mb-4">
             <div class="col-md-12">
-                <p class="featured-kicker mb-1">Sản phẩm nổi bật</p>
+                <p class="featured-kicker mb-1">Phụ kiện nổi bật</p>
                 <h2 class="featured-title mb-0">Tuyệt Tác Thủ Công</h2>
             </div>
         </div>
