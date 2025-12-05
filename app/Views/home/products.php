@@ -66,7 +66,7 @@
                         <?php endif; ?>
                         <div class="input-group">
                             <input type="text" class="form-control" name="search" placeholder="Tìm quần áo..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
-                            <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+                            <button class="btn btn-search" type="submit"><i class="fas fa-search"></i></button>
                         </div>
                     </form>
                 </div>

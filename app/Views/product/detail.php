@@ -160,10 +160,10 @@
                             </div>
 
                             <div class="d-flex flex-wrap gap-2">
-                                <button class="btn btn-dark btn-lg flex-fill text-uppercase" type="button" onclick="addToCartDetail(<?= $product['id'] ?>)">
+                                <button class="btn btn-primary btn-lg flex-fill text-uppercase" type="button" onclick="addToCartDetail(<?= $product['id'] ?>)">
                                     Thêm vào giỏ
                                 </button>
-                                <button class="btn btn-outline-dark btn-lg flex-fill text-uppercase" type="button" onclick="buyNow(<?= $product['id'] ?>)">
+                                <button class="btn btn-outline-primary btn-lg flex-fill text-uppercase" type="button" onclick="buyNow(<?= $product['id'] ?>)">
                                     Mua hàng
                                 </button>
                 
@@ -265,7 +265,7 @@
 
 <!-- Related Products Section -->
 <?php if (!empty($relatedProducts)): ?>
-<section class="py-5 bg-light">
+<section class="py-5 bg-white related-products">
     <div class="container">
         <div class="row mb-4">
             <div class="col-12 text-center">
@@ -336,16 +336,26 @@
 <?php endif; ?>
 
 <style>
+.product-title {
+    color: #8b0000;
+}
+
 .product-description-tabs .nav-link {
     border: none;
     border-bottom: 2px solid transparent;
     border-radius: 0;
-    color: #333;
+    color: #580000de;
     font-weight: 500;
+    transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .product-description-tabs .nav-link.active {
-    border-bottom-color: #000;
+    border-bottom-color: #8b0000;
+    color: #8b0000;
+}
+
+.product-description-tabs .nav-link:hover {
+    color: #8b0000;
 }
 
 .btn-color-option.active,
@@ -354,6 +364,60 @@
     box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.15);
     background-color: #fff;
     color: #000;
+}
+
+/* Quantity +/- icons use brand yellow */
+.add-to-cart-section .btn-outline-secondary i {
+    color: #000;
+}
+
+/* Quantity +/- button hover uses brand yellow */
+.add-to-cart-section .btn-outline-secondary:hover {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #000;
+}
+
+/* Make description text bold and black */
+.desc-tab-pane p {
+    font-weight: 450 !important;
+    color: #000 !important;
+}
+
+/* Related Products Section - Brand Colors */
+.section-title {
+    color: #8b0000 !important;
+}
+
+.section-title i {
+    color: #ffc107;
+}
+
+.related-products .product-card .card-title a {
+    color: #8b0000 !important;
+}
+
+.related-products .product-card .card-title a:hover {
+    color: #ffc107 !important;
+}
+
+.related-products .price .text-primary {
+    color: #8b0000 !important;
+}
+
+.related-products .btn-primary {
+    background-color: #8b0000 !important;
+    border-color: #8b0000 !important;
+}
+
+.related-products .btn-primary:hover {
+    background-color: #5a0000 !important;
+    border-color: #5a0000 !important;
+}
+
+.related-products .badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
 }
 </style>
 

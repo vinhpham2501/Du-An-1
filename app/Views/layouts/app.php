@@ -204,7 +204,7 @@
                             <div class="footer-logo mb-3">
                                 <img src="/images/logoo.png" alt="Sắc Việt" style="height: 45px; width: auto;" 
                                      onerror="this.style.display='none';">
-                                <h4 class="text-white fw-bold mt-2" style="color: #ffc107;">Sắc Việt</h4>
+                                <h4 class="fw-bold mt-2" style="color: #ffc107;">Sắc Việt</h4>
                             </div>
                             <p class="footer-desc">
                                Sắc Việt – Nơi lưu giữ và tôn vinh vẻ đẹp trang phục truyền thống Việt Nam. Từ những áo dài thướt tha, áo tứ thân duyên dáng đến các bộ cánh dân tộc đặc sắc, mỗi sản phẩm đều được chế tác tinh tế, kết hợp văn hóa và phong cách hiện đại. Mua sắm tại Sắc Việt mang đến trải nghiệm tiện lợi, an toàn và giúp bạn tỏa sáng vẻ đẹp truyền thống trong mọi khoảnh khắc.
@@ -294,7 +294,7 @@
     <style>
     /* Modern Footer Styles */
     .footer-modern {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        background-color: #5a0000;
         color: #e0e0e0;
     }
     
@@ -333,7 +333,7 @@
         bottom: 0;
         width: 50px;
         height: 3px;
-        background: linear-gradient(90deg, #007bff, #0056b3);
+        background-color: #ffc107;
         border-radius: 2px;
     }
     
@@ -356,7 +356,7 @@
     }
     
     .footer-links a:hover {
-        color: #007bff;
+        color: #ffc107;
         transform: translateX(5px);
     }
     
@@ -380,7 +380,7 @@
     }
     
     .footer-contact li i {
-        color: #007bff;
+        color: #ffc107;
         font-size: 1.1rem;
         margin-right: 12px;
         margin-top: 2px;
@@ -408,14 +408,14 @@
     }
     
     .social-link:hover {
-        background: #007bff;
+        background: #8b0000;
         color: #ffffff;
         transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+        box-shadow: 0 5px 15px rgba(139, 0, 0, 0.4);
     }
     
     .footer-bottom {
-        background: rgba(0, 0, 0, 0.2);
+        background-color: #5a0000;
         padding: 20px 0;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
