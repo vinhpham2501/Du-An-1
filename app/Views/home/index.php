@@ -11,33 +11,33 @@
 <!-- Main Hero Carousel -->
 <?php 
     // Cấu hình các slide hero: bạn chỉ cần thay link ảnh và nội dung bên dưới
-    $heroSlides = [
+        $heroSlides = [
         [
             'image' => $bannerImageUrl ?? 'https://images.pexels.com/photos/32755016/pexels-photo-32755016.jpeg',
-            'kicker' => 'Tinh hoa Việt trên từng thước vải',
-            'title' => 'Gốm Sứ Bát Tràng',
-            'subtitle' => 'Bộ sưu tập mang đậm hơi thở làng nghề truyền thống',
+            'kicker' => 'Hồn Việt trong từng đường kim mũi chỉ',
+            'title' => 'Trang Phục Truyền Thống',
+            'subtitle' => 'Bộ sưu tập tôn vinh nét đẹp văn hoá và lịch sử Việt',
             'button_text' => 'Mua sắm ngay',
             'button_link' => '/products',
         ],
         [
             'image' => $secondBannerImageUrl ?? 'https://images.pexels.com/photos/30466704/pexels-photo-30466704.jpeg',
-            'kicker' => 'Nghệ thuật thủ công truyền thống',
-            'title' => 'Tuyệt Tác Sơn Mài',
-            'subtitle' => 'Tôn vinh vẻ đẹp Việt qua từng đường nét tinh xảo',
+            'kicker' => 'Thanh tao – trang nhã – đậm chất cố đô',
+            'title' => 'Áo Nhật Bình Cổ Truyền',
+            'subtitle' => 'Hơi thở cung đình xưa trong từng họa tiết thêu tay',
             'button_text' => 'Xem bộ sưu tập',
             'button_link' => '/products',
         ],
         [
             'image' => $thirdBannerImageUrl ?? 'https://images.pexels.com/photos/34889454/pexels-photo-34889454.jpeg',
-            'kicker' => 'Sắc Việt trong từng trang phục',
-            'title' => 'Áo Dài Truyền Thống',
-            'subtitle' => 'Kết hợp tinh hoa cổ điển và hơi thở hiện đại',
+            'kicker' => 'Giữ gìn nét đẹp Việt qua năm tháng',
+            'title' => 'Áo Tấc Truyền Thống',
+            'subtitle' => 'Biểu tượng văn hoá thanh lịch của người Việt xưa',
             'button_text' => 'Khám phá ngay',
             'button_link' => '/products',
         ],
         [
-            'image' => $thirdBannerImageUrl ?? 'https://i.pinimg.com/1200x/80/99/d7/8099d72d4e89dc5992973af924476f21.jpg',
+            'image' => $thirdBannerImageUrl ?? 'https://images.pexels.com/photos/33409159/pexels-photo-33409159.jpeg',
             'kicker' => 'Biểu tượng bất hủ của người Việt',
             'title' => 'Nón Lá Truyền Thống',
             'subtitle' => 'inh tế trên từng thớ lá – từ làng nghề đến tay bạn',
@@ -155,10 +155,6 @@
                                         <i class="fas fa-shirt fa-3x text-muted"></i>
                                     </div>
                                 <?php endif; ?>
-
-                                <?php if ($index === $highlightIndex): ?>
-                                    <span class="featured-badge">Khải phá</span>
-                                <?php endif; ?>
                             </div>
                             <div class="featured-card-body text-center mt-3">
                                 <h5 class="mb-1"><?= htmlspecialchars($product['name']) ?></h5>
@@ -243,7 +239,7 @@
         <div class="row align-items-end mb-4">
             <div class="col-md-12">
                 <p class="featured-kicker mb-1">Sản phẩm nổi bật</p>
-                <h2 class="featured-title mb-0">Tuyệt Tác Thủ Công</h2>
+                <h2 class="featured-title mb-0">Sắc Việt Tuyển Chọn</h2>
             </div>
         </div>
 
