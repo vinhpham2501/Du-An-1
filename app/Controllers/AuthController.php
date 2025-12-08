@@ -64,6 +64,7 @@ class AuthController extends Controller
             $confirmPassword = $_POST['confirm_password'] ?? '';
             $phone = trim($_POST['phone'] ?? '');
             $address = $_POST['address'] ?? '';
+            $gender = $_POST['gender'] ?? null;
             
             // Validation
             if (empty($fullName) || empty($email) || empty($password)) {
@@ -89,32 +90,14 @@ class AuthController extends Controller
             // Chuẩn bị dữ liệu tạo user, chỉ thêm phone nếu người dùng thực sự nhập
             $userData = [
                 'full_name' => $fullName,
-                'email'     => $email,
-                'password'  => $password,
-                'role'      => 'user',
+                'email' => $email,
+                'password' => $password,
+                'phone' => $phone,
+                'address' => $address,
+                'role' => 'user',
             ];
 
-            if ($phone !== '') {
-                $userData['phone'] = $phone;
-            }
-
-            // Create user trong bảng KHACH_HANG, xử lý lỗi trùng dữ liệu (email/SĐT) thay vì báo 500
-            try {
-                $userId = $this->userModel->create($userData);
-            } catch (\PDOException $e) {
-                // Lỗi ràng buộc (ví dụ UNIQUE) trong MySQL thường có SQLSTATE 23000
-                if ($e->getCode() === '23000') {
-                    return $this->render('auth/register', [
-                        'error' => 'Email hoặc số điện thoại đã được sử dụng, vui lòng thử lại thông tin khác.',
-                    ]);
-                }
-
-                // Các lỗi khác: ghi log và trả về thông báo chung
-                error_log('Register error: ' . $e->getMessage());
-                return $this->render('auth/register', [
-                    'error' => 'Có lỗi xảy ra trong quá trình đăng ký, vui lòng thử lại sau.',
-                ]);
-            }
+            $userId = $this->userModel->create($userData);
             
             if ($userId) {
                 $_SESSION['success'] = 'Đăng ký thành công! Vui lòng đăng nhập.';
@@ -125,6 +108,32 @@ class AuthController extends Controller
         }
         
         return $this->render('auth/register');
+    }
+
+    public function forgotPassword()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = trim($_POST['email'] ?? '');
+            if ($email === '') {
+                return $this->render('auth/forgot-password', ['error' => 'Vui lòng nhập email']);
+            }
+
+            $user = $this->userModel->findByEmail($email);
+            // For now, do not send email; just show a friendly message if user exists
+            if ($user) {
+                // In production, generate token and send email here
+                return $this->render('auth/forgot-password', [
+                    'success' => 'Nếu email tồn tại, chúng tôi đã gửi liên kết đặt lại mật khẩu. Vui lòng kiểm tra hộp thư.'
+                ]);
+            }
+
+            // Do not reveal whether email exists to avoid user enumeration
+            return $this->render('auth/forgot-password', [
+                'success' => 'Nếu email tồn tại, chúng tôi đã gửi liên kết đặt lại mật khẩu. Vui lòng kiểm tra hộp thư.'
+            ]);
+        }
+
+        return $this->render('auth/forgot-password');
     }
 
     public function logout()
