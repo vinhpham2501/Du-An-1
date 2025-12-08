@@ -5,11 +5,13 @@ namespace App\Controllers\Admin;
 use App\Core\Controller;
 use App\Models\Order;
 use App\Models\User;
+use App\Models\Address;
 
 class OrderController extends Controller
 {
     private $orderModel;
     private $userModel;
+    private $addressModel;
 
     public function __construct()
     {
@@ -18,6 +20,7 @@ class OrderController extends Controller
         
         $this->orderModel = new Order();
         $this->userModel = new User();
+        $this->addressModel = new Address();
     }
 
     public function index()
@@ -78,18 +81,54 @@ class OrderController extends Controller
                     $order = $this->orderModel->findById($id);
                 }
             }
-            
+
+            // Lấy thông tin khách hàng để map vào đơn hàng (phục vụ hiển thị)
+            $user = $this->userModel->findById($order['user_id']);
+
+            // Lấy địa chỉ giao hàng: ưu tiên theo address_id trong đơn, nếu không có thì lấy địa chỉ mặc định của user
+            $address = null;
+            if (!empty($order['address_id'])) {
+                $address = $this->addressModel->findById($order['address_id']);
+            }
+            if (!$address && !empty($order['user_id'])) {
+                $address = $this->addressModel->getDefaultForUser($order['user_id']);
+            }
+
+            // Ghép chuỗi địa chỉ đầy đủ nếu có dữ liệu
+            $fullAddress = null;
+            if ($address) {
+                $parts = [];
+                if (!empty($address['DiaChi'])) {
+                    $parts[] = $address['DiaChi'];
+                }
+                if (!empty($address['PhuongXa'])) {
+                    $parts[] = $address['PhuongXa'];
+                }
+                if (!empty($address['QuanHuyen'])) {
+                    $parts[] = $address['QuanHuyen'];
+                }
+                if (!empty($address['TinhThanh'])) {
+                    $parts[] = $address['TinhThanh'];
+                }
+                $fullAddress = implode(', ', $parts);
+            }
+
             // Ensure required fields have default values
             $order['status'] = $order['status'] ?? 'pending';
             $order['payment_status'] = $order['payment_status'] ?? 'pending';
-            $order['delivery_name'] = $order['delivery_name'] ?? 'N/A';
-            $order['delivery_phone'] = $order['delivery_phone'] ?? 'N/A';
-            $order['delivery_address'] = $order['delivery_address'] ?? 'N/A';
+
+            // Nếu chưa có thông tin giao hàng thì fallback từ thông tin user / địa chỉ
+            $order['delivery_name'] = $order['delivery_name']
+                ?? ($user['full_name'] ?? 'N/A');
+            $order['delivery_phone'] = $order['delivery_phone']
+                ?? ($user['phone'] ?? 'N/A');
+            $order['delivery_address'] = $order['delivery_address']
+                ?? ($fullAddress ?: 'N/A');
+
             $order['notes'] = $order['notes'] ?? '';
             $order['updated_at'] = $order['updated_at'] ?? $order['created_at'];
             
             $orderItems = $this->orderModel->getOrderItems($id);
-            $user = $this->userModel->findById($order['user_id']);
             
             return $this->render('admin/orders/show', [
                 'order' => $order,
