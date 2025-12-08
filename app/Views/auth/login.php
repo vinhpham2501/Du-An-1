@@ -22,13 +22,6 @@
         <div class="col-lg-6 auth-left">
           <div class="mb-3 text-center">
             <h3 class="auth-title mb-1">Đăng nhập</h3>
-            <div class="muted">hoặc đăng nhập với:</div>
-            <div class="d-flex gap-2 justify-content-center mt-2 socials">
-              <a href="#" aria-label="Google"><i class="fab fa-google"></i></a>
-              <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-              <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-              <a href="#" aria-label="Github"><i class="fab fa-github"></i></a>
-            </div>
           </div>
 
           <?php if (isset($error)): ?>
@@ -59,7 +52,15 @@
               </div>
               <a class="link-muted" href="/forgot-password">Quên mật khẩu?</a>
             </div>
-
+            <div>
+              <div class="muted">hoặc đăng nhập với:</div>
+              <div class="d-flex gap-2 justify-content-center mt-2 socials">
+                <a href="#" aria-label="Google"><i class="fab fa-google"></i></a>
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" aria-label="Github"><i class="fab fa-github"></i></a>
+              </div>
+            </div>
             <div class="row g-2">
               <div class="col-6 d-grid">
                 <button type="submit" class="btn btn-danger">Đăng nhập</button>
@@ -69,10 +70,6 @@
               </div>
             </div>
           </form>
-
-          <div class="text-center mt-3">
-            <small class="text-muted">Copyright © ShareCode.vn</small>
-          </div>
         </div>
         <div class="col-lg-6 d-none d-lg-block auth-right"></div>
       </div>

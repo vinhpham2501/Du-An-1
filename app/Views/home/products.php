@@ -44,7 +44,8 @@
                             </div>
                         <?php endforeach; ?>
 
-                        <button type="submit" class="btn btn-sm btn-primary w-100 mt-2">Lọc danh mục</button>
+                        <button class="btn btn-search" type="submit"><i class="fas fa-search"></i></button>
+
                     </form>
                     </div>
                 </div>

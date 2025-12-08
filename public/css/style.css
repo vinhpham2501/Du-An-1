@@ -43,6 +43,11 @@
     color: #8b0000 !important;
 }
 
+/* Make all primary borders use brand red (for selected thumbnails, etc.) */
+.border-primary {
+    border-color: #8b0000 !important;
+}
+
 /* General styles */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -67,6 +72,29 @@ body {
 
 .navbar .navbar-nav .nav-link:hover {
     color: #ffc107 !important;
+}
+
+/* Make link-style buttons (e.g. "Danh mục" toggle) use brand colors instead of blue */
+.btn-link {
+    color: #8b0000;
+}
+
+.btn-link:hover,
+.btn-link:focus {
+    color: #ffc107;
+}
+
+.btn-search {
+    border: none;
+    color: #ffc107;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.btn-search:hover {
+    background-color: transparent;
+    color: #ffc107;
+    box-shadow: none;
 }
 
 /* Admin navbar darker with clearer text */
@@ -97,6 +125,15 @@ body {
 
 .product-card:hover .card-img-top {
     transform: scale(1.05);
+}
+
+/* Product card title & links use brand colors */
+.card .card-title a {
+    color: #8b0000 !important;
+}
+
+.card .card-title a:hover {
+    color: #ffc107 !important;
 }
 
 /* Category filter toggle icon */
@@ -221,10 +258,52 @@ body {
     letter-spacing: 0.5px;
 }
 
+/* Breadcrumb links */
+.breadcrumb a {
+    color: #8b0000 !important;
+}
+
+.breadcrumb a:hover {
+    color: #ffc107 !important;
+}
+
+/* Pagination colors */
+.pagination .page-link {
+    color: #8b0000 !important;
+}
+
+.pagination .page-link:hover {
+    color: #ffc107 !important;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #8b0000 !important;
+    border-color: #8b0000 !important;
+    color: #fff !important;
+}
+
 /* Loading spinner */
 .spinner-border {
     width: 1rem;
     height: 1rem;
+}
+
+/* Price range slider uses brand red */
+.form-range {
+    accent-color: #8b0000 !important;
+}
+
+/* Extra styling for range slider thumb to ensure brand color across browsers */
+.form-range::-webkit-slider-thumb {
+    background-color: #8b0000;
+}
+
+.form-range::-moz-range-thumb {
+    background-color: #8b0000;
+}
+
+.form-range::-ms-thumb {
+    background-color: #8b0000;
 }
 
 /* Footer styles */

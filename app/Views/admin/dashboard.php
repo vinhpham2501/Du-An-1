@@ -2,7 +2,7 @@
 
 <style>
 .dashboard-header {
-    background: linear-gradient(135deg, #8B0000 0%, #8B0000 100%);
+    background: linear-gradient(135deg, #006994 0%, #00a8cc 100%);
     color: #fff;
     padding: 2rem 0;
     margin: -18px -18px 2rem -18px;
