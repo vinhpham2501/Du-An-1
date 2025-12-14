@@ -120,19 +120,82 @@
                 <p class="text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
             <?php else: ?>
                 <?php foreach ($reviews as $review): ?>
-                    <div class="card mb-3">
+                    <div class="card mb-3 review-item" data-review-id="<?= $review['id'] ?>">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <h6><?= htmlspecialchars($review['user_name']) ?></h6>
-                                <small class="text-muted"><?= date('d/m/Y H:i', strtotime($review['created_at'])) ?></small>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-2">
+                                    <h6 class="mb-0"><?= htmlspecialchars($review['user_name']) ?></h6>
+                                    <?php if (isset($_SESSION['user_id']) && $review['user_id'] == $_SESSION['user_id']): ?>
+                                        <span class="badge bg-info">Đánh giá của bạn</span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <small class="text-muted"><?= date('d/m/Y H:i', strtotime($review['created_at'])) ?></small>
+                                    <?php if (isset($_SESSION['user_id']) && $review['user_id'] == $_SESSION['user_id']): ?>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editReview(<?= $review['id'] ?>, <?= $review['rating'] ?>, '<?= htmlspecialchars(addslashes($review['comment'] ?? '')) ?>')" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteReview(<?= $review['id'] ?>)" title="Xóa">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                            <div class="mb-2">
+                            <div class="mb-2 review-rating-display">
                                 <?php for ($i = 1; $i <= 5; $i++): ?>
                                     <i class="fas fa-star <?= $i <= $review['rating'] ? 'text-warning' : 'text-muted' ?>"></i>
                                 <?php endfor; ?>
                             </div>
-                            <?php if ($review['comment']): ?>
-                                <p><?= nl2br(htmlspecialchars($review['comment'])) ?></p>
+                            <div class="review-comment-display">
+                                <?php if ($review['comment']): ?>
+                                    <p class="mb-2"><?= nl2br(htmlspecialchars($review['comment'])) ?></p>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <!-- Edit form (hidden by default) -->
+                            <div class="review-edit-form d-none mt-3 p-3 border rounded bg-light">
+                                <h6 class="mb-2">Chỉnh sửa đánh giá</h6>
+                                <div class="mb-2">
+                                    <label class="form-label mb-1">Chọn số sao:</label>
+                                    <div class="edit-review-stars text-warning fs-5">
+                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                            <i class="far fa-star edit-review-star" data-value="<?= $i ?>" onclick="setEditReviewRating(<?= $i ?>)"></i>
+                                        <?php endfor; ?>
+                                    </div>
+                                    <input type="hidden" class="edit-review-rating" value="0">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label mb-1">Nhận xét:</label>
+                                    <textarea class="form-control edit-review-comment" rows="3" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."></textarea>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="saveReview(<?= $review['id'] ?>)">Lưu</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="cancelEditReview(<?= $review['id'] ?>)">Hủy</button>
+                                </div>
+                            </div>
+                            
+                            <?php if (!empty($review['reply'])): ?>
+                                <div class="mt-3 p-3 rounded" style="background: #fff; border: 1px solid #e0e0e0; border-left: 3px solid #8b0000; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #8b0000, #5a0000); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; margin-right: 10px;">
+                                                <i class="fas fa-headset"></i>
+                                            </div>
+                                            <div>
+                                                <strong class="d-block" style="font-size: 13px; line-height: 1.3; color: #8b0000;"><?= htmlspecialchars($review['replied_by'] ?? 'Shop') ?></strong>
+                                                <?php if (!empty($review['reply_date'])): ?>
+                                                    <small class="text-muted d-block" style="font-size: 11px; margin-top: 2px;"><?= date('d/m/Y H:i', strtotime($review['reply_date'])) ?></small>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                        <span class="badge rounded-pill" style="background-color: #8b0000; color: white; font-size: 10px; padding: 5px 10px; font-weight: 500;">
+                                            <i class="fas fa-reply me-1"></i>Phản hồi từ shop
+                                        </span>
+                                    </div>
+                                    <div style="font-size: 14px; line-height: 1.7; color: #333; margin-top: 8px;">
+                                        <?= nl2br(htmlspecialchars($review['reply'])) ?>
+                                    </div>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -264,6 +327,151 @@ function addToCart(productId) {
     })
     .catch(error => {
         showAlert('danger', 'Có lỗi xảy ra, vui lòng thử lại');
+    });
+}
+
+// Edit review functions
+function editReview(reviewId, currentRating, currentComment) {
+    const reviewItem = document.querySelector(`.review-item[data-review-id="${reviewId}"]`);
+    if (!reviewItem) return;
+    
+    const editForm = reviewItem.querySelector('.review-edit-form');
+    const displayComment = reviewItem.querySelector('.review-comment-display');
+    const displayRating = reviewItem.querySelector('.review-rating-display');
+    
+    if (!editForm) return;
+    
+    // Show edit form, hide display
+    editForm.classList.remove('d-none');
+    displayComment.style.display = 'none';
+    displayRating.style.display = 'none';
+    
+    // Set current values
+    const ratingInput = editForm.querySelector('.edit-review-rating');
+    const commentInput = editForm.querySelector('.edit-review-comment');
+    const stars = editForm.querySelectorAll('.edit-review-star');
+    
+    if (ratingInput) ratingInput.value = currentRating;
+    if (commentInput) commentInput.value = currentComment;
+    
+    // Update star display
+    stars.forEach((star, index) => {
+        if (index + 1 <= currentRating) {
+            star.classList.remove('far');
+            star.classList.add('fas');
+        } else {
+            star.classList.remove('fas');
+            star.classList.add('far');
+        }
+    });
+}
+
+function setEditReviewRating(value) {
+    const editForm = event.target.closest('.review-edit-form');
+    if (!editForm) return;
+    
+    const ratingInput = editForm.querySelector('.edit-review-rating');
+    const stars = editForm.querySelectorAll('.edit-review-star');
+    
+    if (ratingInput) ratingInput.value = value;
+    
+    stars.forEach((star, index) => {
+        if (index + 1 <= value) {
+            star.classList.remove('far');
+            star.classList.add('fas');
+        } else {
+            star.classList.remove('fas');
+            star.classList.add('far');
+        }
+    });
+}
+
+function saveReview(reviewId) {
+    const reviewItem = document.querySelector(`.review-item[data-review-id="${reviewId}"]`);
+    if (!reviewItem) return;
+    
+    const editForm = reviewItem.querySelector('.review-edit-form');
+    if (!editForm) return;
+    
+    const ratingInput = editForm.querySelector('.edit-review-rating');
+    const commentInput = editForm.querySelector('.edit-review-comment');
+    
+    if (!ratingInput || !commentInput) return;
+    
+    const rating = parseInt(ratingInput.value) || 0;
+    const comment = commentInput.value.trim();
+    
+    if (!rating || rating < 1 || rating > 5) {
+        alert('Vui lòng chọn số sao (1-5).');
+        return;
+    }
+    
+    const formData = new URLSearchParams();
+    formData.append('review_id', reviewId);
+    formData.append('rating', rating);
+    formData.append('comment', comment);
+    
+    fetch('/update-review', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString()
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message || 'Có lỗi xảy ra, vui lòng thử lại!');
+        }
+    })
+    .catch(() => {
+        alert('Có lỗi xảy ra, vui lòng thử lại!');
+    });
+}
+
+function cancelEditReview(reviewId) {
+    const reviewItem = document.querySelector(`.review-item[data-review-id="${reviewId}"]`);
+    if (!reviewItem) return;
+    
+    const editForm = reviewItem.querySelector('.review-edit-form');
+    const displayComment = reviewItem.querySelector('.review-comment-display');
+    const displayRating = reviewItem.querySelector('.review-rating-display');
+    
+    if (!editForm) return;
+    
+    // Hide edit form, show display
+    editForm.classList.add('d-none');
+    if (displayComment) displayComment.style.display = '';
+    if (displayRating) displayRating.style.display = '';
+}
+
+function deleteReview(reviewId) {
+    if (!confirm('Bạn có chắc chắn muốn xóa đánh giá này?')) {
+        return;
+    }
+    
+    const formData = new URLSearchParams();
+    formData.append('review_id', reviewId);
+    
+    fetch('/delete-review', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString()
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message || 'Có lỗi xảy ra, vui lòng thử lại!');
+        }
+    })
+    .catch(() => {
+        alert('Có lỗi xảy ra, vui lòng thử lại!');
     });
 }
 

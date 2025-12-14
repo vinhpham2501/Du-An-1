@@ -3,13 +3,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
     // Initialize popovers
     var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+    var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
         return new bootstrap.Popover(popoverTriggerEl);
     });
 
@@ -34,40 +34,48 @@ document.addEventListener('DOMContentLoaded', function() {
 // Global functions
 window.addToCart = function(productId, quantity = 1) {
     fetch('/cart/add', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `product_id=${productId}&quantity=${quantity}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            updateCartCount(data.cartCount);
-            showNotification('success', data.message);
-        } else {
-            showNotification('danger', data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('danger', 'Có lỗi xảy ra, vui lòng thử lại');
-    });
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `product_id=${productId}&quantity=${quantity}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateCartCount(data.cartCount);
+                showNotification('success', data.message);
+            } else {
+                showNotification('danger', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('danger', 'Có lỗi xảy ra, vui lòng thử lại');
+        });
 };
 
 window.updateCartCount = function(count) {
+    const cartCountElement = document.getElementById('cart-count');
+    if (!cartCountElement) {
+        // Cart count element doesn't exist on this page (e.g., admin pages)
+        return;
+    }
+
     if (count !== undefined) {
-        document.getElementById('cart-count').textContent = count;
+        cartCountElement.textContent = count;
     } else {
         // Fetch current cart count
         fetch('/cart/count')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('cart-count').textContent = data.cartCount || 0;
-        })
-        .catch(error => {
-            console.error('Error fetching cart count:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (cartCountElement) {
+                    cartCountElement.textContent = data.cartCount || 0;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching cart count:', error);
+            });
     }
 };
 
@@ -167,7 +175,7 @@ window.formatPrice = function(price) {
 // Image lazy loading
 window.lazyLoadImages = function() {
     const images = document.querySelectorAll('img[data-src]');
-    
+
     const imageObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -185,15 +193,15 @@ window.lazyLoadImages = function() {
 // Search functionality
 window.initSearch = function() {
     const searchForm = document.querySelector('form[action="/search"]');
-    const searchInput = searchForm?.querySelector('input[name="q"]');
-    
+    const searchInput = searchForm ? .querySelector('input[name="q"]');
+
     if (!searchInput) return;
 
     let searchTimeout;
-    
+
     searchInput.addEventListener('input', function() {
         clearTimeout(searchTimeout);
-        
+
         if (this.value.length >= 2) {
             searchTimeout = setTimeout(() => {
                 // Auto-suggest functionality could go here
@@ -238,7 +246,7 @@ window.showLoading = function(element) {
     if (typeof element === 'string') {
         element = document.getElementById(element);
     }
-    
+
     if (element) {
         element.innerHTML = '<div class="d-flex justify-content-center"><div class="spinner-border spinner-border-sm" role="status"></div></div>';
         element.setAttribute('disabled', 'disabled');
@@ -249,7 +257,7 @@ window.hideLoading = function(element, originalContent) {
     if (typeof element === 'string') {
         element = document.getElementById(element);
     }
-    
+
     if (element) {
         element.innerHTML = originalContent;
         element.removeAttribute('disabled');
@@ -278,23 +286,23 @@ window.loadFromStorage = function(key) {
 // Initialize components based on page
 window.initPageSpecific = function() {
     const currentPath = window.location.pathname;
-    
+
     // Product listing page
     if (currentPath === '/' || currentPath.includes('/category')) {
         lazyLoadImages();
         initSearch();
     }
-    
+
     // Cart page
     if (currentPath === '/cart') {
         setupQuantityControls();
     }
-    
+
     // Product detail page
     if (currentPath.includes('/product')) {
         setupQuantityControls();
     }
-    
+
     // Admin pages
     if (currentPath.includes('/admin')) {
         initAdminFeatures();
@@ -310,11 +318,11 @@ window.initAdminFeatures = function() {
             }
         });
     });
-    
+
     // Auto-save form data
     document.querySelectorAll('form[data-auto-save]').forEach(form => {
         const inputs = form.querySelectorAll('input, select, textarea');
-        
+
         inputs.forEach(input => {
             input.addEventListener('change', function() {
                 const formData = new FormData(form);
@@ -322,7 +330,7 @@ window.initAdminFeatures = function() {
                 saveToStorage(`form_${form.id}`, data);
             });
         });
-        
+
         // Restore form data on load
         const savedData = loadFromStorage(`form_${form.id}`);
         if (savedData) {

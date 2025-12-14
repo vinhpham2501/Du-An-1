@@ -4,6 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Core\Controller;
 use App\Models\Contact;
+use App\Helpers\EmailHelper;
 
 class ContactController extends Controller
 {
@@ -116,6 +117,54 @@ class ContactController extends Controller
             return $this->json(['success' => true, 'message' => 'Xóa tin nhắn thành công']);
         } else {
             return $this->json(['success' => false, 'message' => 'Có lỗi xảy ra']);
+        }
+    }
+
+    public function sendEmail()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return $this->json(['success' => false, 'message' => 'Invalid request method']);
+        }
+        
+        $contactId = $_POST['contact_id'] ?? 0;
+        $subject = trim($_POST['subject'] ?? '');
+        $message = trim($_POST['message'] ?? '');
+        
+        if (!$contactId || !$subject || !$message) {
+            return $this->json(['success' => false, 'message' => 'Vui lòng điền đầy đủ thông tin']);
+        }
+        
+        $contact = $this->contactModel->findById($contactId);
+        if (!$contact) {
+            return $this->json(['success' => false, 'message' => 'Tin nhắn không tồn tại']);
+        }
+        
+        // Validate email
+        if (!filter_var($contact['email'], FILTER_VALIDATE_EMAIL)) {
+            return $this->json(['success' => false, 'message' => 'Email không hợp lệ']);
+        }
+        
+        // Gửi email
+        $result = EmailHelper::sendReply(
+            $contact['email'],
+            $contact['name'],
+            $subject,
+            $message
+        );
+        
+        if ($result['success']) {
+            // Cập nhật trạng thái thành "replied"
+            $this->contactModel->updateStatus($contactId, 'replied');
+            
+            return $this->json([
+                'success' => true, 
+                'message' => $result['message'] . ' - ' . $contact['email']
+            ]);
+        } else {
+            return $this->json([
+                'success' => false, 
+                'message' => $result['message']
+            ]);
         }
     }
 }

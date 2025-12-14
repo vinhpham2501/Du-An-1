@@ -422,7 +422,7 @@ small.text-muted {
                             <select class="form-select form-select-custom" id="status" name="status" required>
                                 <option value="pending" <?= $order['status'] === 'pending' ? 'selected' : '' ?>>⏳ Chờ xác nhận</option>
                                 <option value="confirmed" <?= $order['status'] === 'confirmed' ? 'selected' : '' ?>>✅ Đã xác nhận</option>
-                                <option value="preparing" <?= $order['status'] === 'preparing' ? 'selected' : '' ?>>👨‍🍳 Đang chuẩn bị</option>
+                                <option value="preparing" <?= $order['status'] === 'preparing' ? 'selected' : '' ?>>📦 Đang chuẩn bị</option>
                                 <option value="delivering" <?= $order['status'] === 'delivering' ? 'selected' : '' ?>>🚚 Đang giao</option>
                                 <option value="completed" <?= $order['status'] === 'completed' ? 'selected' : '' ?>>🎉 Hoàn thành</option>
                                 <option value="cancelled" <?= $order['status'] === 'cancelled' ? 'selected' : '' ?>>❌ Đã hủy</option>

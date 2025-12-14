@@ -12,10 +12,10 @@
                 <div class="text-center py-5">
                     <i class="fas fa-receipt fa-4x text-muted mb-3"></i>
                     <h4>Chưa có đơn hàng nào</h4>
-                    <p class="text-muted">Bạn chưa có đơn hàng nào. Hãy đặt món ngay!</p>
+                    <p class="text-muted">Bạn chưa có đơn hàng nào. Hãy mua sắm ngay!</p>
                     <a href="/" class="btn btn-primary">
-                        <i class="fas fa-utensils me-2"></i>
-                        Xem thực đơn
+                        <i class="fas fa-shopping-bag me-2"></i>
+                        Xem sản phẩm
                     </a>
                 </div>
             <?php else: ?>
