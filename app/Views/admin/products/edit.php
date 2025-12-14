@@ -92,10 +92,17 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Trạng thái</label>
-                                        <?php $status = $_POST['is_available'] ?? ($product['is_available'] ?? 1); ?>
+                                        <?php 
+                                        $status = $_POST['is_available'] ?? ($product['is_available'] ?? 1);
+                                        // Chuyển đổi: 0 (cũ - đã xóa hoặc ngừng bán cũ) -> 2 (ngừng bán mới)
+                                        // Chỉ chuyển đổi khi không có POST (hiển thị form lần đầu)
+                                        if (!isset($_POST['is_available']) && $status == 0) {
+                                            $status = 2; // Ngừng bán
+                                        }
+                                        ?>
                                         <select class="form-select" name="is_available">
                                             <option value="1" <?= $status == 1 ? 'selected' : '' ?>>Đang bán</option>
-                                            <option value="0" <?= $status == 0 ? 'selected' : '' ?>>Ngừng bán</option>
+                                            <option value="2" <?= $status == 2 ? 'selected' : '' ?>>Ngừng bán</option>
                                         </select>
                                     </div>
                                 </div>

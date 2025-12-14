@@ -53,7 +53,18 @@
                 </div>
             <?php endif; ?>
             
-            <?php if ($product['status'] === 'available'): ?>
+            <?php 
+            $isAvailable = isset($product['is_available']) && $product['is_available'] == 1;
+            $isStopped = isset($product['is_available']) && $product['is_available'] == 2;
+            ?>
+            
+            <?php if ($isStopped): ?>
+                <div class="alert alert-danger">
+                    <i class="fas fa-ban me-2"></i>
+                    <strong>Sản phẩm đã ngừng bán</strong>
+                    <p class="mb-0 mt-2">Sản phẩm này hiện không còn được bán. Vui lòng chọn sản phẩm khác.</p>
+                </div>
+            <?php elseif ($isAvailable): ?>
                 <div class="mb-4">
                     <div class="row align-items-center">
                         <div class="col-auto">
@@ -249,7 +260,15 @@
                                                 <?php endif; ?>
                                             </div>
                                             
-                                            <?php if ($relatedProduct['status'] === 'available'): ?>
+                                            <?php 
+                                            $relatedIsAvailable = isset($relatedProduct['is_available']) && $relatedProduct['is_available'] == 1;
+                                            $relatedIsStopped = isset($relatedProduct['is_available']) && $relatedProduct['is_available'] == 2;
+                                            ?>
+                                            <?php if ($relatedIsStopped): ?>
+                                                <button class="btn btn-sm btn-secondary w-100" disabled>
+                                                    <i class="fas fa-ban me-1"></i>Ngừng bán
+                                                </button>
+                                            <?php elseif ($relatedIsAvailable): ?>
                                                 <button class="btn btn-sm btn-primary w-100" onclick="addToCart(<?= $relatedProduct['id'] ?>)">
                                                     Thêm vào giỏ
                                                 </button>

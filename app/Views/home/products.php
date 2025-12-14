@@ -156,21 +156,30 @@
                         <?php $img = ImageHelper::getImageSrc($p['image_url'] ?? null); ?>
                         <div class="col-md-6 col-lg-4 mb-4">
                             <div class="card h-100 shadow-sm">
-                                <?php if ($img): ?>
-                                    <a href="/product/<?= $p['id'] ?>">
-                                        <img src="<?= htmlspecialchars($img) ?>"
-                                             class="card-img-top product-image"
-                                             alt="<?= htmlspecialchars($p['name']) ?>"
-                                             style="height: 420px; object-fit: cover; object-position: top;"
-                                        >
-                                    </a>
-                                <?php else: ?>
-                                    <a href="/product/<?= $p['id'] ?>" class="text-decoration-none">
-                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center product-image-placeholder" style="height: 420px;">
-                                            <i class="fas fa-utensils fa-2x text-muted"></i>
+                                <div class="position-relative">
+                                    <?php if ($img): ?>
+                                        <a href="/product/<?= $p['id'] ?>">
+                                            <img src="<?= htmlspecialchars($img) ?>"
+                                                 class="card-img-top product-image"
+                                                 alt="<?= htmlspecialchars($p['name']) ?>"
+                                                 style="height: 420px; object-fit: cover; object-position: top;"
+                                            >
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="/product/<?= $p['id'] ?>" class="text-decoration-none">
+                                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center product-image-placeholder" style="height: 420px;">
+                                                <i class="fas fa-utensils fa-2x text-muted"></i>
+                                            </div>
+                                        </a>
+                                    <?php endif; ?>
+                                    <?php if (isset($p['is_available']) && $p['is_available'] == 2): ?>
+                                        <div class="position-absolute top-0 end-0 m-2">
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-ban me-1"></i>Ngừng bán
+                                            </span>
                                         </div>
-                                    </a>
-                                <?php endif; ?>
+                                    <?php endif; ?>
+                                </div>
                                 <div class="card-body d-flex flex-column">
                                     <h6 class="card-title mb-1">
                                         <a href="/product/<?= $p['id'] ?>" class="text-decoration-none"><?= htmlspecialchars($p['name']) ?></a>

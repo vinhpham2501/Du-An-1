@@ -234,7 +234,8 @@ class Order extends Model
 
     public function updateStatus($id, $status)
     {
-        $sql = "UPDATE {$this->table} SET TrangThai = ? WHERE MaDH = ?";
+        // Cập nhật cả trạng thái và thời gian cập nhật
+        $sql = "UPDATE {$this->table} SET TrangThai = ?, NgayCapNhat = NOW() WHERE MaDH = ?";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$status, $id]);
     }

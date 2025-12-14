@@ -39,8 +39,9 @@
                         <label for="status" class="form-label">Trạng thái</label>
                         <select class="form-select" id="status" name="status">
                             <option value="">Tất cả</option>
-                            <option value="1" <?= ($_GET['status'] ?? '') == '1' ? 'selected' : '' ?>>Có sẵn</option>
-                            <option value="0" <?= ($_GET['status'] ?? '') == '0' ? 'selected' : '' ?>>Hết hàng</option>
+                            <option value="1" <?= ($_GET['status'] ?? '') == '1' ? 'selected' : '' ?>>Đang bán</option>
+                            <option value="2" <?= ($_GET['status'] ?? '') == '2' ? 'selected' : '' ?>>Ngừng bán</option>
+                            <option value="0" <?= ($_GET['status'] ?? '') == '0' ? 'selected' : '' ?>>Đã xóa</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -118,10 +119,14 @@
                                             <strong class="text-success"><?= number_format($product['price']) ?>đ</strong>
                                         </td>
                                         <td>
-                                            <?php if ($product['is_available']): ?>
-                                                <span class="badge bg-success">Có sẵn</span>
+                                            <?php 
+                                            $status = (int)($product['is_available'] ?? 1);
+                                            if ($status == 1): ?>
+                                                <span class="badge bg-success">Đang bán</span>
+                                            <?php elseif ($status == 2): ?>
+                                                <span class="badge bg-warning">Ngừng bán</span>
                                             <?php else: ?>
-                                                <span class="badge bg-danger">Hết hàng</span>
+                                                <span class="badge bg-danger">Đã xóa</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>

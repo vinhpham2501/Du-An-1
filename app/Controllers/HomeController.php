@@ -449,6 +449,8 @@ class HomeController extends Controller
     private function renderProductCard($product)
     {
         $salePrice = !empty($product['sale_price']) && $product['sale_price'] < $product['price'];
+        $isAvailable = isset($product['is_available']) && $product['is_available'] == 1;
+        $isStopped = isset($product['is_available']) && $product['is_available'] == 2;
         
         return '<div class="col-lg-3 col-md-6 mb-4">
             <div class="product-card h-100 shadow-sm">
@@ -471,6 +473,13 @@ class HomeController extends Controller
                             </span>
                         </div>' : ''
                     ) . '
+                    ' . ($isStopped ? 
+                        '<div class="position-absolute top-0 ' . ($salePrice ? 'end-0' : 'start-0') . ' m-2">
+                            <span class="badge bg-danger">
+                                <i class="fas fa-ban me-1"></i>Ngừng bán
+                            </span>
+                        </div>' : ''
+                    ) . '
                 </div>
                 <div class="card-body">
                     <h5 class="card-title">
@@ -487,9 +496,14 @@ class HomeController extends Controller
                                 '<span class="text-primary fw-bold">' . number_format($product['price']) . 'đ</span>'
                             ) . '
                         </div>
-                        <button class="btn btn-primary btn-sm" onclick="addToCart(' . $product['id'] . ')">
-                            <i class="fas fa-cart-plus"></i>
-                        </button>
+                        ' . ($isStopped ? 
+                            '<button class="btn btn-secondary btn-sm" disabled title="Sản phẩm đã ngừng bán">
+                                <i class="fas fa-ban"></i>
+                            </button>' :
+                            '<button class="btn btn-primary btn-sm" onclick="addToCart(' . $product['id'] . ')">
+                                <i class="fas fa-cart-plus"></i>
+                            </button>'
+                        ) . '
                     </div>
                 </div>
             </div>

@@ -16,14 +16,31 @@ class Category extends Model
                     c.MoTa AS description,
                     c.TrangThai AS is_available,
                     c.NgayTao AS created_at,
-                    COUNT(p.MaSP) AS product_count
+                    COUNT(CASE WHEN p.TrangThai IN (1, 2) THEN 1 END) AS product_count
                 FROM {$this->table} c 
-                LEFT JOIN SAN_PHAM p ON c.MaDM = p.MaDM
-                GROUP BY c.MaDM, c.TenDM, c.MoTa, c.TrangThai, c.NgayTao
-                ORDER BY c.TenDM ASC";
+                LEFT JOIN SAN_PHAM p ON c.MaDM = p.MaDM";
+        
+        $conditions = [];
+        $params = [];
+        
+        // Mặc định ẩn danh mục đã xóa (TrangThai = 0), chỉ hiển thị đang hoạt động (1) và ngừng bán (2)
+        // Trừ khi có filter is_available được truyền vào (dùng cho admin)
+        if (!isset($filters['is_available'])) {
+            $conditions[] = "c.TrangThai IN (1, 2)";
+        } else {
+            $conditions[] = "c.TrangThai = ?";
+            $params[] = $filters['is_available'];
+        }
+        
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(' AND ', $conditions);
+        }
+        
+        $sql .= " GROUP BY c.MaDM, c.TenDM, c.MoTa, c.TrangThai, c.NgayTao
+                  ORDER BY c.TenDM ASC";
         
         $stmt = $this->db->prepare($sql);
-        $stmt->execute();
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
@@ -94,7 +111,8 @@ class Category extends Model
 
     public function getProductsCount($categoryId)
     {
-        $sql = "SELECT COUNT(*) FROM SAN_PHAM WHERE MaDM = ?";
+        // Chỉ đếm sản phẩm chưa bị xóa (TrangThai IN (1, 2))
+        $sql = "SELECT COUNT(*) FROM SAN_PHAM WHERE MaDM = ? AND TrangThai IN (1, 2)";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$categoryId]);
         return $stmt->fetchColumn();
@@ -104,7 +122,7 @@ class Category extends Model
     {
         $sql = "SELECT MaDM AS id, TenDM AS name 
                 FROM {$this->table} 
-                WHERE TrangThai = 1 
+                WHERE TrangThai IN (1, 2) 
                 ORDER BY TenDM ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();

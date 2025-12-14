@@ -76,7 +76,15 @@
                             <i class="fas fa-tag me-1"></i>
                             <?= htmlspecialchars($product['category_name']) ?>
                         </span>
-                        <?php if ($product['is_available']): ?>
+                        <?php 
+                        $isAvailable = isset($product['is_available']) && $product['is_available'] == 1;
+                        $isStopped = isset($product['is_available']) && $product['is_available'] == 2;
+                        ?>
+                        <?php if ($isStopped): ?>
+                            <span class="badge bg-warning fs-6">
+                                <i class="fas fa-ban me-1"></i>Ngừng bán
+                            </span>
+                        <?php elseif ($isAvailable): ?>
                             <span class="badge bg-success fs-6">
                                 <i class="fas fa-check-circle me-1"></i>Còn hàng
                             </span>
@@ -144,7 +152,13 @@
                     </div>
 
                     <!-- Quantity and action buttons -->
-                    <?php if ($product['is_available']): ?>
+                    <?php if ($isStopped): ?>
+                        <div class="alert alert-danger mb-4">
+                            <i class="fas fa-ban me-2"></i>
+                            <strong>Sản phẩm đã ngừng bán</strong>
+                            <p class="mb-0 mt-2">Sản phẩm này hiện không còn được bán. Vui lòng chọn sản phẩm khác.</p>
+                        </div>
+                    <?php elseif ($isAvailable): ?>
                         <div class="add-to-cart-section mb-4">
                             <div class="mb-3">
                                 <label for="quantity" class="form-label fw-semibold">Số lượng</label>
@@ -370,6 +384,13 @@
                                     </span>
                                 </div>
                             <?php endif; ?>
+                            <?php if (isset($relatedProduct['is_available']) && $relatedProduct['is_available'] == 2): ?>
+                                <div class="position-absolute top-0 <?= (!empty($relatedProduct['sale_price']) && $relatedProduct['sale_price'] < $relatedProduct['price']) ? 'end-0' : 'start-0' ?> m-2">
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-ban me-1"></i>Ngừng bán
+                                    </span>
+                                </div>
+                            <?php endif; ?>
                         </div>
                         <div class="card-body">
                             <h5 class="card-title">
@@ -387,9 +408,23 @@
                                         <span class="text-primary fw-bold"><?= number_format($relatedProduct['price']) ?>đ</span>
                                     <?php endif; ?>
                                 </div>
-                                <button class="btn btn-primary btn-sm" onclick="addToCart(<?= $relatedProduct['id'] ?>)">
-                                    <i class="fas fa-cart-plus"></i>
-                                </button>
+                                <?php 
+                                $relatedIsAvailable = isset($relatedProduct['is_available']) && $relatedProduct['is_available'] == 1;
+                                $relatedIsStopped = isset($relatedProduct['is_available']) && $relatedProduct['is_available'] == 2;
+                                ?>
+                                <?php if ($relatedIsStopped): ?>
+                                    <button class="btn btn-secondary btn-sm" disabled>
+                                        <i class="fas fa-ban me-1"></i>Ngừng bán
+                                    </button>
+                                <?php elseif ($relatedIsAvailable): ?>
+                                    <button class="btn btn-primary btn-sm" onclick="addToCart(<?= $relatedProduct['id'] ?>)">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                <?php else: ?>
+                                    <button class="btn btn-secondary btn-sm" disabled>
+                                        Hết hàng
+                                    </button>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

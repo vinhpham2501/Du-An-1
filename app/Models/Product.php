@@ -55,20 +55,18 @@ class Product extends Model
         $params = [];
         $conditions = [];
 
-        // Mặc định chỉ lấy sản phẩm đang bán (TrangThai=1) trừ khi có filter khác
+        // Mặc định ẩn sản phẩm đã xóa (TrangThai = 0), chỉ hiển thị đang bán (1) và ngừng bán (2)
+        // Trừ khi có filter is_available được truyền vào (dùng cho admin)
         if (!isset($filters['is_available'])) {
+            $conditions[] = "p.TrangThai IN (1, 2)";
+        } else {
             $conditions[] = "p.TrangThai = ?";
-            $params[] = 1;
+            $params[] = $filters['is_available'];
         }
 
         if (isset($filters['category_id'])) {
             $conditions[] = "p.MaDM = ?";
             $params[] = $filters['category_id'];
-        }
-
-        if (isset($filters['is_available'])) {
-            $conditions[] = "p.TrangThai = ?";
-            $params[] = $filters['is_available'];
         }
 
         if (isset($filters['search'])) {
@@ -140,17 +138,20 @@ class Product extends Model
                 LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM";
 
         $params = [];
-        $conditions = ["p.TrangThai = ?"];
-        $params[] = 1;
+        $conditions = [];
+
+        // Mặc định ẩn sản phẩm đã xóa (TrangThai = 0), chỉ đếm đang bán (1) và ngừng bán (2)
+        // Trừ khi có filter is_available được truyền vào (dùng cho admin)
+        if (!isset($filters['is_available'])) {
+            $conditions[] = "p.TrangThai IN (1, 2)";
+        } else {
+            $conditions[] = "p.TrangThai = ?";
+            $params[] = $filters['is_available'];
+        }
 
         if (isset($filters['category_id'])) {
             $conditions[] = "p.MaDM = ?";
             $params[] = $filters['category_id'];
-        }
-
-        if (isset($filters['is_available'])) {
-            $conditions[] = "p.TrangThai = ?";
-            $params[] = $filters['is_available'];
         }
 
         if (isset($filters['search'])) {
@@ -170,7 +171,9 @@ class Product extends Model
             $params[] = (int)$filters['price_max'];
         }
 
-        $sql .= " WHERE " . implode(' AND ', $conditions);
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(' AND ', $conditions);
+        }
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
@@ -197,7 +200,7 @@ class Product extends Model
                     0 AS is_featured, 
                     p.MaDM AS category_id
                 FROM {$this->table} p
-                WHERE p.MaDM = ? AND p.TrangThai = 1 
+                WHERE p.MaDM = ? AND p.TrangThai IN (1, 2) 
                 ORDER BY p.NgayTao DESC";
 
         if ($limit) {
@@ -235,7 +238,7 @@ class Product extends Model
                 LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM
                 LEFT JOIN CHI_TIET_DON_HANG oi ON p.MaSP = oi.MaSP
                 LEFT JOIN DON_HANG o ON oi.MaDH = o.MaDH 
-                WHERE p.TrangThai = 1 
+                WHERE p.TrangThai IN (1, 2) 
                   AND (o.TrangThai IS NULL OR o.TrangThai NOT IN ('Hủy'))
                 GROUP BY p.MaSP, p.MaDM, p.TenSP, p.GioiThieu, p.ChiTiet, p.Gia, p.TrangThai, p.NgayTao, c.TenDM
                 ORDER BY total_sold DESC, p.NgayTao DESC 
@@ -268,7 +271,7 @@ class Product extends Model
                     c.TenDM AS category_name
                 FROM {$this->table} p 
                 LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM
-                WHERE p.TrangThai = 1
+                WHERE p.TrangThai IN (1, 2)
                 ORDER BY p.NgayTao DESC 
                 LIMIT ?";
 
@@ -299,7 +302,7 @@ class Product extends Model
                     c.TenDM AS category_name
                 FROM {$this->table} p 
                 LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM
-                WHERE p.TrangThai = 1 
+                WHERE p.TrangThai IN (1, 2) 
                 ORDER BY p.NgayTao DESC 
                 LIMIT ?";
 
@@ -330,7 +333,7 @@ class Product extends Model
                     c.TenDM AS category_name
                 FROM {$this->table} p 
                 LEFT JOIN DANH_MUC c ON p.MaDM = c.MaDM
-                WHERE p.TrangThai = 1
+                WHERE p.TrangThai IN (1, 2)
                 ORDER BY p.NgayTao DESC 
                 LIMIT ?";
 
@@ -399,5 +402,23 @@ class Product extends Model
     {
         $stmt = $this->db->prepare("DELETE FROM {$this->table} WHERE MaSP = ?");
         return $stmt->execute([$id]);
+    }
+
+    /**
+     * Cập nhật trạng thái tất cả sản phẩm trong một danh mục
+     * @param int $categoryId ID của danh mục
+     * @param int $status Trạng thái mới (1 = đang bán, 2 = ngừng bán, 0 = đã xóa)
+     * @return int Số lượng sản phẩm đã được cập nhật
+     */
+    public function updateStatusByCategory($categoryId, $status)
+    {
+        $sql = "UPDATE {$this->table} SET TrangThai = ? WHERE MaDM = ? AND TrangThai != ?";
+        $stmt = $this->db->prepare($sql);
+        $result = $stmt->execute([$status, $categoryId, $status]);
+        
+        if ($result) {
+            return $stmt->rowCount();
+        }
+        return 0;
     }
 }
