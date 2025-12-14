@@ -220,7 +220,7 @@
 </div>
 
 <script>
-// Live preview when image_url changes
+// Xem trước ảnh khi thay đổi trường image_url
 document.addEventListener('DOMContentLoaded', function () {
     const urlInput = document.getElementById('image_url');
     if (!urlInput) return;

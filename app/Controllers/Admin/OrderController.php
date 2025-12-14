@@ -115,7 +115,6 @@ class OrderController extends Controller
 
             // Ensure required fields have default values
             $order['status'] = $order['status'] ?? 'pending';
-            $order['payment_status'] = $order['payment_status'] ?? 'pending';
 
             // Nếu chưa có thông tin giao hàng thì fallback từ thông tin user / địa chỉ
             $order['delivery_name'] = $order['delivery_name']
@@ -213,29 +212,6 @@ class OrderController extends Controller
         }
 
         return $this->json(['success' => true, 'message' => 'Cập nhật trạng thái thành công']);
-    }
-
-    public function updatePaymentStatus($id)
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return $this->json(['success' => false, 'message' => 'Invalid request method']);
-        }
-        
-        $paymentStatus = $_POST['payment_status'] ?? '';
-        $validPaymentStatuses = ['pending', 'paid', 'cash', 'bank_transfer'];
-        
-        if (!in_array($paymentStatus, $validPaymentStatuses)) {
-            return $this->json(['success' => false, 'message' => 'Trạng thái thanh toán không hợp lệ']);
-        }
-        
-        $order = $this->orderModel->findById($id);
-        if (!$order) {
-            return $this->json(['success' => false, 'message' => 'Đơn hàng không tồn tại']);
-        }
-        
-        $this->orderModel->update($id, ['payment_status' => $paymentStatus]);
-        
-        return $this->json(['success' => true, 'message' => 'Cập nhật trạng thái thanh toán thành công']);
     }
 
     public function delete($id)

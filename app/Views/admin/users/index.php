@@ -100,8 +100,8 @@
                                         <?php if ($user['id'] != $_SESSION['user_id']): ?>
                                             <button class="btn btn-sm btn-outline-danger ms-1" 
                                                     onclick="deleteUser(<?= $user['id'] ?>, '<?= htmlspecialchars($user['full_name']) ?>')" 
-                                                    title="Xóa tài khoản">
-                                                <i class="fas fa-trash"></i>
+                                                    title="Khóa tài khoản">
+                                                <i class="fas fa-lock"></i>
                                             </button>
                                         <?php endif; ?>
                                     </td>
@@ -117,7 +117,8 @@
 
 <script>
 function deleteUser(userId, userName) {
-    if (confirm(`Bạn có chắc muốn xóa tài khoản "${userName}"? Hành động này không thể hoàn tác.`)) {
+    if (confirm(`Bạn có chắc muốn khóa tài khoản "${userName}"?`)) {
+
         fetch(`/admin/users/${userId}/delete`, {
             method: 'POST',
             headers: {

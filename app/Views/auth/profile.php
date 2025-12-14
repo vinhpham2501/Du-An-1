@@ -39,8 +39,10 @@
                         </div>
                         
                         <div class="mb-4">
-                            <label for="address" class="form-label">Địa chỉ</label>
-                            <textarea class="form-control" id="address" name="address" rows="3"><?= htmlspecialchars($user['address'] ?? '') ?></textarea>
+                            <label for="password" class="form-label">Mật khẩu</label>
+                            <input type="password" class="form-control" id="password" 
+                                   value="••••••••" disabled readonly>
+                            <div class="form-text">Mật khẩu được mã hóa bảo mật</div>
                         </div>
                         
                         <div class="d-flex gap-2">

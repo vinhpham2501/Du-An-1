@@ -63,7 +63,6 @@ class AuthController extends Controller
             $password = $_POST['password'] ?? '';
             $confirmPassword = $_POST['confirm_password'] ?? '';
             $phone = trim($_POST['phone'] ?? '');
-            $address = $_POST['address'] ?? '';
             $gender = $_POST['gender'] ?? null;
             
             // Validation
@@ -83,19 +82,22 @@ class AuthController extends Controller
             if ($this->userModel->findByEmail($email)) {
                 return $this->render('auth/register', ['error' => 'Email đã tồn tại']);
             }
-            
-            // Generate username from email (hiện không lưu vào bảng KHACH_HANG nhưng giữ lại nếu cần mở rộng)
-            $username = explode('@', $email)[0];
 
-            // Chuẩn bị dữ liệu tạo user, chỉ thêm phone nếu người dùng thực sự nhập
+            // Prepare user data - only save fields that exist in KHACH_HANG table
             $userData = [
                 'full_name' => $fullName,
                 'email' => $email,
                 'password' => $password,
-                'phone' => $phone,
-                'address' => $address,
                 'role' => 'user',
             ];
+            
+            // Only add optional fields if they have values
+            if (!empty($phone)) {
+                $userData['phone'] = $phone;
+            }
+            if (!empty($gender)) {
+                $userData['gender'] = $gender;
+            }
 
             $userId = $this->userModel->create($userData);
             
@@ -114,26 +116,66 @@ class AuthController extends Controller
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = trim($_POST['email'] ?? '');
-            if ($email === '') {
-                return $this->render('auth/forgot-password', ['error' => 'Vui lòng nhập email']);
+            $password = $_POST['password'] ?? '';
+            $passwordConfirm = $_POST['password_confirm'] ?? '';
+
+            // Nếu chưa nhập email -> hiển thị form nhập email
+            if (isset($_POST['step']) && $_POST['step'] == 1) {
+                if (empty($email)) {
+                    return $this->render('auth/forgot-password', ['error' => 'Vui lòng nhập email']);
+                }
+
+                $user = $this->userModel->findByEmail($email);
+                
+                if (!$user) {
+                    return $this->render('auth/forgot-password', ['error' => 'Email không tồn tại trong hệ thống']);
+                }
+
+                // Email tồn tại -> hiển thị form nhập mật khẩu mới
+                return $this->render('auth/forgot-password', ['step' => 2, 'email' => $email]);
             }
 
-            $user = $this->userModel->findByEmail($email);
-            // For now, do not send email; just show a friendly message if user exists
-            if ($user) {
-                // In production, generate token and send email here
-                return $this->render('auth/forgot-password', [
-                    'success' => 'Nếu email tồn tại, chúng tôi đã gửi liên kết đặt lại mật khẩu. Vui lòng kiểm tra hộp thư.'
-                ]);
-            }
+            // Step 2: Cập nhật mật khẩu
+            if (isset($_POST['step']) && $_POST['step'] == 2) {
+                if (empty($password) || empty($passwordConfirm)) {
+                    return $this->render('auth/forgot-password', [
+                        'step' => 2,
+                        'email' => $email,
+                        'error' => 'Vui lòng nhập đầy đủ mật khẩu'
+                    ]);
+                }
 
-            // Do not reveal whether email exists to avoid user enumeration
-            return $this->render('auth/forgot-password', [
-                'success' => 'Nếu email tồn tại, chúng tôi đã gửi liên kết đặt lại mật khẩu. Vui lòng kiểm tra hộp thư.'
-            ]);
+                if (strlen($password) < 6) {
+                    return $this->render('auth/forgot-password', [
+                        'step' => 2,
+                        'email' => $email,
+                        'error' => 'Mật khẩu phải có ít nhất 6 ký tự'
+                    ]);
+                }
+
+                if ($password !== $passwordConfirm) {
+                    return $this->render('auth/forgot-password', [
+                        'step' => 2,
+                        'email' => $email,
+                        'error' => 'Mật khẩu xác nhận không khớp'
+                    ]);
+                }
+
+                // Lấy user từ email
+                $user = $this->userModel->findByEmail($email);
+                if (!$user) {
+                    return $this->render('auth/forgot-password', ['error' => 'Email không hợp lệ']);
+                }
+
+                // Cập nhật mật khẩu
+                $this->userModel->updatePassword($user['id'], $password);
+
+                $_SESSION['success'] = 'Mật khẩu đã được thay đổi thành công. Vui lòng đăng nhập.';
+                return $this->redirect('/login');
+            }
         }
 
-        return $this->render('auth/forgot-password');
+        return $this->render('auth/forgot-password', ['step' => 1]);
     }
 
     public function logout()
@@ -163,13 +205,13 @@ class AuthController extends Controller
                 return $this->render('auth/profile', ['error' => 'Tên không được để trống', 'user' => $user]);
             }
             
+            // Update user info (không bao gồm address - address lưu ở DIA_CHI_GIAO_HANG)
             $this->userModel->update($_SESSION['user_id'], [
                 'full_name' => $fullName,
-                'phone' => $phone,
-                'address' => $address
+                'phone' => $phone
             ]);
 
-            // Lưu địa chỉ giao hàng mặc định để checkout tự động lấy ra
+            // Lưu địa chỉ giao hàng mặc định trong bảng DIA_CHI_GIAO_HANG
             if (!empty($address)) {
                 $this->addressModel->createOrUpdateDefault($_SESSION['user_id'], $address, null);
             }
@@ -187,30 +229,44 @@ class AuthController extends Controller
     {
         $this->requireAuth();
         
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $currentPassword = $_POST['current_password'] ?? '';
-            $newPassword = $_POST['new_password'] ?? '';
-            $confirmPassword = $_POST['confirm_password'] ?? '';
-            
-            $user = $this->userModel->findById($_SESSION['user_id']);
-            
-            if (!$this->userModel->verifyPassword($currentPassword, $user['password'])) {
-                return $this->json(['success' => false, 'message' => 'Mật khẩu hiện tại không đúng']);
-            }
-            
-            if ($newPassword !== $confirmPassword) {
-                return $this->json(['success' => false, 'message' => 'Mật khẩu xác nhận không khớp']);
-            }
-            
-            if (strlen($newPassword) < 6) {
-                return $this->json(['success' => false, 'message' => 'Mật khẩu phải có ít nhất 6 ký tự']);
-            }
-            
-            $this->userModel->updatePassword($_SESSION['user_id'], $newPassword);
-            
-            return $this->json(['success' => true, 'message' => 'Đổi mật khẩu thành công']);
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return $this->json(['success' => false, 'message' => 'Invalid request method']);
         }
         
-        return $this->json(['success' => false, 'message' => 'Invalid request']);
+        $currentPassword = trim($_POST['current_password'] ?? '');
+        $newPassword = trim($_POST['new_password'] ?? '');
+        $confirmPassword = trim($_POST['confirm_password'] ?? '');
+        
+        // Validation
+        if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
+            return $this->json(['success' => false, 'message' => 'Vui lòng nhập đầy đủ thông tin']);
+        }
+        
+        if ($newPassword !== $confirmPassword) {
+            return $this->json(['success' => false, 'message' => 'Mật khẩu xác nhận không khớp']);
+        }
+        
+        if (strlen($newPassword) < 6) {
+            return $this->json(['success' => false, 'message' => 'Mật khẩu phải có ít nhất 6 ký tự']);
+        }
+        
+        // Get user by ID
+        $user = $this->userModel->findById($_SESSION['user_id']);
+        
+        if (!$user) {
+            return $this->json(['success' => false, 'message' => 'Không tìm thấy người dùng']);
+        }
+        
+        // Verify current password
+        if (!$this->userModel->verifyPassword($currentPassword, $user['password'])) {
+            return $this->json(['success' => false, 'message' => 'Mật khẩu hiện tại không đúng']);
+        }
+        
+        // Update password
+        if ($this->userModel->updatePassword($_SESSION['user_id'], $newPassword)) {
+            return $this->json(['success' => true, 'message' => 'Đổi mật khẩu thành công']);
+        } else {
+            return $this->json(['success' => false, 'message' => 'Có lỗi xảy ra, vui lòng thử lại']);
+        }
     }
 }

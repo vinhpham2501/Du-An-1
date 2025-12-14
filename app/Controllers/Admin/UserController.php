@@ -91,35 +91,35 @@ class UserController extends Controller
                 return $this->json(['success' => false, 'message' => 'Người dùng không tồn tại']);
             }
             
-            // Không cho phép xóa tài khoản admin hiện tại
+            // Không cho phép khóa tài khoản admin hiện tại
             if ($user['id'] == $_SESSION['user_id']) {
                 return $this->json([
                     'success' => false, 
-                    'message' => 'Không thể xóa tài khoản của chính mình'
+                    'message' => 'Không thể khóa tài khoản của chính mình'
                 ]);
             }
             
-            // Kiểm tra xem user có đơn hàng đang xử lý không
+            // Kiểm tra xem user có đơn hàng đang xử lý không trước khi khóa
             $activeOrders = $this->userModel->getActiveOrders($id);
             if ($activeOrders > 0) {
                 return $this->json([
                     'success' => false, 
-                    'message' => 'Không thể xóa tài khoản có đơn hàng đang xử lý. Vui lòng hoàn thành hoặc hủy các đơn hàng trước.'
+                    'message' => 'Không thể khóa tài khoản có đơn hàng đang xử lý. Vui lòng hoàn thành hoặc hủy các đơn hàng trước.'
                 ]);
             }
             
-            // Xóa tài khoản
+            // Khóa tài khoản (soft delete: cập nhật TrangThai = 0)
             $result = $this->userModel->delete($id);
             
             if ($result) {
-                return $this->json(['success' => true, 'message' => 'Xóa tài khoản thành công']);
+                return $this->json(['success' => true, 'message' => 'Khóa tài khoản thành công']);
             } else {
-                return $this->json(['success' => false, 'message' => 'Không thể xóa tài khoản']);
+                return $this->json(['success' => false, 'message' => 'Không thể khóa tài khoản']);
             }
             
         } catch (\Exception $e) {
             error_log("Delete user error: " . $e->getMessage());
-            return $this->json(['success' => false, 'message' => 'Có lỗi xảy ra khi xóa tài khoản']);
+            return $this->json(['success' => false, 'message' => 'Có lỗi xảy ra khi khóa tài khoản']);
         }
     }
 }

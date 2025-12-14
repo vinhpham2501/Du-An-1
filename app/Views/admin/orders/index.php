@@ -61,7 +61,7 @@
                              <th>Khách hàng</th>
                              <th>Tổng tiền</th>
                              <th>Trạng thái</th>
-                             <th>Thanh toán</th>
+                             <th>Phương thức TT</th>
                              <th>Ngày đặt</th>
                              <th>Thao tác</th>
                          </tr>
@@ -114,33 +114,16 @@
                                      </td>
                                      <td>
                                         <?php
-                                        $paymentColors = [
-                                            'pending' => 'warning',
-                                            'paid' => 'success',
-                                            'cash' => 'info',
-                                            'bank_transfer' => 'primary'
+                                        $paymentMethods = [
+                                            'cod' => 'COD',
+                                            'bank_transfer' => 'Chuyển khoản',
+                                            'vnpay' => 'VNPay',
+                                            'momo' => 'MoMo'
                                         ];
-                                        $paymentLabels = [
-                                            'pending' => 'Chưa thanh toán',
-                                            'paid' => 'Đã thanh toán',
-                                            'cash' => 'Tiền mặt',
-                                            'bank_transfer' => 'Chuyển khoản'
-                                        ];
-                                        $paymentStatus = $order['payment_status'] ?? 'pending';
-                                        $paymentColor = $paymentColors[$paymentStatus] ?? 'secondary';
-                                        $paymentLabel = $paymentLabels[$paymentStatus] ?? $paymentStatus;
+                                        $paymentMethod = $order['payment_method'] ?? 'cod';
+                                        $paymentLabel = $paymentMethods[$paymentMethod] ?? $paymentMethod;
                                         ?>
-                                        <span class="badge bg-<?= $paymentColor ?> me-1"><?= $paymentLabel ?></span>
-
-                                        <?php if ($paymentStatus === 'pending'): ?>
-                                            <button class="btn btn-sm btn-outline-success" onclick="updatePaymentStatus(<?= $order['id'] ?>, 'paid')" title="Đánh dấu đã thanh toán">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                        <?php elseif ($paymentStatus === 'paid'): ?>
-                                            <button class="btn btn-sm btn-outline-warning" onclick="updatePaymentStatus(<?= $order['id'] ?>, 'pending')" title="Chuyển về chưa thanh toán">
-                                                <i class="fas fa-undo"></i>
-                                            </button>
-                                        <?php endif; ?>
+                                        <span class="badge bg-info"><?= htmlspecialchars($paymentLabel) ?></span>
                                     </td>
                                      <td>
                                          <?= date('d/m/Y H:i', strtotime($order['created_at'])) ?>
@@ -206,29 +189,5 @@ function showAlert(type, message) {
     setTimeout(() => {
         alertDiv.remove();
     }, 3000);
-}
-
-function updatePaymentStatus(orderId, paymentStatus) {
-    fetch(`/admin/orders/${orderId}/update-payment`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `payment_status=${encodeURIComponent(paymentStatus)}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('success', data.message);
-            setTimeout(() => {
-                location.reload();
-            }, 1200);
-        } else {
-            showAlert('danger', data.message || 'Không thể cập nhật trạng thái thanh toán');
-        }
-    })
-    .catch(error => {
-        showAlert('danger', 'Có lỗi xảy ra, vui lòng thử lại');
-    });
 }
 </script>

@@ -92,77 +92,96 @@
                         <div class="card">
                             <div class="card-body">
                                 <?php foreach ($cartItems as $item): ?>
-                                    <div class="row align-items-center border-bottom py-3" data-product-id="<?= $item['product']['id'] ?>" data-key="<?= $item['key'] ?>">
-                                        <div class="col-md-2">
-                                            <?php if (!empty($item['product']['image_url'])): ?>
-                                                <img src="<?= htmlspecialchars($item['product']['image_url']) ?>" 
-                                                     class="img-fluid rounded" alt="<?= htmlspecialchars($item['product']['name']) ?>"
-                                                     style="height: 80px; width: 80px; object-fit: cover;">
-                                            <?php else: ?>
-                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" 
-                                                     style="height: 80px; width: 80px;">
-                                                    <i class="fas fa-utensils text-muted"></i>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        
-                                        <div class="col-md-4">
-                                            <h6 class="mb-1">
-                                                <a href="/product/<?= $item['product']['id'] ?>" class="text-decoration-none">
-                                                    <?= htmlspecialchars($item['product']['name']) ?>
-                                                </a>
-                                            </h6>
-                                            <small class="text-muted"><?= htmlspecialchars($item['product']['category_name'] ?? '') ?></small>
+                                    <div class="border-bottom py-3" data-product-id="<?= $item['product']['id'] ?>" data-key="<?= $item['key'] ?>">
+                                        <div class="row align-items-start">
+                                            <!-- Image -->
+                                            <div class="col-md-2">
+                                                <?php if (!empty($item['product']['image_url'])): ?>
+                                                    <img src="<?= htmlspecialchars($item['product']['image_url']) ?>" 
+                                                         class="img-fluid rounded" alt="<?= htmlspecialchars($item['product']['name']) ?>"
+                                                         style="height: 80px; width: 80px; object-fit: cover;">
+                                                <?php else: ?>
+                                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                                         style="height: 80px; width: 80px;">
+                                                        <i class="fas fa-utensils text-muted"></i>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
                                             
-                                            <!-- Color and Size Display -->
-                                            <div class="mt-1">
-                                                <?php if (!empty($item['color'])): ?>
-                                                    <span class="badge bg-secondary me-1">
-                                                        <i class="fas fa-palette me-1"></i><?= htmlspecialchars($item['color']) ?>
-                                                    </span>
+                                            <!-- Product Info -->
+                                            <div class="col-md-3">
+                                                <h6 class="mb-1">
+                                                    <a href="/product/<?= $item['product']['id'] ?>" class="text-decoration-none">
+                                                        <?= htmlspecialchars($item['product']['name']) ?>
+                                                    </a>
+                                                </h6>
+                                                <small class="text-muted"><?= htmlspecialchars($item['product']['category_name'] ?? '') ?></small>
+                                                
+                                                <!-- Color and Size Display -->
+                                                <div class="mt-2">
+                                                    <?php if (!empty($item['color'])): ?>
+                                                        <span class="badge bg-secondary me-1">
+                                                            <i class="fas fa-palette me-1"></i><?= htmlspecialchars($item['color']) ?>
+                                                        </span>
+                                                    <?php endif; ?>
+                                                    <?php if (!empty($item['size'])): ?>
+                                                        <span class="badge bg-secondary">
+                                                            <i class="fas fa-ruler me-1"></i><?= htmlspecialchars($item['size']) ?>
+                                                        </span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Unit Price & Quantity -->
+                                            <div class="col-md-3">
+                                                <div class="mb-2">
+                                                    <small class="text-muted d-block">Giá: <span class="fw-bold"><?= number_format($item['product']['price']) ?>đ</span></small>
+                                                </div>
+                                                <div class="input-group input-group-sm" style="width: 130px;">
+                                                    <button class="btn btn-outline-secondary" type="button" 
+                                                            onclick="updateQuantity('<?= $item['key'] ?>', -1)">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                    <input type="number" class="form-control text-center quantity-input" 
+                                                           value="<?= $item['quantity'] ?>" min="1" max="5"
+                                                           data-key="<?= $item['key'] ?>"
+                                                           onchange="setQuantity('<?= $item['key'] ?>', this.value)">
+                                                    <button class="btn btn-outline-secondary" type="button" 
+                                                            onclick="updateQuantity('<?= $item['key'] ?>', 1)">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                                <?php if ($item['quantity'] >= 5): ?>
+                                                    <small class="text-danger d-block mt-2">
+                                                        <i class="fas fa-info-circle me-1"></i>
+                                                        Số lượng tối đa
+                                                    </small>
                                                 <?php endif; ?>
-                                                <?php if (!empty($item['size'])): ?>
-                                                    <span class="badge bg-secondary">
-                                                        <i class="fas fa-ruler me-1"></i><?= htmlspecialchars($item['size']) ?>
+                                            </div>
+                                            
+                                            <!-- Total & Delete -->
+                                            <div class="col-md-2 text-end">
+                                                <div class="mb-2">
+                                                    <span class="fw-bold item-total h6">
+                                                        <?= number_format($item['item_total'] ?? 0) ?>đ
                                                     </span>
-                                                <?php endif; ?>
+                                                </div>
+                                                <button class="btn btn-sm btn-outline-danger" 
+                                                        onclick="removeItem('<?= $item['key'] ?>')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
                                             </div>
                                         </div>
                                         
-                                        <div class="col-md-2">
-                                            <span class="fw-bold">
-                                                <?= number_format($item['product']['price']) ?>đ
-                                            </span>
-                                        </div>
-                                        
-                                        <div class="col-md-2">
-                                            <div class="input-group input-group-sm" style="width: 120px;">
-                                                <button class="btn btn-outline-secondary" type="button" 
-                                                        onclick="updateQuantity('<?= $item['key'] ?>', -1)">
-                                                    <i class="fas fa-minus"></i>
-                                                </button>
-                                                <input type="number" class="form-control text-center quantity-input" 
-                                                       value="<?= $item['quantity'] ?>" min="1" max="99"
-                                                       onchange="setQuantity('<?= $item['key'] ?>', this.value)">
-                                                <button class="btn btn-outline-secondary" type="button" 
-                                                        onclick="updateQuantity('<?= $item['key'] ?>', 1)">
-                                                    <i class="fas fa-plus"></i>
-                                                </button>
+                                        <?php if ($item['quantity'] >= 5): ?>
+                                            <div class="row mt-2">
+                                                <div class="col-12">
+                                                    <small class="text-danger">
+                                                        Nếu cần mua nhiều hơn, vui lòng <a href="/contact" class="text-danger fw-bold">liên hệ người bán</a>
+                                                    </small>
+                                                </div>
                                             </div>
-                                        </div>
-                                        
-                                        <div class="col-md-1 text-end">
-                                            <span class="fw-bold item-total">
-                                                <?= number_format($item['item_total'] ?? 0) ?>đ
-                                            </span>
-                                        </div>
-                                        
-                                        <div class="col-md-1 text-end">
-                                            <button class="btn btn-sm btn-outline-danger" 
-                                                    onclick="removeItem('<?= $item['key'] ?>')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
+                                        <?php endif; ?>
                                     </div>
                                 <?php endforeach; ?>
                                 
@@ -231,7 +250,17 @@ function updateQuantity(cartKey, delta) {
 
 function setQuantity(cartKey, quantity) {
     quantity = parseInt(quantity);
-    if (quantity >= 1 && quantity <= 99) {
+    
+    // Kiểm tra giới hạn tối đa 5
+    if (quantity > 5) {
+        alert('Tối đa chỉ có thể mua 5 sản phẩm. Nếu cần mua nhiều hơn, vui lòng liên hệ người bán.');
+        // Reset về giá trị cũ
+        const input = document.querySelector(`input[data-key="${cartKey}"]`);
+        input.value = input.defaultValue;
+        return;
+    }
+    
+    if (quantity >= 1 && quantity <= 5) {
         updateCart(cartKey, quantity);
     } else if (quantity <= 0) {
         removeItem(cartKey);

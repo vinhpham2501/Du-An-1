@@ -45,7 +45,8 @@ class User extends Model
         $set = [];
         $params = [];
         foreach ($data as $k => $v) {
-            if (isset($map[$k]) && $k !== 'address') {
+            // Skip empty values and address field (address not in database)
+            if (isset($map[$k]) && $v !== '' && $v !== null) {
                 $set[] = $map[$k] . ' = ?';
                 $params[] = $v;
             }
@@ -53,7 +54,10 @@ class User extends Model
         if (empty($set)) return false;
         $sql = "INSERT INTO {$this->table} SET " . implode(', ', $set);
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute($params);
+        if ($stmt->execute($params)) {
+            return $this->db->lastInsertId();
+        }
+        return false;
     }
 
     private function isHashed($hash)
@@ -103,6 +107,15 @@ class User extends Model
         $params = [];
         $conditions = [];
 
+        // Default only active users unless status filter provided
+        if (isset($filters['status'])) {
+            $conditions[] = "TrangThai = ?";
+            $params[] = (int)$filters['status'];
+        } else {
+            $conditions[] = "TrangThai = ?";
+            $params[] = 1;
+        }
+
         if (isset($filters['role'])) {
             $conditions[] = "VaiTro = ?";
             $params[] = $filters['role'];
@@ -137,6 +150,15 @@ class User extends Model
         $params = [];
         $conditions = [];
 
+        // Default only active users unless status filter provided
+        if (isset($filters['status'])) {
+            $conditions[] = "TrangThai = ?";
+            $params[] = (int)$filters['status'];
+        } else {
+            $conditions[] = "TrangThai = ?";
+            $params[] = 1;
+        }
+
         if (isset($filters['role'])) {
             $conditions[] = "VaiTro = ?";
             $params[] = $filters['role'];
@@ -161,7 +183,8 @@ class User extends Model
 
     public function delete($id)
     {
-        $sql = "DELETE FROM {$this->table} WHERE MaKH = ?";
+        // Soft delete: mark as inactive instead of hard delete
+        $sql = "UPDATE {$this->table} SET TrangThai = 0 WHERE MaKH = ?";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$id]);
     }

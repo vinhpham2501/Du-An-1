@@ -321,50 +321,6 @@ small.text-muted {
                         </span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">Trạng thái thanh toán</span>
-                        <span>
-                            <?php
-                            // Logic thanh toán thông minh
-                            $paymentMethod = $order['payment_method'] ?? 'cod';
-                            $orderStatus = $order['status'] ?? 'pending';
-                            $orderPaymentStatus = $order['payment_status'] ?? 'pending';
-                            
-                            // Xác định trạng thái thanh toán dựa trên phương thức
-                            if ($paymentMethod === 'bank_transfer') {
-                                // Chuyển khoản: Thanh toán trước khi nhận hàng
-                                if (in_array($orderPaymentStatus, ['paid', 'bank_transfer'])) {
-                                    $paymentColor = 'success';
-                                    $paymentLabel = '✅ Đã thanh toán trước';
-                                    $paymentNote = 'Đã chuyển khoản';
-                                } else {
-                                    $paymentColor = 'warning';
-                                    $paymentLabel = '⏳ Chờ thanh toán';
-                                    $paymentNote = 'Chờ xác nhận chuyển khoản';
-                                }
-                            } else {
-                                // COD: Thanh toán khi nhận hàng
-                                if ($orderStatus === 'completed') {
-                                    $paymentColor = 'success';
-                                    $paymentLabel = '✅ Đã thanh toán';
-                                    $paymentNote = 'Đã nhận tiền khi giao hàng';
-                                } elseif ($orderStatus === 'delivering') {
-                                    $paymentColor = 'info';
-                                    $paymentLabel = '🚚 Thanh toán khi nhận';
-                                    $paymentNote = 'Shipper sẽ thu tiền';
-                                } else {
-                                    $paymentColor = 'secondary';
-                                    $paymentLabel = '💵 Thanh toán khi nhận';
-                                    $paymentNote = 'Trả tiền mặt khi nhận hàng';
-                                }
-                            }
-                            ?>
-                            <div class="d-flex flex-column align-items-end">
-                                <span class="badge bg-<?= $paymentColor ?> status-badge mb-1"><?= $paymentLabel ?></span>
-                                <small class="text-muted" style="font-size: 0.85rem;"><?= $paymentNote ?></small>
-                            </div>
-                        </span>
-                    </div>
-                    <div class="info-row">
                         <span class="info-label">Cập nhật lần cuối</span>
                         <span class="info-value"><?= date('d/m/Y H:i', strtotime($order['updated_at'] ?? $order['created_at'])) ?></span>
                     </div>

@@ -29,7 +29,7 @@ class DashboardController extends Controller
     public function index()
     {
         try {
-            // Get date range from query params or default to last 30 days
+            // Lấy khoảng ngày từ query hoặc mặc định 30 ngày gần đây
             $dateFrom = $_GET['date_from'] ?? date('Y-m-d', strtotime('-30 days'));
             $dateTo = $_GET['date_to'] ?? date('Y-m-d');
             
@@ -38,22 +38,22 @@ class DashboardController extends Controller
                 'date_to' => $dateTo
             ];
             
-            // Get statistics
+            // Lấy số liệu thống kê
             $stats = $this->orderModel->getStatistics($filters);
-            $dailyRevenue = $this->orderModel->getDailyRevenue(7);
+            $dailyRevenue = $this->orderModel->getDailyRevenueByRange($dateFrom, $dateTo);
             $topProducts = $this->productModel->getTopSelling(5);
             
-            // Get recent orders
+            // Lấy các đơn hàng gần đây
             $recentOrders = $this->orderModel->getAll([
                 'limit' => 10,
                 'date_from' => $dateFrom,
                 'date_to' => $dateTo
             ]);
             
-            // Get categories and counts
+            // Lấy danh mục và số lượng
             $categories = $this->categoryModel->getAll();
 
-            // Get counts
+            // Lấy tổng số
             $totalUsers = $this->userModel->count();
             $totalProducts = $this->productModel->count();
             $totalCategories = $this->categoryModel->count();
@@ -71,10 +71,10 @@ class DashboardController extends Controller
                 'dateTo' => $dateTo
             ]);
         } catch (\Exception $e) {
-            // Log error for debugging
+            // Ghi log lỗi để debug
             error_log("Dashboard Error: " . $e->getMessage());
             
-            // Return a simple dashboard with error handling
+            // Trả về dashboard đơn giản kèm xử lý lỗi
             return $this->render('admin/dashboard', [
                 'stats' => [
                     'total_orders' => 0,
@@ -96,8 +96,9 @@ class DashboardController extends Controller
 
     public function statistics()
     {
-        $period = $_GET['period'] ?? '7';
-        $dailyRevenue = $this->orderModel->getDailyRevenue($period);
+        $dateFrom = $_GET['date_from'] ?? date('Y-m-d', strtotime('-30 days'));
+        $dateTo = $_GET['date_to'] ?? date('Y-m-d');
+        $dailyRevenue = $this->orderModel->getDailyRevenueByRange($dateFrom, $dateTo);
         
         return $this->json([
             'success' => true,

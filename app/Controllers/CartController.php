@@ -8,6 +8,7 @@ use App\Models\Product;
 class CartController extends Controller
 {
     private $productModel;
+    const MAX_QUANTITY_PER_PRODUCT = 5; // Giới hạn tối đa 5 sản phẩm mỗi loại
 
     public function __construct()
     {
@@ -90,6 +91,22 @@ class CartController extends Controller
         // Create unique key for product variant
         $cartKey = $productId . '_' . $color . '_' . $size;
         
+        // Calculate new quantity
+        $newQuantity = $quantity;
+        if (isset($_SESSION['cart'][$cartKey])) {
+            $newQuantity = $_SESSION['cart'][$cartKey]['quantity'] + $quantity;
+        }
+        
+        // Kiểm tra giới hạn tối đa 5 sản phẩm
+        if ($newQuantity > self::MAX_QUANTITY_PER_PRODUCT) {
+            return $this->json([
+                'success' => false, 
+                'message' => 'Tối đa chỉ có thể mua ' . self::MAX_QUANTITY_PER_PRODUCT . ' sản phẩm mỗi loại. Nếu cần mua nhiều hơn, vui lòng liên hệ người bán',
+                'maxQuantity' => self::MAX_QUANTITY_PER_PRODUCT,
+                'currentQuantity' => isset($_SESSION['cart'][$cartKey]) ? $_SESSION['cart'][$cartKey]['quantity'] : 0
+            ]);
+        }
+        
         // Add or update quantity
         if (isset($_SESSION['cart'][$cartKey])) {
             $_SESSION['cart'][$cartKey]['quantity'] += $quantity;
@@ -134,6 +151,15 @@ class CartController extends Controller
         
         if (!$cartKey) {
             return $this->json(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
+        }
+        
+        // Kiểm tra giới hạn tối đa khi cập nhật số lượng
+        if ($quantity > 0 && $quantity > self::MAX_QUANTITY_PER_PRODUCT) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Tối đa chỉ có thể mua ' . self::MAX_QUANTITY_PER_PRODUCT . ' sản phẩm mỗi loại. Nếu cần mua nhiều hơn, vui lòng liên hệ người bán',
+                'maxQuantity' => self::MAX_QUANTITY_PER_PRODUCT
+            ]);
         }
         
         if ($quantity <= 0) {

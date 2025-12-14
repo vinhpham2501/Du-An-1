@@ -17,12 +17,11 @@ class Order extends Model
         $trangThai = $this->mapStatus($data['status'] ?? 'pending');
         $pttt = $data['payment_method'] ?? null;
         $ghiChu = $data['notes'] ?? null;
-        $paymentStatus = $data['payment_status'] ?? 'pending';
 
-        $sql = "INSERT INTO {$this->table} (MaKH, MaDC, TongTien, TrangThai, PhuongThucThanhToan, GhiChu, TrangThaiThanhToan)
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO {$this->table} (MaKH, MaDC, TongTien, TrangThai, PhuongThucThanhToan, GhiChu)
+                VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
-        if ($stmt->execute([$maKH, $maDC, $tongTien, $trangThai, $pttt, $ghiChu, $paymentStatus])) {
+        if ($stmt->execute([$maKH, $maDC, $tongTien, $trangThai, $pttt, $ghiChu])) {
             return $this->db->lastInsertId();
         }
         return false;
@@ -38,17 +37,15 @@ class Order extends Model
                     TongTien AS total_amount,
                     TrangThai AS status,
                     PhuongThucThanhToan AS payment_method,
-                    GhiChu AS notes,
-                    TrangThaiThanhToan AS payment_status
+                    GhiChu AS notes
                 FROM {$this->table} WHERE MaDH = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$id]);
         $order = $stmt->fetch();
         
         if ($order) {
-            // Ensure default values for status and payment_status
+            // Ensure default value for status
             $order['status'] = $order['status'] ?? 'pending';
-            $order['payment_status'] = $order['payment_status'] ?? 'pending';
         }
         
         return $order;
@@ -64,8 +61,7 @@ class Order extends Model
                     TongTien AS total_amount,
                     TrangThai AS status,
                     PhuongThucThanhToan AS payment_method,
-                    GhiChu AS notes,
-                    TrangThaiThanhToan AS payment_status
+                    GhiChu AS notes
                 FROM {$this->table} WHERE MaKH = ? ORDER BY NgayDat DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$userId]);
@@ -112,7 +108,7 @@ class Order extends Model
 
     public function getStatistics($filters = [])
     {
-        $conditions = ["TrangThai IN ('Hoàn tất', 'Đang giao', 'Chờ duyệt')"];
+        $conditions = ["TrangThai IN ('Hoàn tất', 'Hoàn thành', 'completed')"];
         $params = [];
 
         if (isset($filters['date_from'])) {
@@ -145,12 +141,29 @@ class Order extends Model
                     COALESCE(SUM(TongTien), 0) as revenue
                 FROM {$this->table} 
                 WHERE DATE(NgayDat) >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
-                    AND TrangThai IN ('Hoàn tất', 'Đang giao', 'Chờ duyệt')
+                    AND TrangThai IN ('Hoàn tất', 'Hoàn thành', 'completed')
                 GROUP BY DATE(NgayDat)
                 ORDER BY date DESC";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$days]);
+        return $stmt->fetchAll();
+    }
+
+    public function getDailyRevenueByRange($dateFrom, $dateTo)
+    {
+        $sql = "SELECT 
+                    DATE(NgayDat) as date,
+                    COUNT(*) as orders,
+                    COALESCE(SUM(TongTien), 0) as revenue
+                FROM {$this->table}
+                WHERE DATE(NgayDat) BETWEEN ? AND ?
+                  AND TrangThai IN ('Hoàn tất', 'Hoàn thành', 'completed')
+                GROUP BY DATE(NgayDat)
+                ORDER BY date ASC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$dateFrom, $dateTo]);
         return $stmt->fetchAll();
     }
 
@@ -163,7 +176,7 @@ class Order extends Model
                         o.NgayDat AS created_at,
                         o.TongTien AS total_amount,
                         o.TrangThai AS status,
-                        o.TrangThaiThanhToan AS payment_status,
+                        o.PhuongThucThanhToan AS payment_method,
                         u.HoTen AS user_name,
                         u.Email AS user_email
                     FROM {$this->table} o 
@@ -210,11 +223,6 @@ class Order extends Model
                 if (!isset($order['delivery_phone']) || $order['delivery_phone'] === null) {
                     $order['delivery_phone'] = '';
                 }
-
-                // Trạng thái thanh toán: mặc định là pending để tránh null truyền vào htmlspecialchars
-                if (!isset($order['payment_status']) || $order['payment_status'] === null) {
-                    $order['payment_status'] = 'pending';
-                }
             }
 
             return $orders;
@@ -241,7 +249,6 @@ class Order extends Model
             'total_amount'   => 'TongTien',
             'status'         => 'TrangThai',
             'payment_method' => 'PhuongThucThanhToan',
-            'payment_status' => 'TrangThaiThanhToan',
             'notes'          => 'GhiChu',
         ];
         $set = [];

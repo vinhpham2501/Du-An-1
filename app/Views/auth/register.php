@@ -87,14 +87,6 @@
               </div>
             </div>
 
-            <div class="mb-4">
-              <label for="address" class="form-label">Địa chỉ</label>
-              <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                <textarea class="form-control" id="address" name="address" rows="2"><?= htmlspecialchars($_POST['address'] ?? '') ?></textarea>
-              </div>
-            </div>
-
             <div class="row g-2">
               <div class="col-6 d-grid">
                 <button type="submit" class="btn btn-danger">Đăng ký</button>

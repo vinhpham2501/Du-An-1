@@ -148,15 +148,17 @@
                         <div class="add-to-cart-section mb-4">
                             <div class="mb-3">
                                 <label for="quantity" class="form-label fw-semibold">Số lượng</label>
-                                <div class="input-group" style="max-width: 160px;">
+                                <div class="input-group" style="width: 150px;">
                                     <button class="btn btn-outline-secondary" type="button" onclick="decreaseQuantity()">
                                         <i class="fas fa-minus"></i>
                                     </button>
-                                    <input type="number" class="form-control text-center" id="quantity" value="1" min="1" max="10">
+                                    <input type="number" id="quantity" class="form-control text-center" 
+                                           value="1" min="1" max="5" onchange="checkQuantity()">
                                     <button class="btn btn-outline-secondary" type="button" onclick="increaseQuantity()">
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
+                                <small class="text-muted d-block mt-2">Tối đa mua 5 sản phẩm. Nếu cần mua nhiều hơn, vui lòng <a href="/contact">liên hệ người bán</a></small>
                             </div>
 
                             <div class="d-flex flex-wrap gap-2">
@@ -811,5 +813,36 @@ function addToCart(productId) {
         });
         bsToast.show();
     });
+}
+
+// Quantity control functions
+function increaseQuantity() {
+    const input = document.getElementById('quantity');
+    let value = parseInt(input.value) || 1;
+    if (value < 5) {
+        input.value = value + 1;
+    } else {
+        alert('Tối đa chỉ có thể mua 5 sản phẩm. Nếu cần mua nhiều hơn, vui lòng liên hệ người bán.');
+    }
+}
+
+function decreaseQuantity() {
+    const input = document.getElementById('quantity');
+    let value = parseInt(input.value) || 1;
+    if (value > 1) {
+        input.value = value - 1;
+    }
+}
+
+function checkQuantity() {
+    const input = document.getElementById('quantity');
+    let value = parseInt(input.value) || 1;
+    
+    if (value > 5) {
+        input.value = 5;
+        alert('Tối đa chỉ có thể mua 5 sản phẩm. Nếu cần mua nhiều hơn, vui lòng liên hệ người bán.');
+    } else if (value < 1) {
+        input.value = 1;
+    }
 }
 </script>

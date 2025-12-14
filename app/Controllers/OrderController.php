@@ -14,6 +14,7 @@ class OrderController extends Controller
     private $orderItemModel;
     private $productModel;
     private $addressModel;
+    const MAX_QUANTITY_PER_PRODUCT = 5; // Giới hạn tối đa 5 sản phẩm mỗi loại
 
     public function __construct()
     {
@@ -131,6 +132,7 @@ class OrderController extends Controller
             // Calculate total and prepare order items
             $cartItems = [];
             $total = 0;
+            $violationProducts = []; // Lưu sản phẩm vượt quá giới hạn
             
             foreach ($cart as $key => $item) {
                 // Hỗ trợ cả cấu trúc giỏ hàng cũ và mới
@@ -149,6 +151,13 @@ class OrderController extends Controller
                 if (!$productId || $quantity <= 0) {
                     continue;
                 }
+                
+                // Kiểm tra giới hạn tối đa 5 sản phẩm
+                if ($quantity > self::MAX_QUANTITY_PER_PRODUCT) {
+                    $product = $this->productModel->findById($productId);
+                    $violationProducts[] = $product['name'] ?? "Sản phẩm #$productId";
+                    continue;
+                }
 
                 $product = $this->productModel->findById($productId);
                 if ($product && $product['is_available']) {
@@ -165,6 +174,18 @@ class OrderController extends Controller
                         'size'       => $size,
                     ];
                 }
+            }
+            
+            // Nếu có sản phẩm vượt quá giới hạn, báo lỗi
+            if (!empty($violationProducts)) {
+                $cartItems = $this->getCartItems();
+                $total = $this->calculateTotal();
+                $errorMessage = 'Các sản phẩm sau vượt quá giới hạn mua tối đa ' . self::MAX_QUANTITY_PER_PRODUCT . ' cái: ' . implode(', ', $violationProducts) . '. Vui lòng liên hệ người bán để mua nhiều hơn.';
+                return $this->render('order/checkout', [
+                    'error' => $errorMessage,
+                    'cartItems' => $cartItems,
+                    'total' => $total
+                ]);
             }
             
             if (empty($cartItems)) {

@@ -158,7 +158,7 @@
 </div>
 
 <script>
-// Live preview from URL
+// Xem trước ảnh trực tiếp từ URL
 document.addEventListener('DOMContentLoaded', function () {
     const urlInput = document.getElementById('image_url');
     if (!urlInput) return;
