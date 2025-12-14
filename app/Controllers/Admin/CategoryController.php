@@ -31,7 +31,8 @@ class CategoryController extends Controller
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = $_POST['name'] ?? '';
             $description = $_POST['description'] ?? '';
-            $isAvailable = (int)($_POST['is_available'] ?? 1);
+            // Checkbox: nếu không có trong POST thì là 0 (không tích), nếu có thì là 1 (đã tích)
+            $isAvailable = isset($_POST['is_available']) ? 1 : 0;
             
             if (empty($name)) {
                 return $this->render('admin/categories/create', [
@@ -70,7 +71,8 @@ class CategoryController extends Controller
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = $_POST['name'] ?? '';
             $description = $_POST['description'] ?? '';
-            $isAvailable = (int)($_POST['is_available'] ?? 1);
+            // Checkbox: nếu không có trong POST thì là 0 (không tích), nếu có thì là 1 (đã tích)
+            $isAvailable = isset($_POST['is_available']) ? 1 : 0;
             
             if (empty($name)) {
                 return $this->render('admin/categories/edit', [
