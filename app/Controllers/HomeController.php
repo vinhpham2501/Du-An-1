@@ -241,13 +241,14 @@ class HomeController extends Controller
         if (!$productId || !$rating || $rating < 1 || $rating > 5) {
             return $this->json(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
         }
-        
-        // Check if user already reviewed this product
-        $existingReview = $this->reviewModel->findByProductId($productId);
-        foreach ($existingReview as $review) {
-            if ($review['user_id'] == $_SESSION['user_id']) {
-                return $this->json(['success' => false, 'message' => 'Bạn đã đánh giá món ăn này rồi']);
-            }
+
+        if (!$this->reviewModel->userHasPurchasedProduct($_SESSION['user_id'], $productId)) {
+            return $this->json(['success' => false, 'message' => 'Bạn chỉ có thể đánh giá sản phẩm đã mua']);
+        }
+
+        // Chặn đánh giá trùng, kể cả khi đánh giá cũ đang bị ẩn (TrangThai = 0)
+        if ($this->reviewModel->userHasReviewedProduct($_SESSION['user_id'], $productId)) {
+            return $this->json(['success' => false, 'message' => 'Bạn đã đánh giá sản phẩm này rồi']);
         }
         
         $reviewId = $this->reviewModel->create([

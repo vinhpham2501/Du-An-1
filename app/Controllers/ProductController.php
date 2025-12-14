@@ -55,6 +55,11 @@ class ProductController extends BaseController
         // Get reviews list
         $reviews = $this->reviewModel->findByProductId($id, 10);
 
+        $canReview = false;
+        if (!empty($_SESSION['user_id'])) {
+            $canReview = $this->reviewModel->canUserReviewProduct($_SESSION['user_id'], $id);
+        }
+
         // Get related products from same category
         $relatedProducts = $this->productModel->getAll([
             'category_id' => $product['category_id'],
@@ -73,6 +78,7 @@ class ProductController extends BaseController
             'relatedProducts' => $relatedProducts,
             'categories' => $categories,
             'reviews' => $reviews,
+            'canReview' => $canReview,
         ]);
     }
 }

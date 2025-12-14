@@ -96,13 +96,52 @@ class DashboardController extends Controller
 
     public function statistics()
     {
-        $dateFrom = $_GET['date_from'] ?? date('Y-m-d', strtotime('-30 days'));
-        $dateTo = $_GET['date_to'] ?? date('Y-m-d');
+        $range = $_GET['range'] ?? null;
+        $dateFrom = $_GET['date_from'] ?? null;
+        $dateTo = $_GET['date_to'] ?? null;
+
+        if ($range && (!$dateFrom || !$dateTo)) {
+            $today = new \DateTime('today');
+
+            switch ($range) {
+                case 'today':
+                    $dateFrom = $today->format('Y-m-d');
+                    $dateTo = $today->format('Y-m-d');
+                    break;
+                case 'yesterday':
+                    $yesterday = (clone $today)->modify('-1 day');
+                    $dateFrom = $yesterday->format('Y-m-d');
+                    $dateTo = $yesterday->format('Y-m-d');
+                    break;
+                case 'last7days':
+                    $dateTo = $today->format('Y-m-d');
+                    $dateFrom = (clone $today)->modify('-6 days')->format('Y-m-d');
+                    break;
+                case 'thisMonth':
+                    $dateFrom = (new \DateTime('first day of this month'))->format('Y-m-d');
+                    $dateTo = $today->format('Y-m-d');
+                    break;
+                case 'lastMonth':
+                    $dateFrom = (new \DateTime('first day of last month'))->format('Y-m-d');
+                    $dateTo = (new \DateTime('last day of last month'))->format('Y-m-d');
+                    break;
+                default:
+                    $dateFrom = date('Y-m-d', strtotime('-30 days'));
+                    $dateTo = date('Y-m-d');
+                    break;
+            }
+        }
+
+        $dateFrom = $dateFrom ?? date('Y-m-d', strtotime('-30 days'));
+        $dateTo = $dateTo ?? date('Y-m-d');
+
+        $summary = $this->orderModel->getSummaryWithComparison($dateFrom, $dateTo);
         $dailyRevenue = $this->orderModel->getDailyRevenueByRange($dateFrom, $dateTo);
-        
+
         return $this->json([
             'success' => true,
-            'data' => $dailyRevenue
+            'summary' => $summary,
+            'dailyRevenue' => $dailyRevenue
         ]);
     }
 }

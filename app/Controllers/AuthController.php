@@ -192,14 +192,22 @@ class AuthController extends Controller
 
         // Lấy địa chỉ giao hàng mặc định từ bảng DIA_CHI_GIAO_HANG để hiển thị trong profile
         $defaultAddress = $this->addressModel->getDefaultForUser($_SESSION['user_id']);
-        if ($defaultAddress && !empty($defaultAddress['DiaChi'])) {
-            $user['address'] = $defaultAddress['DiaChi'];
+        if ($defaultAddress) {
+            $user['address_diachi'] = $defaultAddress['DiaChi'] ?? '';
+            $user['address_phuongxa'] = $defaultAddress['PhuongXa'] ?? '';
+            $user['address_quanhuyen'] = $defaultAddress['QuanHuyen'] ?? '';
+            $user['address_tinhthanh'] = $defaultAddress['TinhThanh'] ?? '';
+            $user['address_ghichu'] = $defaultAddress['GhiChu'] ?? '';
         }
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $fullName = $_POST['name'] ?? '';
             $phone = $_POST['phone'] ?? '';
-            $address = $_POST['address'] ?? '';
+            $diaChi = $_POST['address_diachi'] ?? '';
+            $phuongXa = $_POST['address_phuongxa'] ?? '';
+            $quanHuyen = $_POST['address_quanhuyen'] ?? '';
+            $tinhThanh = $_POST['address_tinhthanh'] ?? '';
+            $ghiChu = $_POST['address_ghichu'] ?? '';
             
             if (empty($fullName)) {
                 return $this->render('auth/profile', ['error' => 'Tên không được để trống', 'user' => $user]);
@@ -212,8 +220,14 @@ class AuthController extends Controller
             ]);
 
             // Lưu địa chỉ giao hàng mặc định trong bảng DIA_CHI_GIAO_HANG
-            if (!empty($address)) {
-                $this->addressModel->createOrUpdateDefault($_SESSION['user_id'], $address, null);
+            if (!empty(trim((string)$diaChi))) {
+                $this->addressModel->createOrUpdateDefault($_SESSION['user_id'], [
+                    'DiaChi' => $diaChi,
+                    'PhuongXa' => $phuongXa,
+                    'QuanHuyen' => $quanHuyen,
+                    'TinhThanh' => $tinhThanh,
+                    'GhiChu' => $ghiChu,
+                ], null);
             }
             
             $_SESSION['user_name'] = $fullName;

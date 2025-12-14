@@ -27,8 +27,9 @@ WORKDIR /var/www/html
 RUN groupadd -g 1000 www-data || true
 RUN useradd -u 1000 -ms /bin/bash -g www-data www-data || true
 
-# Copy custom php.ini
+# Copy custom php.ini and www.conf
 COPY php.ini /usr/local/etc/php/
+COPY www.conf /usr/local/etc/php-fpm.d/
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html

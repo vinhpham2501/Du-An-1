@@ -32,13 +32,39 @@ class Address extends Model
 
     public function createOrUpdateDefault($userId, $fullAddress, $note = null)
     {
-        // Đơn giản: luôn tạo bản ghi mới và đặt MacDinh=1
-        $sql = "INSERT INTO {$this->table} (MaKH, DiaChi, GhiChu, MacDinh)
-                VALUES (?, ?, ?, 1)";
+        $diaChi = is_array($fullAddress) ? ($fullAddress['DiaChi'] ?? '') : (string)$fullAddress;
+        $phuongXa = is_array($fullAddress) ? ($fullAddress['PhuongXa'] ?? null) : null;
+        $quanHuyen = is_array($fullAddress) ? ($fullAddress['QuanHuyen'] ?? null) : null;
+        $tinhThanh = is_array($fullAddress) ? ($fullAddress['TinhThanh'] ?? null) : null;
+        $ghiChu = is_array($fullAddress) ? ($fullAddress['GhiChu'] ?? $note) : $note;
+
+        $diaChi = trim((string)$diaChi);
+        if ($diaChi === '') {
+            return false;
+        }
+
+        $existing = $this->getDefaultForUser($userId);
+
+        $this->db->prepare("UPDATE {$this->table} SET MacDinh = 0 WHERE MaKH = ?")->execute([$userId]);
+
+        if ($existing && !empty($existing['id'])) {
+            $sql = "UPDATE {$this->table}
+                    SET DiaChi = ?, PhuongXa = ?, QuanHuyen = ?, TinhThanh = ?, GhiChu = ?, MacDinh = 1
+                    WHERE MaDC = ?";
+            $stmt = $this->db->prepare($sql);
+            if ($stmt->execute([$diaChi, $phuongXa, $quanHuyen, $tinhThanh, $ghiChu, (int)$existing['id']])) {
+                return (int)$existing['id'];
+            }
+            return false;
+        }
+
+        $sql = "INSERT INTO {$this->table} (MaKH, DiaChi, PhuongXa, QuanHuyen, TinhThanh, GhiChu, MacDinh)
+                VALUES (?, ?, ?, ?, ?, ?, 1)";
         $stmt = $this->db->prepare($sql);
-        if ($stmt->execute([$userId, $fullAddress, $note])) {
+        if ($stmt->execute([$userId, $diaChi, $phuongXa, $quanHuyen, $tinhThanh, $ghiChu])) {
             return $this->db->lastInsertId();
         }
+
         return false;
     }
 }

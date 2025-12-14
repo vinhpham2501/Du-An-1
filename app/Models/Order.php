@@ -8,6 +8,122 @@ class Order extends Model
 {
     protected $table = 'DON_HANG';
 
+    public function normalizeStatus($status)
+    {
+        $status = trim((string)$status);
+        if ($status === '') return 'pending';
+
+        $map = [
+            // internal
+            'pending' => 'pending',
+            'confirmed' => 'confirmed',
+            'preparing' => 'preparing',
+            'delivering' => 'delivering',
+            'completed' => 'completed',
+            'cancelled' => 'cancelled',
+
+            // Vietnamese variants found in code/DB
+            'Chờ xác nhận' => 'pending',
+            'Chờ duyệt' => 'pending',
+            'Đã xác nhận' => 'confirmed',
+            'Đang chuẩn bị' => 'preparing',
+            'Đang giao' => 'delivering',
+            'Hoàn tất' => 'completed',
+            'Hoàn thành' => 'completed',
+            'Hủy' => 'cancelled',
+            'Đã hủy' => 'cancelled',
+        ];
+
+        return $map[$status] ?? $status;
+    }
+
+    public function canTransitionStatus($from, $to)
+    {
+        $from = $this->normalizeStatus($from);
+        $to = $this->normalizeStatus($to);
+
+        if ($from === $to) return true;
+
+        // Lock terminal states
+        if (in_array($from, ['completed', 'cancelled'], true)) {
+            return false;
+        }
+
+        // Only allow step-by-step transitions + cancel from pending/confirmed
+        $allowed = [
+            'pending' => ['confirmed', 'cancelled'],
+            'confirmed' => ['preparing', 'cancelled'],
+            'preparing' => ['delivering'],
+            'delivering' => ['completed'],
+        ];
+
+        return in_array($to, $allowed[$from] ?? [], true);
+    }
+
+    public function getSummaryByRange($dateFrom, $dateTo)
+    {
+        $sql = "SELECT 
+                    COUNT(*) as total_orders,
+                    COALESCE(SUM(TongTien), 0) as total_revenue,
+                    COALESCE(AVG(TongTien), 0) as avg_order_value
+                FROM {$this->table}
+                WHERE DATE(NgayDat) BETWEEN ? AND ?
+                  AND TrangThai IN ('Hoàn tất', 'Hoàn thành', 'completed')";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$dateFrom, $dateTo]);
+        return $stmt->fetch();
+    }
+
+    public function getSummaryWithComparison($dateFrom, $dateTo)
+    {
+        $current = $this->getSummaryByRange($dateFrom, $dateTo);
+
+        $from = new \DateTime($dateFrom);
+        $to = new \DateTime($dateTo);
+        $days = (int)$from->diff($to)->format('%a');
+        $periodDays = $days + 1;
+
+        $prevTo = (clone $from)->modify('-1 day');
+        $prevFrom = (clone $prevTo)->modify('-' . ($periodDays - 1) . ' days');
+
+        $prevFromStr = $prevFrom->format('Y-m-d');
+        $prevToStr = $prevTo->format('Y-m-d');
+
+        $previous = $this->getSummaryByRange($prevFromStr, $prevToStr);
+
+        $pct = function ($currentValue, $previousValue) {
+            $currentValue = (float)$currentValue;
+            $previousValue = (float)$previousValue;
+            if ($previousValue == 0.0) {
+                return $currentValue == 0.0 ? 0.0 : 100.0;
+            }
+            return (($currentValue - $previousValue) / $previousValue) * 100.0;
+        };
+
+        return [
+            'current' => [
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
+                'total_orders' => (int)($current['total_orders'] ?? 0),
+                'total_revenue' => (float)($current['total_revenue'] ?? 0),
+                'avg_order_value' => (float)($current['avg_order_value'] ?? 0),
+            ],
+            'previous' => [
+                'date_from' => $prevFromStr,
+                'date_to' => $prevToStr,
+                'total_orders' => (int)($previous['total_orders'] ?? 0),
+                'total_revenue' => (float)($previous['total_revenue'] ?? 0),
+                'avg_order_value' => (float)($previous['avg_order_value'] ?? 0),
+            ],
+            'change_pct' => [
+                'total_orders' => $pct($current['total_orders'] ?? 0, $previous['total_orders'] ?? 0),
+                'total_revenue' => $pct($current['total_revenue'] ?? 0, $previous['total_revenue'] ?? 0),
+                'avg_order_value' => $pct($current['avg_order_value'] ?? 0, $previous['avg_order_value'] ?? 0),
+            ]
+        ];
+    }
+
     public function create($data)
     {
         // Map input fields to database columns
@@ -234,9 +350,24 @@ class Order extends Model
 
     public function updateStatus($id, $status)
     {
+        $order = $this->findById($id);
+        if (!$order) {
+            return false;
+        }
+
+        $current = $this->normalizeStatus($order['status'] ?? 'pending');
+        $target = $this->normalizeStatus($status);
+
+        if (!$this->canTransitionStatus($current, $target)) {
+            return false;
+        }
+
+        // Lưu về DB theo nhãn tiếng Việt chuẩn (giữ tương thích dữ liệu hiện có)
+        $dbStatus = $this->mapStatus($target);
+
         $sql = "UPDATE {$this->table} SET TrangThai = ? WHERE MaDH = ?";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$status, $id]);
+        return $stmt->execute([$dbStatus, $id]);
     }
 
     // Ghi đè update để map field app -> cột DB và dùng khóa MaDH

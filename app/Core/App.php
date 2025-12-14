@@ -69,6 +69,12 @@ class App
         // Admin routes
         $this->router->get('/admin/dashboard', 'Admin\DashboardController@index');
         $this->router->get('/admin/statistics', 'Admin\DashboardController@statistics');
+
+        // Review management
+        $this->router->get('/admin/reviews', 'Admin\ReviewController@index');
+        $this->router->post('/admin/reviews/update-status', 'Admin\ReviewController@updateStatus');
+        $this->router->post('/admin/reviews/delete', 'Admin\ReviewController@delete');
+        $this->router->post('/admin/reviews/reply', 'Admin\ReviewController@reply');
         
         // Product management
         $this->router->get('/admin/products', 'Admin\ProductController@index');

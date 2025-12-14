@@ -28,6 +28,7 @@
                             <?php
                             $statusColors = [
                                 'pending' => 'warning',
+                                'confirmed' => 'secondary',
                                 'preparing' => 'info',
                                 'delivering' => 'primary',
                                 'completed' => 'success',
@@ -36,6 +37,7 @@
                             
                             $statusLabels = [
                                 'pending' => 'Chờ xác nhận',
+                                'confirmed' => 'Đã xác nhận',
                                 'preparing' => 'Đang chuẩn bị',
                                 'delivering' => 'Đang giao hàng',
                                 'completed' => 'Hoàn thành',

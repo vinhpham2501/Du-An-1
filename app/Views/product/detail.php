@@ -220,6 +220,18 @@
                                                 <?php if (!empty($review['comment'])): ?>
                                                     <p class="mb-0"><?= nl2br(htmlspecialchars($review['comment'])) ?></p>
                                                 <?php endif; ?>
+
+                                                <?php if (!empty($review['admin_reply'])): ?>
+                                                    <div class="mt-2 p-2 bg-light border rounded">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <strong>Phản hồi từ Admin</strong>
+                                                            <?php if (!empty($review['admin_replied_at'])): ?>
+                                                                <small class="text-muted"><?= date('d/m/Y H:i', strtotime($review['admin_replied_at'])) ?></small>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <div class="mt-1"><?= nl2br(htmlspecialchars($review['admin_reply'])) ?></div>
+                                                    </div>
+                                                <?php endif; ?>
                                             </div>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
@@ -227,24 +239,28 @@
                                     <hr>
 
                                     <?php if (!empty($_SESSION['user_id'])): ?>
-                                        <h6 class="mb-2">Viết đánh giá của bạn</h6>
-                                        <form id="review-form" onsubmit="event.preventDefault(); submitReview(<?= (int)$product['id'] ?>);">
-                                            <div class="mb-2">
-                                                <label class="form-label mb-1">Chọn số sao:</label>
-                                                <div id="review-stars" class="text-warning fs-5">
-                                                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                        <i class="far fa-star review-star" data-value="<?= $i ?>" onclick="setReviewRating(<?= $i ?>)"></i>
-                                                    <?php endfor; ?>
+                                        <?php if (!empty($canReview)): ?>
+                                            <h6 class="mb-2">Viết đánh giá của bạn</h6>
+                                            <form id="review-form" onsubmit="event.preventDefault(); submitReview(<?= (int)$product['id'] ?>);">
+                                                <div class="mb-2">
+                                                    <label class="form-label mb-1">Chọn số sao:</label>
+                                                    <div id="review-stars" class="text-warning fs-5">
+                                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                            <i class="far fa-star review-star" data-value="<?= $i ?>" onclick="setReviewRating(<?= $i ?>)"></i>
+                                                        <?php endfor; ?>
+                                                    </div>
+                                                    <input type="hidden" id="review-rating" value="0">
                                                 </div>
-                                                <input type="hidden" id="review-rating" value="0">
-                                            </div>
-                                            <div class="mb-2">
-                                                <label for="review-comment" class="form-label mb-1">Nhận xét của bạn</label>
-                                                <textarea id="review-comment" class="form-control" rows="3" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."></textarea>
-                                            </div>
-                                            <button type="submit" class="btn btn-primary btn-sm mt-1">Gửi đánh giá</button>
-                                            <small id="review-message" class="d-block mt-1"></small>
-                                        </form>
+                                                <div class="mb-2">
+                                                    <label for="review-comment" class="form-label mb-1">Nhận xét của bạn</label>
+                                                    <textarea id="review-comment" class="form-control" rows="3" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."></textarea>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary btn-sm mt-1">Gửi đánh giá</button>
+                                                <small id="review-message" class="d-block mt-1"></small>
+                                            </form>
+                                        <?php else: ?>
+                                            <p class="text-muted mb-0">Bạn chỉ có thể đánh giá sau khi mua sản phẩm này (và mỗi sản phẩm chỉ đánh giá 1 lần).</p>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         <p class="text-muted mb-0">
                                             Vui lòng <a href="/login">đăng nhập</a> để viết đánh giá.

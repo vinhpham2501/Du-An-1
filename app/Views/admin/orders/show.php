@@ -416,22 +416,43 @@ small.text-muted {
                     </h5>
                 </div>
                 <div class="card-body">
+                    <?php
+                        $currentStatus = $order['status'] ?? 'pending';
+                        $allowedNext = [
+                            'pending' => ['confirmed', 'cancelled'],
+                            'confirmed' => ['preparing', 'cancelled'],
+                            'preparing' => ['delivering'],
+                            'delivering' => ['completed'],
+                            'completed' => [],
+                            'cancelled' => [],
+                        ];
+                        $isLocked = in_array($currentStatus, ['completed', 'cancelled'], true);
+                        $allowedForCurrent = $allowedNext[$currentStatus] ?? [];
+                        $isAllowed = function ($value) use ($currentStatus, $allowedForCurrent) {
+                            return $value === $currentStatus || in_array($value, $allowedForCurrent, true);
+                        };
+                    ?>
                     <form id="updateStatusForm">
                         <div class="mb-3">
                             <label for="status" class="form-label fw-bold">Trạng thái mới</label>
                             <select class="form-select form-select-custom" id="status" name="status" required>
-                                <option value="pending" <?= $order['status'] === 'pending' ? 'selected' : '' ?>>⏳ Chờ xác nhận</option>
-                                <option value="confirmed" <?= $order['status'] === 'confirmed' ? 'selected' : '' ?>>✅ Đã xác nhận</option>
-                                <option value="preparing" <?= $order['status'] === 'preparing' ? 'selected' : '' ?>>👨‍🍳 Đang chuẩn bị</option>
-                                <option value="delivering" <?= $order['status'] === 'delivering' ? 'selected' : '' ?>>🚚 Đang giao</option>
-                                <option value="completed" <?= $order['status'] === 'completed' ? 'selected' : '' ?>>🎉 Hoàn thành</option>
-                                <option value="cancelled" <?= $order['status'] === 'cancelled' ? 'selected' : '' ?>>❌ Đã hủy</option>
+                                <option value="pending" <?= $currentStatus === 'pending' ? 'selected' : '' ?> <?= (!$isAllowed('pending') || $isLocked) ? 'disabled' : '' ?>>⏳ Chờ xác nhận</option>
+                                <option value="confirmed" <?= $currentStatus === 'confirmed' ? 'selected' : '' ?> <?= (!$isAllowed('confirmed') || $isLocked) ? 'disabled' : '' ?>>✅ Đã xác nhận</option>
+                                <option value="preparing" <?= $currentStatus === 'preparing' ? 'selected' : '' ?> <?= (!$isAllowed('preparing') || $isLocked) ? 'disabled' : '' ?>>👨‍🍳 Đang chuẩn bị</option>
+                                <option value="delivering" <?= $currentStatus === 'delivering' ? 'selected' : '' ?> <?= (!$isAllowed('delivering') || $isLocked) ? 'disabled' : '' ?>>🚚 Đang giao</option>
+                                <option value="completed" <?= $currentStatus === 'completed' ? 'selected' : '' ?> <?= (!$isAllowed('completed') || $isLocked) ? 'disabled' : '' ?>>🎉 Hoàn thành</option>
+                                <option value="cancelled" <?= $currentStatus === 'cancelled' ? 'selected' : '' ?> <?= (!$isAllowed('cancelled') || $isLocked) ? 'disabled' : '' ?>>❌ Đã hủy</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-update w-100">
+                        <button type="submit" class="btn btn-update w-100" <?= $isLocked ? 'disabled' : '' ?>>
                             <i class="fas fa-save me-2"></i>Cập nhật trạng thái
                         </button>
                     </form>
+                    <?php if ($isLocked): ?>
+                        <div class="alert alert-warning mt-3 mb-0">
+                            Đơn hàng đã <strong><?= $currentStatus === 'cancelled' ? 'hủy' : 'hoàn thành' ?></strong> nên không thể cập nhật trạng thái nữa.
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

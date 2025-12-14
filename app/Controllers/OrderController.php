@@ -291,6 +291,9 @@ class OrderController extends Controller
                 http_response_code(404);
                 return $this->render('errors/404');
             }
+
+            // Chuẩn hóa trạng thái để view dùng thống nhất (pending/confirmed/preparing/delivering/completed/cancelled)
+            $order['status'] = $this->orderModel->normalizeStatus($order['status'] ?? 'pending');
             
             // Chuẩn hóa thông tin giao hàng để hiển thị
             $deliveryName = $_SESSION['user_name'] ?? 'Khách hàng';
@@ -349,21 +352,18 @@ class OrderController extends Controller
             return $this->json(['success' => false, 'message' => 'Đơn hàng không tồn tại']);
         }
         
-        // Trong DB, cột TrangThai đang lưu tiếng Việt (Chờ duyệt, Đang chuẩn bị, Đang giao, Hoàn tất, Hủy)
-        // Không cho phép hủy nếu đơn hàng đã ở trạng thái Đang giao hoặc Hoàn tất
-        $nonCancellableStatuses = ['Đang giao', 'Hoàn tất'];
-        if (in_array($order['status'], $nonCancellableStatuses, true)) {
-            return $this->json(['success' => false, 'message' => 'Đơn hàng đang giao hoặc đã hoàn thành không thể hủy']);
+        $current = $this->orderModel->normalizeStatus($order['status'] ?? 'pending');
+
+        // Chỉ cho hủy khi: Chờ xác nhận (pending) hoặc Đã xác nhận (confirmed)
+        if (!in_array($current, ['pending', 'confirmed'], true)) {
+            return $this->json(['success' => false, 'message' => 'Chỉ có thể hủy khi đơn hàng đang chờ xác nhận hoặc đã xác nhận']);
         }
 
-        // Cho phép hủy khi đơn hàng ở trạng thái Chờ duyệt / Đã xác nhận / Đang chuẩn bị
-        $cancellableStatuses = ['Chờ duyệt', 'Đã xác nhận', 'Đang chuẩn bị'];
-        if (!in_array($order['status'], $cancellableStatuses, true)) {
+        // Hủy thông qua updateStatus để áp ràng buộc terminal state
+        $ok = $this->orderModel->updateStatus($orderId, 'cancelled');
+        if (!$ok) {
             return $this->json(['success' => false, 'message' => 'Không thể hủy đơn hàng này']);
         }
-
-        // Cập nhật trực tiếp cột TrangThai sang 'Hủy'
-        $this->orderModel->update($orderId, ['TrangThai' => 'Hủy']);
         
         return $this->json(['success' => true, 'message' => 'Hủy đơn hàng thành công']);
     }
