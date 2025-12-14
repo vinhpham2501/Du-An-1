@@ -44,13 +44,19 @@
 
                         <!-- Trạng thái -->
                         <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="is_available" name="is_available" value="1" 
-                                       <?= ($category['is_available'] || isset($_POST['is_available'])) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="is_available">
-                                    Hiển thị trên website
-                                </label>
-                            </div>
+                            <label for="is_available" class="form-label">Trạng thái</label>
+                            <?php 
+                            $status = $_POST['is_available'] ?? ($category['is_available'] ?? 1);
+                            // Chuyển đổi: 0 (cũ - đã xóa hoặc ngừng bán cũ) -> 2 (ngừng bán mới)
+                            // Chỉ chuyển đổi khi không có POST (hiển thị form lần đầu)
+                            if (!isset($_POST['is_available']) && $status == 0) {
+                                $status = 2; // Ngừng bán
+                            }
+                            ?>
+                            <select class="form-select" id="is_available" name="is_available">
+                                <option value="1" <?= $status == 1 ? 'selected' : '' ?>>Đang hoạt động</option>
+                                <option value="2" <?= $status == 2 ? 'selected' : '' ?>>Ngừng bán</option>
+                            </select>
                         </div>
                     </div>
 

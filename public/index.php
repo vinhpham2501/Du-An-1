@@ -46,13 +46,23 @@ try {
     
     $app = new App($config);
     $app->run();
-} catch (Exception $e) {
-    // Log error
-    error_log("Application Error: " . $e->getMessage());
-    
+} catch (\Throwable $e) {
+    // Log error with stacktrace for debugging
+    error_log(
+        "Application Error: " . $e->getMessage() .
+        " | File: " . $e->getFile() .
+        " | Line: " . $e->getLine() .
+        "\n" . $e->getTraceAsString()
+    );
+
     // Show error page
     http_response_code(500);
     if (file_exists(APP_PATH . '/Views/errors/500.php')) {
+        // Expose message only in debug mode
+        $message = null;
+        if (!empty($config) && !empty($config['app_debug'])) {
+            $message = $e->getMessage() . ' (at ' . $e->getFile() . ':' . $e->getLine() . ')';
+        }
         include APP_PATH . '/Views/errors/500.php';
     } else {
         echo '<h1>Lỗi hệ thống</h1><p>Có lỗi xảy ra, vui lòng thử lại sau.</p>';

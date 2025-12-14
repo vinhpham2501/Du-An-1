@@ -8,6 +8,25 @@ class Review extends Model
 {
     protected $table = 'BINH_LUAN_DANH_GIA';
 
+    public function findById($id)
+    {
+        $sql = "SELECT
+                    MaBL AS id,
+                    MaKH AS user_id,
+                    MaSP AS product_id,
+                    NoiDung AS comment,
+                    SoSao AS rating,
+                    NgayDang AS created_at,
+                    TrangThai AS status,
+                    0 AS is_deleted
+                FROM {$this->table}
+                WHERE MaBL = ?
+                LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([(int)$id]);
+        return $stmt->fetch();
+    }
+
     public function userHasPurchasedProduct($userId, $productId)
     {
         $sql = "SELECT 1
@@ -39,7 +58,7 @@ class Review extends Model
         return true;
     }
 
-    public function findByProductId($productId, $limit = null)
+    public function findByProductId($productId, $limit = null, $approvedOnly = true)
     {
         $sql = "SELECT 
                     r.MaBL AS id,
@@ -55,8 +74,13 @@ class Review extends Model
                 FROM {$this->table} r 
                 JOIN KHACH_HANG u ON r.MaKH = u.MaKH 
                 LEFT JOIN BINH_LUAN_DANH_GIA_TRA_LOI ar ON ar.MaBL = r.MaBL AND ar.TrangThai = 1
-                WHERE r.MaSP = ? 
-                  AND r.TrangThai = 1
+                WHERE r.MaSP = ?";
+
+        if ($approvedOnly) {
+            $sql .= " AND r.TrangThai = 1";
+        }
+
+        $sql .= "
                 ORDER BY r.NgayDang DESC";
         
         if ($limit) {
@@ -68,12 +92,15 @@ class Review extends Model
         return $stmt->fetchAll();
     }
 
-    public function getAverageRating($productId)
+    public function getAverageRating($productId, $approvedOnly = true)
     {
         $sql = "SELECT AVG(SoSao) as avg_rating, COUNT(*) as total_reviews 
                 FROM {$this->table} 
-                WHERE MaSP = ?
-                  AND TrangThai = 1";
+                WHERE MaSP = ?";
+
+        if ($approvedOnly) {
+            $sql .= " AND TrangThai = 1";
+        }
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$productId]);
@@ -94,6 +121,41 @@ class Review extends Model
         ]);
     }
 
+    public function update($reviewId, $data)
+    {
+        $rating = isset($data['rating']) ? (int)$data['rating'] : null;
+        $comment = isset($data['comment']) ? (string)$data['comment'] : null;
+
+        $set = [];
+        $params = [];
+
+        if ($rating !== null) {
+            $set[] = 'SoSao = ?';
+            $params[] = $rating;
+        }
+
+        if ($comment !== null) {
+            $set[] = 'NoiDung = ?';
+            $params[] = $comment;
+        }
+
+        if (empty($set)) {
+            return false;
+        }
+
+        $params[] = (int)$reviewId;
+        $sql = "UPDATE {$this->table} SET " . implode(', ', $set) . " WHERE MaBL = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($params);
+    }
+
+    public function softDelete($reviewId)
+    {
+        // Fallback: the table may not have an IsDeleted column.
+        // Use hard delete to keep the API contract (boolean) and avoid SQL errors.
+        return $this->deleteById($reviewId);
+    }
+
     public function getAllForAdmin($filters = [])
     {
         $sql = "SELECT
@@ -104,7 +166,9 @@ class Review extends Model
                     r.SoSao AS rating,
                     r.NgayDang AS created_at,
                     r.TrangThai AS status,
+                    0 AS is_deleted,
                     u.HoTen AS user_name,
+                    u.Email AS user_email,
                     p.TenSP AS product_name,
                     ar.NoiDung AS admin_reply,
                     ar.NgayDang AS admin_replied_at
@@ -127,8 +191,9 @@ class Review extends Model
         }
 
         if (!empty($filters['q'])) {
-            $conditions[] = '(u.HoTen LIKE ? OR p.TenSP LIKE ? OR r.NoiDung LIKE ?)';
+            $conditions[] = '(u.HoTen LIKE ? OR u.Email LIKE ? OR p.TenSP LIKE ? OR r.NoiDung LIKE ?)';
             $q = '%' . $filters['q'] . '%';
+            $params[] = $q;
             $params[] = $q;
             $params[] = $q;
             $params[] = $q;

@@ -38,12 +38,12 @@
 
                         <!-- Trạng thái -->
                         <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="is_available" name="is_available" value="1" checked>
-                                <label class="form-check-label" for="is_available">
-                                    Hiển thị trên website
-                                </label>
-                            </div>
+                            <label for="is_available" class="form-label">Trạng thái</label>
+                            <?php $status = $_POST['is_available'] ?? 1; ?>
+                            <select class="form-select" id="is_available" name="is_available">
+                                <option value="1" <?= $status == 1 ? 'selected' : '' ?>>Đang hoạt động</option>
+                                <option value="2" <?= $status == 2 ? 'selected' : '' ?>>Ngừng bán</option>
+                            </select>
                         </div>
                     </div>
 

@@ -238,11 +238,12 @@ class OrderController extends Controller
             
             $current = $this->orderModel->normalizeStatus($order['status'] ?? 'pending');
             
-            // Kiểm tra trạng thái đơn hàng - chỉ cho phép xóa đơn hàng đã hủy hoặc hoàn thành
-            if (!in_array($current, ['cancelled', 'completed'], true)) {
+            // Kiểm tra trạng thái đơn hàng - KHÔNG cho phép xóa đơn hàng đã hoàn thành
+            // Chỉ cho phép xóa đơn hàng đã hủy
+            if (!in_array($current, ['cancelled'], true)) {
                 return $this->json([
                     'success' => false, 
-                    'message' => 'Chỉ có thể xóa đơn hàng đã hủy hoặc đã hoàn thành'
+                    'message' => 'Chỉ có thể xóa đơn hàng đã hủy'
                 ]);
             }
             

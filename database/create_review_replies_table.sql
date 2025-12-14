@@ -1,0 +1,14 @@
+-- Tạo bảng phản hồi đánh giá
+CREATE TABLE IF NOT EXISTS PHAN_HOI_DANH_GIA (
+    MaPH INT AUTO_INCREMENT PRIMARY KEY,
+    MaBL INT NOT NULL,
+    NoiDung TEXT NOT NULL,
+    NgayPhanHoi DATETIME NOT NULL,
+    NguoiPhanHoi VARCHAR(255) DEFAULT 'Admin',
+    FOREIGN KEY (MaBL) REFERENCES BINH_LUAN_DANH_GIA(MaBL) ON DELETE CASCADE,
+    UNIQUE KEY unique_review_reply (MaBL)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tạo index để tối ưu truy vấn
+CREATE INDEX idx_review_id ON PHAN_HOI_DANH_GIA(MaBL);
+

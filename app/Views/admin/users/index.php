@@ -97,12 +97,24 @@
                                         <a href="/admin/users/<?= $user['id'] ?>" class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-eye me-1"></i>Xem
                                         </a>
+
                                         <?php if ($user['id'] != $_SESSION['user_id']): ?>
-                                            <button class="btn btn-sm btn-outline-danger ms-1" 
-                                                    onclick="deleteUser(<?= $user['id'] ?>, '<?= htmlspecialchars($user['full_name']) ?>')" 
+
+                                            <?php if (($user['status'] ?? 1) == 1): ?>
+                                                <!-- User đang MỞ -->
+                                                <button class="btn btn-sm btn-outline-success ms-1"
+                                                    onclick='toggleUserStatus(<?= $user['id'] ?>, <?= json_encode($user['full_name'] ?? '') ?>, 0)'
                                                     title="Khóa tài khoản">
-                                                <i class="fas fa-lock"></i>
-                                            </button>
+                                                    <i class="fas fa-unlock"></i>
+                                                </button>
+                                            <?php else: ?>
+                                                <!-- User đang KHÓA -->
+                                                <button class="btn btn-sm btn-outline-danger ms-1"
+                                                    onclick='toggleUserStatus(<?= $user['id'] ?>, <?= json_encode($user['full_name'] ?? '') ?>, 1)'
+                                                    title="Mở khóa tài khoản">
+                                                    <i class="fas fa-lock"></i>
+                                                </button>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -116,44 +128,34 @@
 </div> 
 
 <script>
-function deleteUser(userId, userName) {
-    if (confirm(`Bạn có chắc muốn khóa tài khoản "${userName}"?`)) {
+function toggleUserStatus(userId, userName, status) {
+    const actionText = status === 0 ? 'khóa' : 'mở khóa';
 
-        fetch(`/admin/users/${userId}/delete`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showAlert('success', data.message);
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
-            } else {
-                showAlert('danger', data.message);
-            }
-        })
-        .catch(error => {
-            showAlert('danger', 'Có lỗi xảy ra, vui lòng thử lại');
-        });
-    }
-}
+    if (!confirm(`Bạn có chắc muốn ${actionText} tài khoản "${userName}"?`)) return;
 
-function showAlert(type, message) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    document.body.appendChild(alertDiv);
-    
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 3000);
+    fetch(`/admin/users/${userId}/toggle-status`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            is_active: status
+        })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Lỗi server');
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            showNotification('success', data.message);
+            setTimeout(() => location.reload(), 1200);
+        } else {
+            showNotification('danger', data.message);
+        }
+    })
+    .catch(() => {
+        showNotification('danger', 'Không thể kết nối tới server');
+    });
 }
 </script>

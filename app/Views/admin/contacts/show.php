@@ -62,12 +62,12 @@
                                 <textarea class="form-control" id="replyMessage" rows="5" 
                                           placeholder="Nhập nội dung phản hồi...">Xin chào <?= htmlspecialchars($contact['name']) ?>,
 
-Cảm ơn bạn đã liên hệ với chúng tôi. 
+                                            Cảm ơn bạn đã liên hệ với chúng tôi. 
 
-Chúng tôi đã nhận được tin nhắn của bạn và sẽ phản hồi trong thời gian sớm nhất.
+                                            Chúng tôi đã nhận được tin nhắn của bạn và sẽ phản hồi trong thời gian sớm nhất.
 
-Trân trọng,
-Restaurant Team</textarea>
+                                            Trân trọng,
+                                            Shop Team</textarea>
                             </div>
                             <div class="d-flex gap-2">
                                 <a href="mailto:<?= htmlspecialchars($contact['email']) ?>?subject=Re: Liên hệ từ website - <?= htmlspecialchars($contact['name']) ?>&body=Xin chào <?= htmlspecialchars($contact['name']) ?>,%0D%0A%0D%0ACảm ơn bạn đã liên hệ với chúng tôi.%0D%0A%0D%0AChúng tôi đã nhận được tin nhắn của bạn và sẽ phản hồi trong thời gian sớm nhất.%0D%0A%0D%0ATrân trọng,%0D%0ARestaurant Team" 

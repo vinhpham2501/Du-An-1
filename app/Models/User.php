@@ -107,13 +107,10 @@ class User extends Model
         $params = [];
         $conditions = [];
 
-        // Default only active users unless status filter provided
+        // Optional filter by status if provided (1: active, 0: locked)
         if (isset($filters['status'])) {
             $conditions[] = "TrangThai = ?";
             $params[] = (int)$filters['status'];
-        } else {
-            $conditions[] = "TrangThai = ?";
-            $params[] = 1;
         }
 
         if (isset($filters['role'])) {
@@ -150,13 +147,10 @@ class User extends Model
         $params = [];
         $conditions = [];
 
-        // Default only active users unless status filter provided
+        // Optional filter by status if provided (1: active, 0: locked)
         if (isset($filters['status'])) {
             $conditions[] = "TrangThai = ?";
             $params[] = (int)$filters['status'];
-        } else {
-            $conditions[] = "TrangThai = ?";
-            $params[] = 1;
         }
 
         if (isset($filters['role'])) {

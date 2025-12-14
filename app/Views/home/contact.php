@@ -95,14 +95,14 @@
                                 </h5>
                                 <p class="ms-4">
                                     <a
-                                        href="mailto:vinhpham261206@gmail.com?subject=H%E1%BB%97%20tr%E1%BB%A3%20t%E1%BB%AB%20kh%C3%A1ch%20h%C3%A0ng%20S%E1%BA%AFc%20Vi%E1%BB%87t&body=Xin%20ch%C3%A0o%20S%E1%BA%AFc%20Vi%E1%BB%87t%2C%0A%0AT%C3%B4i%20c%E1%BA%A7n%20h%E1%BB%97%20tr%E1%BB%A3%20v%E1%BB%81%3A%20%5Bn%E1%BB%99i%20dung%5D%0A%0ATh%C3%B4ng%20tin%20li%C3%AAn%20h%E1%BB%87%3A%0A-%20H%E1%BB%8D%20t%C3%AAn%3A%20%0A-%20S%E1%BB%91%20%C4%91i%E1%BB%87n%20tho%E1%BA%A1i%3A%20%0A%0AXin%20c%E1%BA%A3m%20%C6%A1n." 
+                                        href="mailbird:nhom3@gmail.com?subject=H%E1%BB%97%20tr%E1%BB%A3%20t%E1%BB%AB%20kh%C3%A1ch%20h%C3%A0ng%20S%E1%BA%AFc%20Vi%E1%BB%87t&body=Xin%20ch%C3%A0o%20S%E1%BA%AFc%20Vi%E1%BB%87t%2C%0A%0AT%C3%B4i%20c%E1%BA%A7n%20h%E1%BB%97%20tr%E1%BB%A3%20v%E1%BB%81%3A%20%5Bn%E1%BB%99i%20dung%5D%0A%0ATh%C3%B4ng%20tin%20li%C3%AAn%20h%E1%BB%87%3A%0A-%20H%E1%BB%8D%20t%C3%AAn%3A%20%0A-%20S%E1%BB%91%20%C4%91i%E1%BB%87n%20tho%E1%BA%A1i%3A%20%0A%0AXin%20c%E1%BA%A3m%20%C6%A1n." 
                                         class="text-decoration-none" title="Gửi email hỗ trợ">
-                                        vinhpham261206@gmail.com
+                                        nhom3@gmail.com
                                     </a><br>
                                     <a
-                                        href="mailto:support@restaurant.com?subject=H%E1%BB%97%20tr%E1%BB%A3%20kh%C3%A1ch%20h%C3%A0ng&body=Ch%C3%A0o%20b%E1%BA%A1n%2C%0A%0AT%C3%B4i%20mu%E1%BB%91n%20li%C3%AAn%20h%E1%BB%87%20v%E1%BB%81%3A%20%5Bn%E1%BB%99i%20dung%5D%0A%0AXin%20c%E1%BA%A3m%20%C6%A1n." 
+                                        href="mailto:support@shop.com?subject=H%E1%BB%97%20tr%E1%BB%A3%20kh%C3%A1ch%20h%C3%A0ng&body=Ch%C3%A0o%20b%E1%BA%A1n%2C%0A%0AT%C3%B4i%20mu%E1%BB%91n%20li%C3%AAn%20h%E1%BB%87%20v%E1%BB%81%3A%20%5Bn%E1%BB%99i%20dung%5D%0A%0AXin%20c%E1%BA%A3m%20%C6%A1n." 
                                         class="text-decoration-none" title="Gửi email hỗ trợ">
-                                        support@restaurant.com
+                                        support@shop.com
                                     </a>
                                 </p>
                             </div>

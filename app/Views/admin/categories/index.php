@@ -44,10 +44,12 @@
                                         <span class="badge bg-info"><?= $category['product_count'] ?></span>
                                     </td>
                                     <td>
-                                        <?php if ($category['is_available']): ?>
-                                            <span class="badge bg-success">Hoạt động</span>
+                                        <?php if ($category['is_available'] == 1): ?>
+                                            <span class="badge bg-success">Đang hoạt động</span>
+                                        <?php elseif ($category['is_available'] == 2): ?>
+                                            <span class="badge bg-warning">Ngừng bán</span>
                                         <?php else: ?>
-                                            <span class="badge bg-secondary">Tạm khóa</span>
+                                            <span class="badge bg-danger">Đã xóa</span>
                                         <?php endif; ?>
                                     </td>
                                     <td><?= date('d/m/Y', strtotime($category['created_at'])) ?></td>

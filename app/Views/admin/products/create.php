@@ -67,7 +67,7 @@
                                         <?php $status = $_POST['is_available'] ?? 1; ?>
                                         <select class="form-select" name="is_available">
                                             <option value="1" <?= $status == 1 ? 'selected' : '' ?>>Đang bán</option>
-                                            <option value="0" <?= $status == 0 ? 'selected' : '' ?>>Ngừng bán</option>
+                                            <option value="2" <?= $status == 2 ? 'selected' : '' ?>>Ngừng bán</option>
                                         </select>
                                     </div>
                                 </div>

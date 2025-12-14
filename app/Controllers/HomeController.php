@@ -241,14 +241,13 @@ class HomeController extends Controller
         if (!$productId || !$rating || $rating < 1 || $rating > 5) {
             return $this->json(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
         }
-
-        if (!$this->reviewModel->userHasPurchasedProduct($_SESSION['user_id'], $productId)) {
-            return $this->json(['success' => false, 'message' => 'Bạn chỉ có thể đánh giá sản phẩm đã mua']);
-        }
-
-        // Chặn đánh giá trùng, kể cả khi đánh giá cũ đang bị ẩn (TrangThai = 0)
-        if ($this->reviewModel->userHasReviewedProduct($_SESSION['user_id'], $productId)) {
-            return $this->json(['success' => false, 'message' => 'Bạn đã đánh giá sản phẩm này rồi']);
+        
+        // Check if user already reviewed this product
+        $existingReview = $this->reviewModel->findByProductId($productId);
+        foreach ($existingReview as $review) {
+            if ($review['user_id'] == $_SESSION['user_id']) {
+                return $this->json(['success' => false, 'message' => 'Bạn đã đánh giá món ăn này rồi']);
+            }
         }
         
         $reviewId = $this->reviewModel->create([
@@ -260,6 +259,82 @@ class HomeController extends Controller
         
         if ($reviewId) {
             return $this->json(['success' => true, 'message' => 'Đánh giá thành công']);
+        } else {
+            return $this->json(['success' => false, 'message' => 'Có lỗi xảy ra']);
+        }
+    }
+
+    public function updateReview()
+    {
+        $this->requireAuth();
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return $this->json(['success' => false, 'message' => 'Invalid request method']);
+        }
+        
+        $reviewId = $_POST['review_id'] ?? 0;
+        $rating = $_POST['rating'] ?? 0;
+        $comment = $_POST['comment'] ?? '';
+        
+        if (!$reviewId || !$rating || $rating < 1 || $rating > 5) {
+            return $this->json(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
+        }
+        
+        // Kiểm tra đánh giá có tồn tại và thuộc về user hiện tại không
+        $review = $this->reviewModel->findById($reviewId);
+        if (!$review) {
+            return $this->json(['success' => false, 'message' => 'Đánh giá không tồn tại']);
+        }
+        
+        if ($review['user_id'] != $_SESSION['user_id']) {
+            return $this->json(['success' => false, 'message' => 'Bạn không có quyền chỉnh sửa đánh giá này']);
+        }
+        
+        if ($review['is_deleted'] == 1) {
+            return $this->json(['success' => false, 'message' => 'Đánh giá đã bị xóa']);
+        }
+        
+        $result = $this->reviewModel->update($reviewId, [
+            'rating' => $rating,
+            'comment' => $comment
+        ]);
+        
+        if ($result) {
+            return $this->json(['success' => true, 'message' => 'Cập nhật đánh giá thành công']);
+        } else {
+            return $this->json(['success' => false, 'message' => 'Có lỗi xảy ra']);
+        }
+    }
+
+    public function deleteReview()
+    {
+        $this->requireAuth();
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return $this->json(['success' => false, 'message' => 'Invalid request method']);
+        }
+        
+        $reviewId = $_POST['review_id'] ?? 0;
+        
+        if (!$reviewId) {
+            return $this->json(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
+        }
+        
+        // Kiểm tra đánh giá có tồn tại và thuộc về user hiện tại không
+        $review = $this->reviewModel->findById($reviewId);
+        if (!$review) {
+            return $this->json(['success' => false, 'message' => 'Đánh giá không tồn tại']);
+        }
+        
+        if ($review['user_id'] != $_SESSION['user_id']) {
+            return $this->json(['success' => false, 'message' => 'Bạn không có quyền xóa đánh giá này']);
+        }
+        
+        // Soft delete - chỉ đánh dấu là đã xóa, không xóa khỏi database
+        $result = $this->reviewModel->softDelete($reviewId);
+        
+        if ($result) {
+            return $this->json(['success' => true, 'message' => 'Đã xóa đánh giá']);
         } else {
             return $this->json(['success' => false, 'message' => 'Có lỗi xảy ra']);
         }
@@ -376,6 +451,8 @@ class HomeController extends Controller
     private function renderProductCard($product)
     {
         $salePrice = !empty($product['sale_price']) && $product['sale_price'] < $product['price'];
+        $isAvailable = isset($product['is_available']) && $product['is_available'] == 1;
+        $isStopped = isset($product['is_available']) && $product['is_available'] == 2;
         
         return '<div class="col-lg-3 col-md-6 mb-4">
             <div class="product-card h-100 shadow-sm">
@@ -398,6 +475,13 @@ class HomeController extends Controller
                             </span>
                         </div>' : ''
                     ) . '
+                    ' . ($isStopped ? 
+                        '<div class="position-absolute top-0 ' . ($salePrice ? 'end-0' : 'start-0') . ' m-2">
+                            <span class="badge bg-danger">
+                                <i class="fas fa-ban me-1"></i>Ngừng bán
+                            </span>
+                        </div>' : ''
+                    ) . '
                 </div>
                 <div class="card-body">
                     <h5 class="card-title">
@@ -414,9 +498,14 @@ class HomeController extends Controller
                                 '<span class="text-primary fw-bold">' . number_format($product['price']) . 'đ</span>'
                             ) . '
                         </div>
-                        <button class="btn btn-primary btn-sm" onclick="addToCart(' . $product['id'] . ')">
-                            <i class="fas fa-cart-plus"></i>
-                        </button>
+                        ' . ($isStopped ? 
+                            '<button class="btn btn-secondary btn-sm" disabled title="Sản phẩm đã ngừng bán">
+                                <i class="fas fa-ban"></i>
+                            </button>' :
+                            '<button class="btn btn-primary btn-sm" onclick="addToCart(' . $product['id'] . ')">
+                                <i class="fas fa-cart-plus"></i>
+                            </button>'
+                        ) . '
                     </div>
                 </div>
             </div>

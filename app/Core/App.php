@@ -37,6 +37,8 @@ class App
         $this->router->get('/contact', 'HomeController@contact');
         $this->router->post('/contact', 'HomeController@contact');
         $this->router->post('/add-review', 'HomeController@addReview');
+        $this->router->post('/update-review', 'HomeController@updateReview');
+        $this->router->post('/delete-review', 'HomeController@deleteReview');
 
         // Auth routes
         $this->router->get('/login', 'AuthController@login');
@@ -106,12 +108,21 @@ class App
         $this->router->get('/admin/users', 'Admin\UserController@index');
         $this->router->get('/admin/users/{id}', 'Admin\UserController@show');
         $this->router->post('/admin/users/{id}/update-role', 'Admin\UserController@updateRole');
-        $this->router->post('/admin/users/{id}/delete', 'Admin\UserController@delete');
+        $this->router->post('/admin/users/{id}/toggle-status', 'Admin\UserController@toggleStatus');
         
         // Contact management
         $this->router->get('/admin/contacts', 'Admin\ContactController@index');
         $this->router->get('/admin/contacts/{id}', 'Admin\ContactController@show');
         $this->router->post('/admin/contacts/update-status', 'Admin\ContactController@updateStatus');
         $this->router->post('/admin/contacts/delete', 'Admin\ContactController@delete');
+        $this->router->post('/admin/contacts/send-email', 'Admin\ContactController@sendEmail');
+        
+        // Review management
+        $this->router->get('/admin/reviews', 'Admin\ReviewController@index');
+        $this->router->get('/admin/reviews/{id}', 'Admin\ReviewController@show');
+        $this->router->post('/admin/reviews/update-status', 'Admin\ReviewController@updateStatus');
+        $this->router->post('/admin/reviews/delete', 'Admin\ReviewController@delete');
+        $this->router->post('/admin/reviews/reply', 'Admin\ReviewController@reply');
+        $this->router->post('/admin/reviews/delete-reply', 'Admin\ReviewController@deleteReply');
     }
 }

@@ -132,7 +132,7 @@
                                         <a href="/admin/orders/<?= $order['id'] ?>" class="btn btn-sm btn-primary" title="Xem chi tiết đơn hàng">
                                             <i class="fas fa-eye me-1"></i>Xem
                                         </a>
-                                        <?php if (in_array($order['status'], ['completed', 'cancelled'])): ?>
+                                        <?php if (in_array($order['status'], ['cancelled'], true)): ?>
                                              <button class="btn btn-sm btn-outline-danger ms-1" 
                                                      onclick="deleteOrder(<?= $order['id'] ?>)" 
                                                      title="Xóa đơn hàng">

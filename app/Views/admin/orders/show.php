@@ -503,15 +503,15 @@ document.getElementById('updateStatusForm').addEventListener('submit', function(
             alertDiv.style.zIndex = '9999';
             alertDiv.innerHTML = `
                 <i class="fas fa-check-circle me-2"></i>
-                Cập nhật trạng thái thành công!
+                ${data.message || 'Cập nhật trạng thái thành công!'}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             `;
             document.body.appendChild(alertDiv);
             
-            // Reload sau 1 giây
+            // Reload ngay lập tức để hiển thị trạng thái mới
             setTimeout(() => {
-                location.reload();
-            }, 1000);
+                window.location.reload(true); // Force reload từ server
+            }, 500);
         } else {
             throw new Error(data.message || 'Không thể cập nhật trạng thái');
         }

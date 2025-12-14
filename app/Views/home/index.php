@@ -397,6 +397,13 @@
                                                     <i class="fas fa-star me-1"></i>Mới
                                                 </span>
                                             </div>
+                                            <?php if (isset($product['is_available']) && $product['is_available'] == 2): ?>
+                                                <div class="position-absolute top-0 end-0 m-2">
+                                                    <span class="badge bg-danger">
+                                                        <i class="fas fa-ban me-1"></i>Ngừng bán
+                                                    </span>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                         <div class="card-body">
                                             <h5 class="card-title"><?= htmlspecialchars($product['name']) ?></h5>
@@ -410,9 +417,15 @@
                                                         <span class="text-primary fw-bold"><?= number_format($product['price']) ?>đ</span>
                                                     <?php endif; ?>
                                                 </div>
-                                                <button class="btn btn-success btn-sm" onclick="addToCart(<?= $product['id'] ?>)">
-                                                    <i class="fas fa-shopping-cart"></i>
-                                                </button>
+                                                <?php if (isset($product['is_available']) && $product['is_available'] == 2): ?>
+                                                    <button class="btn btn-secondary btn-sm" disabled title="Sản phẩm đã ngừng bán">
+                                                        <i class="fas fa-ban"></i>
+                                                    </button>
+                                                <?php else: ?>
+                                                    <button class="btn btn-success btn-sm" onclick="addToCart(<?= $product['id'] ?>)">
+                                                        <i class="fas fa-shopping-cart"></i>
+                                                    </button>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </div>
@@ -502,6 +515,13 @@
                                         </span>
                                     </div>
                                 <?php endif; ?>
+                                <?php if (isset($product['is_available']) && $product['is_available'] == 2): ?>
+                                    <div class="position-absolute top-0 <?= (!empty($product['sale_price']) && $product['sale_price'] < $product['price']) ? 'end-0' : 'start-0' ?> m-2">
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-ban me-1"></i>Ngừng bán
+                                        </span>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                             <div class="card-body">
                                 <h5 class="card-title">
@@ -519,9 +539,15 @@
                                             <span class="text-primary fw-bold"><?= number_format($product['price']) ?>đ</span>
                                         <?php endif; ?>
                                     </div>
-                                    <button class="btn btn-primary btn-sm" onclick="addToCart(<?= $product['id'] ?>)">
-                                        <i class="fas fa-cart-plus"></i>
-                                    </button>
+                                    <?php if (isset($product['is_available']) && $product['is_available'] == 2): ?>
+                                        <button class="btn btn-secondary btn-sm" disabled title="Sản phẩm đã ngừng bán">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    <?php else: ?>
+                                        <button class="btn btn-primary btn-sm" onclick="addToCart(<?= $product['id'] ?>)">
+                                            <i class="fas fa-cart-plus"></i>
+                                        </button>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>

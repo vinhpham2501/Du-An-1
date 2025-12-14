@@ -122,4 +122,55 @@ class UserController extends Controller
             return $this->json(['success' => false, 'message' => 'Có lỗi xảy ra khi khóa tài khoản']);
         }
     }
+
+    public function toggleStatus($id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return $this->json(['success' => false, 'message' => 'Invalid request method']);
+        }
+
+        $status = isset($_POST['is_active']) ? (int)$_POST['is_active'] : null;
+        if ($status !== 0 && $status !== 1) {
+            return $this->json(['success' => false, 'message' => 'Trạng thái không hợp lệ']);
+        }
+
+        try {
+            $user = $this->userModel->findById($id);
+            if (!$user) {
+                return $this->json(['success' => false, 'message' => 'Người dùng không tồn tại']);
+            }
+
+            // Không cho phép tự khóa tài khoản của chính mình
+            if ($user['id'] == $_SESSION['user_id'] && $status === 0) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Không thể khóa tài khoản của chính mình'
+                ]);
+            }
+
+            // Khi khóa tài khoản, kiểm tra đơn hàng đang xử lý
+            if ($status === 0) {
+                $activeOrders = $this->userModel->getActiveOrders($id);
+                if ($activeOrders > 0) {
+                    return $this->json([
+                        'success' => false,
+                        'message' => 'Không thể khóa tài khoản có đơn hàng đang xử lý. Vui lòng hoàn thành hoặc hủy các đơn hàng trước.'
+                    ]);
+                }
+            }
+
+            $result = $this->userModel->update($id, ['status' => $status]);
+
+            if ($result) {
+                $message = $status === 1 ? 'Mở khóa tài khoản thành công' : 'Khóa tài khoản thành công';
+                return $this->json(['success' => true, 'message' => $message]);
+            }
+
+            return $this->json(['success' => false, 'message' => 'Không thể cập nhật trạng thái tài khoản']);
+
+        } catch (\Exception $e) {
+            error_log("Toggle user status error: " . $e->getMessage());
+            return $this->json(['success' => false, 'message' => 'Có lỗi xảy ra khi cập nhật trạng thái tài khoản']);
+        }
+    }
 }

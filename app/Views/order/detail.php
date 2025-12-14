@@ -84,7 +84,7 @@
                                     
                                     <?php if ($order['status'] ?? '' !== 'cancelled'): ?>
                                         <div class="timeline-item <?= in_array($order['status'] ?? '', ['preparing', 'delivering', 'completed']) ? 'active' : '' ?>">
-                                            <i class="fas fa-utensils"></i>
+                                            <i class="fas fa-box"></i>
                                             <span>Đang chuẩn bị</span>
                                         </div>
                                         
