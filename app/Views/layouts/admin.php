@@ -45,6 +45,7 @@
                             <i class="fas fa-tachometer-alt me-1"></i>Dashboard
                         </a>
                     </li>
+                    
                     <li class="nav-item">
                         <a class="nav-link" href="/admin/categories">
                             <i class="fas fa-folder me-1"></i>Danh mục
@@ -72,7 +73,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/admin/reviews">
-                            <i class="fas fa-envelope me-1"></i>Đánh giá
+                            <i class="fas fa-star me-1"></i>Đánh giá
                         </a>
                     </li>
                 </ul>

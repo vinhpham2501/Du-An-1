@@ -291,6 +291,9 @@ class OrderController extends Controller
                 http_response_code(404);
                 return $this->render('errors/404');
             }
+
+            // Chuẩn hóa trạng thái để view dùng thống nhất (pending/confirmed/preparing/delivering/completed/cancelled)
+            $order['status'] = $this->orderModel->normalizeStatus($order['status'] ?? 'pending');
             
             // Chuẩn hóa thông tin giao hàng để hiển thị
             $deliveryName = $_SESSION['user_name'] ?? 'Khách hàng';

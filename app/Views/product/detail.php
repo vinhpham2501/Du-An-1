@@ -297,6 +297,18 @@
                                                         </div>
                                                     </div>
                                                 <?php endif; ?>
+
+                                                <?php if (!empty($review['admin_reply'])): ?>
+                                                    <div class="mt-2 p-2 bg-light border rounded">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <strong>Phản hồi từ Admin</strong>
+                                                            <?php if (!empty($review['admin_replied_at'])): ?>
+                                                                <small class="text-muted"><?= date('d/m/Y H:i', strtotime($review['admin_replied_at'])) ?></small>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <div class="mt-1"><?= nl2br(htmlspecialchars($review['admin_reply'])) ?></div>
+                                                    </div>
+                                                <?php endif; ?>
                                             </div>
                                         <?php endforeach; ?>
                                     <?php endif; ?>

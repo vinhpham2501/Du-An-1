@@ -45,6 +45,14 @@ class Contact extends Model
         return $stmt->fetchAll();
     }
 
+    public function findById($id)
+    {
+        $sql = "SELECT * FROM {$this->table} WHERE id = ? LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([(int)$id]);
+        return $stmt->fetch();
+    }
+
     public function create($data)
     {
         $sql = "INSERT INTO {$this->table} (name, email, message, status) VALUES (?, ?, ?, ?)";

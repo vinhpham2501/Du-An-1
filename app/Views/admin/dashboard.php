@@ -186,6 +186,14 @@
             </div>
             <div class="col-md-4 text-end">
                 <div class="d-flex gap-2 justify-content-end">
+                    <select class="form-control" id="quick_range" style="max-width: 170px;">
+                        <option value="custom">Tùy chọn</option>
+                        <option value="today">Hôm nay</option>
+                        <option value="yesterday">Hôm qua</option>
+                        <option value="last7days">7 ngày qua</option>
+                        <option value="thisMonth">Tháng này</option>
+                        <option value="lastMonth">Tháng trước</option>
+                    </select>
                     <input type="date" class="form-control" id="date_from" value="<?= $dateFrom ?>" style="max-width: 150px;">
                     <input type="date" class="form-control" id="date_to" value="<?= $dateTo ?>" style="max-width: 150px;">
                     <button class="btn btn-light" onclick="updateDateRange()">
@@ -200,8 +208,8 @@
 <!-- Statistics Cards -->
 <div class="row mb-4 g-3">
     <?php $insights = [
-        ['label' => 'Đơn hàng', 'value' => number_format($stats['total_orders']), 'icon' => 'fa-shopping-cart', 'class' => 'primary', 'detail' => 'Tổng đơn hàng'],
-        ['label' => 'Doanh thu', 'value' => number_format($stats['total_revenue']) . 'đ', 'icon' => 'fa-wallet', 'class' => 'success', 'detail' => 'Tổng doanh thu'],
+        ['label' => 'Đơn hàng', 'value' => number_format($stats['total_orders']), 'icon' => 'fa-shopping-cart', 'class' => 'primary', 'detail' => 'Tổng đơn hàng', 'id' => 'kpi_total_orders', 'deltaId' => 'kpi_delta_orders'],
+        ['label' => 'Doanh thu', 'value' => number_format($stats['total_revenue']) . 'đ', 'icon' => 'fa-wallet', 'class' => 'success', 'detail' => 'Tổng doanh thu', 'id' => 'kpi_total_revenue', 'deltaId' => 'kpi_delta_revenue'],
         ['label' => 'Sản phẩm', 'value' => number_format($totalProducts), 'icon' => 'fa-box', 'class' => 'info', 'detail' => 'Sản phẩm hiện có'],
         ['label' => 'Thành viên', 'value' => number_format($totalUsers), 'icon' => 'fa-users', 'class' => 'warning', 'detail' => 'Người dùng đăng ký']
     ]; ?>
@@ -211,7 +219,10 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <div class="stat-label"><?= $insight['detail'] ?></div>
-                        <div class="stat-number"><?= $insight['value'] ?></div>
+                        <div class="stat-number" <?= isset($insight['id']) ? 'id="' . $insight['id'] . '"' : '' ?>><?= $insight['value'] ?></div>
+                        <?php if (isset($insight['deltaId'])): ?>
+                            <small id="<?= $insight['deltaId'] ?>" style="display:block; opacity:0.85;"></small>
+                        <?php endif; ?>
                         <small><?= $insight['label'] ?></small>
                     </div>
                     <div>
@@ -273,7 +284,7 @@ $topCategories = array_slice($categories ?? [], 0, 5);
             <div class="chart-header">
                 <h5 class="mb-0">
                     <i class="fas fa-pie-chart me-2 text-warning"></i>
-                    Cơ cấu danh mục
+                    Trạng thái đơn hàng
                 </h5>
                 <small>Top danh mục theo doanh thu</small>
             </div>
@@ -538,9 +549,80 @@ const assetChart = new Chart(assetCtx, {
 function updateDateRange() {
     const dateFrom = document.getElementById('date_from').value;
     const dateTo = document.getElementById('date_to').value;
-    
+    const quickRange = document.getElementById('quick_range').value;
+
+    if (quickRange && quickRange !== 'custom') {
+        fetchAndUpdate({ range: quickRange });
+        return;
+    }
+
     if (dateFrom && dateTo) {
-        window.location.href = `/admin/dashboard?date_from=${dateFrom}&date_to=${dateTo}`;
+        fetchAndUpdate({ date_from: dateFrom, date_to: dateTo, range: 'custom' });
     }
 }
+
+function formatCurrency(v) {
+    return new Intl.NumberFormat('vi-VN').format(v) + 'đ';
+}
+
+function formatPct(v) {
+    const n = Number(v || 0);
+    const sign = n > 0 ? '+' : '';
+    return sign + n.toFixed(2) + '%';
+}
+
+function applySummary(summary) {
+    if (!summary || !summary.current || !summary.change_pct) return;
+
+    const totalOrdersEl = document.getElementById('kpi_total_orders');
+    const totalRevenueEl = document.getElementById('kpi_total_revenue');
+    const deltaOrdersEl = document.getElementById('kpi_delta_orders');
+    const deltaRevenueEl = document.getElementById('kpi_delta_revenue');
+
+    if (totalOrdersEl) totalOrdersEl.textContent = new Intl.NumberFormat('vi-VN').format(summary.current.total_orders || 0);
+    if (totalRevenueEl) totalRevenueEl.textContent = formatCurrency(summary.current.total_revenue || 0);
+
+    if (deltaOrdersEl) deltaOrdersEl.textContent = 'So với kỳ trước: ' + formatPct(summary.change_pct.total_orders);
+    if (deltaRevenueEl) deltaRevenueEl.textContent = 'So với kỳ trước: ' + formatPct(summary.change_pct.total_revenue);
+}
+
+function applyDailyRevenue(dailyRevenue) {
+    const labels = (dailyRevenue || []).map(d => {
+        const dt = new Date(d.date);
+        const day = String(dt.getDate()).padStart(2, '0');
+        const month = String(dt.getMonth() + 1).padStart(2, '0');
+        return `${day}/${month}`;
+    });
+    const revenueData = (dailyRevenue || []).map(d => Number(d.revenue || 0));
+    const orderData = (dailyRevenue || []).map(d => Number(d.orders || 0));
+
+    revenueChart.data.labels = labels;
+    revenueChart.data.datasets[0].data = revenueData;
+    revenueChart.data.datasets[1].data = orderData;
+    revenueChart.update();
+}
+
+function fetchAndUpdate(params) {
+    const usp = new URLSearchParams(params || {});
+    fetch('/admin/statistics?' + usp.toString(), { headers: { 'Accept': 'application/json' } })
+        .then(r => r.json())
+        .then(json => {
+            if (!json || !json.success) return;
+            applySummary(json.summary);
+            applyDailyRevenue(json.dailyRevenue);
+
+            if (json.summary && json.summary.current) {
+                document.getElementById('date_from').value = json.summary.current.date_from;
+                document.getElementById('date_to').value = json.summary.current.date_to;
+            }
+        })
+        .catch(() => {});
+}
+
+document.getElementById('quick_range').addEventListener('change', function () {
+    const v = this.value;
+    if (v && v !== 'custom') {
+        fetchAndUpdate({ range: v });
+    }
+});
 </script>

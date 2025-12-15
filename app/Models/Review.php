@@ -8,6 +8,75 @@ class Review extends Model
 {
     protected $table = 'BINH_LUAN_DANH_GIA';
 
+    public function findById($id)
+    {
+        $sql = "SELECT
+                    MaBL AS id,
+                    MaKH AS user_id,
+                    MaSP AS product_id,
+                    NoiDung AS comment,
+                    SoSao AS rating,
+                    NgayDang AS created_at,
+                    TrangThai AS status,
+                    0 AS is_deleted
+                FROM {$this->table}
+                WHERE MaBL = ?
+                LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([(int)$id]);
+        return $stmt->fetch();
+    }
+
+    public function userHasPurchasedProduct($userId, $productId)
+    {
+        $sql = "SELECT 1
+                FROM DON_HANG o
+                JOIN CHI_TIET_DON_HANG od ON od.MaDH = o.MaDH
+                WHERE o.MaKH = ?
+                  AND od.MaSP = ?
+                  AND o.TrangThai IN ('Hoàn tất', 'Hoàn thành', 'completed')
+                LIMIT 1";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([(int)$userId, (int)$productId]);
+        return (bool)$stmt->fetchColumn();
+    }
+
+    public function userHasReviewedProduct($userId, $productId)
+    {
+        $sql = "SELECT 1 FROM {$this->table} WHERE MaKH = ? AND MaSP = ? LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([(int)$userId, (int)$productId]);
+        return (bool)$stmt->fetchColumn();
+    }
+
+    public function findByUserAndProduct($userId, $productId)
+    {
+        $sql = "SELECT
+                    MaBL AS id,
+                    MaKH AS user_id,
+                    MaSP AS product_id,
+                    NoiDung AS comment,
+                    SoSao AS rating,
+                    NgayDang AS created_at,
+                    TrangThai AS status,
+                    0 AS is_deleted
+                FROM {$this->table}
+                WHERE MaKH = ? AND MaSP = ?
+                LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([(int)$userId, (int)$productId]);
+        return $stmt->fetch();
+    }
+
+    public function canUserReviewProduct($userId, $productId)
+    {
+        if (!$userId || !$productId) return false;
+        if (!$this->userHasPurchasedProduct($userId, $productId)) return false;
+        if ($this->userHasReviewedProduct($userId, $productId)) return false;
+        return true;
+    }
+
     public function findByProductId($productId, $limit = null, $approvedOnly = true)
     {
         $sql = "SELECT 
@@ -18,22 +87,20 @@ class Review extends Model
                     r.SoSao AS rating,
                     r.NgayDang AS created_at,
                     r.TrangThai AS status,
-                    COALESCE(r.DaXoa, 0) AS is_deleted,
                     u.HoTen AS user_name,
-                    pr.NoiDung AS reply,
-                    pr.NgayPhanHoi AS reply_date,
-                    pr.NguoiPhanHoi AS replied_by
+                    ar.NoiDung AS admin_reply,
+                    ar.NgayPhanHoi AS admin_replied_at
                 FROM {$this->table} r 
                 JOIN KHACH_HANG u ON r.MaKH = u.MaKH 
-                LEFT JOIN PHAN_HOI_DANH_GIA pr ON r.MaBL = pr.MaBL
-                WHERE r.MaSP = ? AND COALESCE(r.DaXoa, 0) = 0";
-        
-        // Chỉ lấy đánh giá đã duyệt khi hiển thị ở frontend
+                LEFT JOIN PHAN_HOI_DANH_GIA ar ON ar.MaBL = r.MaBL
+                WHERE r.MaSP = ?";
+
         if ($approvedOnly) {
             $sql .= " AND r.TrangThai = 1";
         }
-        
-        $sql .= " ORDER BY r.NgayDang DESC";
+
+        $sql .= "
+                ORDER BY r.NgayDang DESC";
         
         if ($limit) {
             $sql .= " LIMIT " . (int)$limit;
@@ -48,9 +115,8 @@ class Review extends Model
     {
         $sql = "SELECT AVG(SoSao) as avg_rating, COUNT(*) as total_reviews 
                 FROM {$this->table} 
-                WHERE MaSP = ? AND COALESCE(DaXoa, 0) = 0";
-        
-        // Chỉ tính đánh giá đã duyệt khi hiển thị ở frontend
+                WHERE MaSP = ?";
+
         if ($approvedOnly) {
             $sql .= " AND TrangThai = 1";
         }
@@ -66,17 +132,55 @@ class Review extends Model
         $sql = "INSERT INTO {$this->table} (MaKH, MaSP, NoiDung, SoSao, NgayDang, TrangThai)
                 VALUES (?, ?, ?, ?, NOW(), 1)";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([
+        if ($stmt->execute([
             $data['user_id'] ?? 0,
             $data['product_id'] ?? 0,
             $data['comment'] ?? '',
             $data['rating'] ?? 0,
-        ]);
+        ])) {
+            return $this->db->lastInsertId();
+        }
+        return false;
     }
 
-    public function getAll($filters = [])
+    public function update($reviewId, $data)
     {
-        $sql = "SELECT 
+        $rating = isset($data['rating']) ? (int)$data['rating'] : null;
+        $comment = isset($data['comment']) ? (string)$data['comment'] : null;
+
+        $set = [];
+        $params = [];
+
+        if ($rating !== null) {
+            $set[] = 'SoSao = ?';
+            $params[] = $rating;
+        }
+
+        if ($comment !== null) {
+            $set[] = 'NoiDung = ?';
+            $params[] = $comment;
+        }
+
+        if (empty($set)) {
+            return false;
+        }
+
+        $params[] = (int)$reviewId;
+        $sql = "UPDATE {$this->table} SET " . implode(', ', $set) . " WHERE MaBL = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($params);
+    }
+
+    public function softDelete($reviewId)
+    {
+        // Fallback: the table may not have an IsDeleted column.
+        // Use hard delete to keep the API contract (boolean) and avoid SQL errors.
+        return $this->deleteById($reviewId);
+    }
+
+    public function getAllForAdmin($filters = [])
+    {
+        $sql = "SELECT
                     r.MaBL AS id,
                     r.MaKH AS user_id,
                     r.MaSP AS product_id,
@@ -84,229 +188,103 @@ class Review extends Model
                     r.SoSao AS rating,
                     r.NgayDang AS created_at,
                     r.TrangThai AS status,
-                    COALESCE(r.DaXoa, 0) AS is_deleted,
+                    0 AS is_deleted,
                     u.HoTen AS user_name,
                     u.Email AS user_email,
-                    p.TenSP AS product_name
-                FROM {$this->table} r 
-                JOIN KHACH_HANG u ON r.MaKH = u.MaKH 
-                LEFT JOIN SAN_PHAM p ON r.MaSP = p.MaSP 
-                WHERE 1=1";
-        
+                    p.TenSP AS product_name,
+                    ar.NoiDung AS admin_reply,
+                    ar.NgayPhanHoi AS admin_replied_at
+                FROM {$this->table} r
+                JOIN KHACH_HANG u ON r.MaKH = u.MaKH
+                JOIN SAN_PHAM p ON r.MaSP = p.MaSP
+                LEFT JOIN PHAN_HOI_DANH_GIA ar ON ar.MaBL = r.MaBL";
+
         $params = [];
-        
-        // Admin vẫn thấy đánh giá đã bị xóa, không filter theo DaXoa
-        
-        if (!empty($filters['status'])) {
-            $sql .= " AND r.TrangThai = ?";
-            $params[] = $filters['status'];
+        $conditions = [];
+
+        if (isset($filters['status'])) {
+            $conditions[] = 'r.TrangThai = ?';
+            $params[] = (int)$filters['status'];
         }
-        
-        if (!empty($filters['rating'])) {
-            $sql .= " AND r.SoSao = ?";
-            $params[] = $filters['rating'];
+
+        if (!empty($filters['product_id'])) {
+            $conditions[] = 'r.MaSP = ?';
+            $params[] = (int)$filters['product_id'];
         }
-        
-        if (!empty($filters['search'])) {
-            $sql .= " AND (u.HoTen LIKE ? OR r.NoiDung LIKE ? OR p.TenSP LIKE ?)";
-            $search = '%' . $filters['search'] . '%';
-            $params[] = $search;
-            $params[] = $search;
-            $params[] = $search;
+
+        if (!empty($filters['q'])) {
+            $conditions[] = '(u.HoTen LIKE ? OR u.Email LIKE ? OR p.TenSP LIKE ? OR r.NoiDung LIKE ?)';
+            $q = '%' . $filters['q'] . '%';
+            $params[] = $q;
+            $params[] = $q;
+            $params[] = $q;
+            $params[] = $q;
         }
-        
-        $sql .= " ORDER BY r.NgayDang DESC";
-        
+
+        if (!empty($conditions)) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        }
+
+        $sql .= ' ORDER BY r.NgayDang DESC';
+
         if (!empty($filters['limit'])) {
-            $sql .= " LIMIT " . (int)$filters['limit'];
-            if (!empty($filters['offset'])) {
-                $sql .= " OFFSET " . (int)$filters['offset'];
-            }
+            $sql .= ' LIMIT ' . (int)$filters['limit'];
         }
-        
+
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
-    public function count($filters = [])
-    {
-        $sql = "SELECT COUNT(*) as total
-                FROM {$this->table} r 
-                JOIN KHACH_HANG u ON r.MaKH = u.MaKH 
-                LEFT JOIN SAN_PHAM p ON r.MaSP = p.MaSP 
-                WHERE 1=1";
-        
-        $params = [];
-        
-        if (!empty($filters['status'])) {
-            $sql .= " AND r.TrangThai = ?";
-            $params[] = $filters['status'];
-        }
-        
-        if (!empty($filters['rating'])) {
-            $sql .= " AND r.SoSao = ?";
-            $params[] = $filters['rating'];
-        }
-        
-        if (!empty($filters['search'])) {
-            $sql .= " AND (u.HoTen LIKE ? OR r.NoiDung LIKE ? OR p.TenSP LIKE ?)";
-            $search = '%' . $filters['search'] . '%';
-            $params[] = $search;
-            $params[] = $search;
-            $params[] = $search;
-        }
-        
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($params);
-        $result = $stmt->fetch();
-        return $result['total'] ?? 0;
-    }
-
-    public function findById($id)
-    {
-        try {
-            $sql = "SELECT 
-                        r.MaBL AS id,
-                        r.MaKH AS user_id,
-                        r.MaSP AS product_id,
-                        r.NoiDung AS comment,
-                        r.SoSao AS rating,
-                        r.NgayDang AS created_at,
-                        r.TrangThai AS status,
-                        COALESCE(r.DaXoa, 0) AS is_deleted,
-                        COALESCE(u.HoTen, 'N/A') AS user_name,
-                        COALESCE(u.Email, '') AS user_email,
-                        COALESCE(p.TenSP, 'N/A') AS product_name,
-                        (SELECT img.HinhAnh 
-                         FROM SANPHAM_HINHANH img 
-                         WHERE img.MaSP = p.MaSP 
-                         ORDER BY img.MaHinh ASC 
-                         LIMIT 1) AS product_image,
-                        pr.NoiDung AS reply,
-                        pr.NgayPhanHoi AS reply_date,
-                        pr.NguoiPhanHoi AS replied_by
-                    FROM {$this->table} r 
-                    LEFT JOIN KHACH_HANG u ON r.MaKH = u.MaKH 
-                    LEFT JOIN SAN_PHAM p ON r.MaSP = p.MaSP 
-                    LEFT JOIN PHAN_HOI_DANH_GIA pr ON r.MaBL = pr.MaBL
-                    WHERE r.MaBL = ?";
-            
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute([$id]);
-            $result = $stmt->fetch();
-            
-            // Đảm bảo tất cả các key cần thiết đều có giá trị
-            if ($result) {
-                $result['user_name'] = $result['user_name'] ?? 'N/A';
-                $result['user_email'] = $result['user_email'] ?? '';
-                $result['product_name'] = $result['product_name'] ?? 'N/A';
-                $result['product_image'] = $result['product_image'] ?? null;
-                $result['comment'] = $result['comment'] ?? '';
-                $result['rating'] = $result['rating'] ?? 0;
-                $result['status'] = $result['status'] ?? '0';
-                $result['is_deleted'] = $result['is_deleted'] ?? 0;
-                $result['reply'] = $result['reply'] ?? null;
-                $result['reply_date'] = $result['reply_date'] ?? null;
-                $result['replied_by'] = $result['replied_by'] ?? 'Shop';
-            }
-            
-            return $result;
-        } catch (\Exception $e) {
-            error_log("Review findById error: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    public function updateStatus($id, $status)
+    public function setStatus($reviewId, $status)
     {
         $sql = "UPDATE {$this->table} SET TrangThai = ? WHERE MaBL = ?";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$status, $id]);
+        return $stmt->execute([(int)$status, (int)$reviewId]);
     }
 
-    public function delete($id)
+    public function deleteById($reviewId)
     {
-        $sql = "DELETE FROM {$this->table} WHERE MaBL = ?";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$id]);
+        $stmt = $this->db->prepare("DELETE FROM {$this->table} WHERE MaBL = ?");
+        return $stmt->execute([(int)$reviewId]);
     }
 
-    public function findByUserAndProduct($userId, $productId)
+    public function upsertAdminReply($reviewId, $adminId, $content)
     {
-        $sql = "SELECT 
-                    r.MaBL AS id,
-                    r.MaKH AS user_id,
-                    r.MaSP AS product_id,
-                    r.NoiDung AS comment,
-                    r.SoSao AS rating,
-                    r.NgayDang AS created_at,
-                    r.TrangThai AS status,
-                    COALESCE(r.DaXoa, 0) AS is_deleted
-                FROM {$this->table} r 
-                WHERE r.MaKH = ? AND r.MaSP = ? AND COALESCE(r.DaXoa, 0) = 0
-                ORDER BY r.NgayDang DESC
-                LIMIT 1";
-        
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$userId, $productId]);
-        return $stmt->fetch();
-    }
+        $content = trim((string)$content);
+        if ($content === '') return false;
 
-    public function update($id, $data)
-    {
-        $sql = "UPDATE {$this->table} SET NoiDung = ?, SoSao = ? WHERE MaBL = ?";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([
-            $data['comment'] ?? '',
-            $data['rating'] ?? 0,
-            $id
-        ]);
-    }
-
-    public function softDelete($id)
-    {
-        $sql = "UPDATE {$this->table} SET DaXoa = 1 WHERE MaBL = ?";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$id]);
-    }
-
-    public function getRatingCounts()
-    {
-        $sql = "SELECT SoSao AS rating, COUNT(*) as count 
-                FROM {$this->table} 
-                GROUP BY SoSao 
-                ORDER BY SoSao DESC";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute();
-        $results = $stmt->fetchAll();
-        
-        $counts = [];
-        foreach ($results as $row) {
-            $counts[$row['rating']] = $row['count'];
+        // Lấy tên admin từ bảng KHACH_HANG
+        $adminName = 'Admin';
+        if ($adminId) {
+            $userSql = "SELECT HoTen FROM KHACH_HANG WHERE MaKH = ? LIMIT 1";
+            $userStmt = $this->db->prepare($userSql);
+            $userStmt->execute([(int)$adminId]);
+            $user = $userStmt->fetch();
+            if ($user && !empty($user['HoTen'])) {
+                $adminName = $user['HoTen'];
+            }
         }
-        
-        return $counts;
-    }
 
-    public function getStatusCounts()
-    {
-        $sql = "SELECT TrangThai AS status, COUNT(*) as count 
-                FROM {$this->table} 
-                GROUP BY TrangThai";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute();
-        $results = $stmt->fetchAll();
-        
-        $counts = [
-            '0' => 0,
-            '1' => 0
-        ];
-        
-        foreach ($results as $row) {
-            $counts[$row['status']] = $row['count'];
+        // Kiểm tra xem đã có phản hồi chưa
+        $checkSql = "SELECT MaPH FROM PHAN_HOI_DANH_GIA WHERE MaBL = ? LIMIT 1";
+        $checkStmt = $this->db->prepare($checkSql);
+        $checkStmt->execute([(int)$reviewId]);
+        $existing = $checkStmt->fetch();
+
+        if ($existing) {
+            // Cập nhật phản hồi hiện có
+            $sql = "UPDATE PHAN_HOI_DANH_GIA 
+                    SET NoiDung = ?, NgayPhanHoi = NOW(), NguoiPhanHoi = ?
+                    WHERE MaBL = ?";
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([$content, $adminName, (int)$reviewId]);
+        } else {
+            // Tạo phản hồi mới
+            $sql = "INSERT INTO PHAN_HOI_DANH_GIA (MaBL, NoiDung, NgayPhanHoi, NguoiPhanHoi)
+                    VALUES (?, ?, NOW(), ?)";
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([(int)$reviewId, $content, $adminName]);
         }
-        
-        return $counts;
     }
 }

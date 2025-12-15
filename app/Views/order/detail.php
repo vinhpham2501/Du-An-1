@@ -29,6 +29,7 @@
                             $statusColors = [
                                 'pending' => 'warning',
                                 'confirmed' => 'info',
+                                'confirmed' => 'secondary',
                                 'preparing' => 'info',
                                 'delivering' => 'primary',
                                 'completed' => 'success',

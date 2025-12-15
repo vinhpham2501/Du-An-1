@@ -37,6 +37,44 @@
                             <input type="tel" class="form-control" id="phone" name="phone" 
                                    value="<?= htmlspecialchars($user['phone'] ?? '') ?>">
                         </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="mb-3">Địa chỉ giao hàng</h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="address_tinhthanh" class="form-label">Tỉnh/Thành phố</label>
+                                <input type="text" class="form-control" id="address_tinhthanh" name="address_tinhthanh"
+                                       value="<?= htmlspecialchars($user['address_tinhthanh'] ?? '') ?>">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="address_quanhuyen" class="form-label">Quận/Huyện</label>
+                                <input type="text" class="form-control" id="address_quanhuyen" name="address_quanhuyen"
+                                       value="<?= htmlspecialchars($user['address_quanhuyen'] ?? '') ?>">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="address_phuongxa" class="form-label">Phường/Xã</label>
+                                <input type="text" class="form-control" id="address_phuongxa" name="address_phuongxa"
+                                       value="<?= htmlspecialchars($user['address_phuongxa'] ?? '') ?>">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="address_diachi" class="form-label">Địa chỉ cụ thể</label>
+                                <input type="text" class="form-control" id="address_diachi" name="address_diachi"
+                                       value="<?= htmlspecialchars($user['address_diachi'] ?? '') ?>" placeholder="Số nhà, tên đường...">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="address_ghichu" class="form-label">Ghi chú</label>
+                            <input type="text" class="form-control" id="address_ghichu" name="address_ghichu"
+                                   value="<?= htmlspecialchars($user['address_ghichu'] ?? '') ?>" placeholder="Ví dụ: gần trường..., gọi trước khi giao...">
+                        </div>
                         
                         <div class="mb-4">
                             <label for="password" class="form-label">Mật khẩu</label>

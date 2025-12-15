@@ -114,7 +114,7 @@ class OrderController extends Controller
             }
 
             // Ensure required fields have default values
-            $order['status'] = $order['status'] ?? 'pending';
+            $order['status'] = $this->orderModel->normalizeStatus($order['status'] ?? 'pending');
 
             // Nếu chưa có thông tin giao hàng thì fallback từ thông tin user / địa chỉ
             $order['delivery_name'] = $order['delivery_name']
@@ -150,10 +150,10 @@ class OrderController extends Controller
     private function performSimpleUpdate($id, $order)
     {
         try {
-            $currentStatus = $order['status'] ?? 'pending';
+            $currentStatus = $this->orderModel->normalizeStatus($order['status'] ?? 'pending');
             
             // Không cập nhật nếu đã hoàn thành hoặc đã hủy
-            if (in_array($currentStatus, ['completed', 'cancelled'])) {
+            if (in_array($currentStatus, ['completed', 'cancelled'], true)) {
                 return false;
             }
 
@@ -270,11 +270,14 @@ class OrderController extends Controller
                 return $this->json(['success' => false, 'message' => 'Đơn hàng không tồn tại']);
             }
             
-            // Kiểm tra trạng thái đơn hàng - chỉ cho phép xóa đơn hàng đã hủy hoặc hoàn thành
-            if (!in_array($order['status'], ['cancelled', 'completed'])) {
+            $current = $this->orderModel->normalizeStatus($order['status'] ?? 'pending');
+            
+            // Kiểm tra trạng thái đơn hàng - KHÔNG cho phép xóa đơn hàng đã hoàn thành
+            // Chỉ cho phép xóa đơn hàng đã hủy
+            if (!in_array($current, ['cancelled'], true)) {
                 return $this->json([
                     'success' => false, 
-                    'message' => 'Chỉ có thể xóa đơn hàng đã hủy hoặc đã hoàn thành'
+                    'message' => 'Chỉ có thể xóa đơn hàng đã hủy'
                 ]);
             }
             
