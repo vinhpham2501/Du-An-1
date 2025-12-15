@@ -12,16 +12,26 @@ class Review extends Model
     public function findById($id)
     {
         $sql = "SELECT
-                    MaBL AS id,
-                    MaKH AS user_id,
-                    MaSP AS product_id,
-                    NoiDung AS comment,
-                    SoSao AS rating,
-                    NgayDang AS created_at,
-                    TrangThai AS status,
-                    DaXoa AS is_deleted
-                FROM {$this->table}
-                WHERE MaBL = ?
+                    r.MaBL AS id,
+                    r.MaKH AS user_id,
+                    r.MaSP AS product_id,
+                    r.NoiDung AS comment,
+                    r.SoSao AS rating,
+                    r.NgayDang AS created_at,
+                    r.TrangThai AS status,
+                    r.DaXoa AS is_deleted,
+                    u.HoTen AS user_name,
+                    u.Email AS user_email,
+                    p.TenSP AS product_name,
+                    (SELECT img.HinhAnh 
+                     FROM SANPHAM_HINHANH img 
+                     WHERE img.MaSP = r.MaSP 
+                     ORDER BY img.MaHinh ASC 
+                     LIMIT 1) AS product_image
+                FROM {$this->table} r
+                LEFT JOIN KHACH_HANG u ON r.MaKH = u.MaKH
+                LEFT JOIN SAN_PHAM p ON r.MaSP = p.MaSP
+                WHERE r.MaBL = ?
                 LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([(int)$id]);

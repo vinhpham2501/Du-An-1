@@ -51,6 +51,13 @@
                                 ?>
                                 <span class="badge bg-<?= $color ?>"><?= $label ?></span>
                             </p>
+                            <p><strong>Trạng thái:</strong> 
+                                <?php if (($user['status'] ?? 1) == 1): ?>
+                                    <span class="badge bg-success">Đang hoạt động</span>
+                                <?php else: ?>
+                                    <span class="badge bg-danger">Đã khóa</span>
+                                <?php endif; ?>
+                            </p>
                             <p><strong>Số điện thoại:</strong> <?= htmlspecialchars($user['phone'] ?? 'Chưa cập nhật') ?></p>
                             <?php
                                 $createdAt = $user['created_at'] ?? null;

@@ -46,6 +46,7 @@
                             <th>Thông tin</th>
                             <th>Liên hệ</th>
                             <th>Vai trò</th>
+                            <th>Trạng thái</th>
                             <th>Ngày tạo</th>
                             <th>Thao tác</th>
                         </tr>
@@ -53,7 +54,7 @@
                     <tbody>
                         <?php if (empty($users)): ?>
                             <tr>
-                                <td colspan="6" class="text-center py-4">
+                                <td colspan="7" class="text-center py-4">
                                     <i class="fas fa-users fa-2x text-muted mb-2"></i>
                                     <p class="text-muted">Không có người dùng nào</p>
                                 </td>
@@ -91,6 +92,13 @@
                                         <span class="badge bg-<?= $color ?>"><?= $label ?></span>
                                     </td>
                                     <td>
+                                        <?php if (($user['status'] ?? 1) == 1): ?>
+                                            <span class="badge bg-success">Đang hoạt động</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-danger">Đã khóa</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
                                         <?= date('d/m/Y', strtotime($user['created_at'])) ?>
                                     </td>
                                     <td>
@@ -123,6 +131,75 @@
                     </tbody>
                 </table>
             </div>
+            
+            <!-- Pagination -->
+            <?php if (isset($totalPages) && $totalPages > 1): ?>
+                <div class="card-footer">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mb-0">
+                            <?php
+                            $currentPage = $currentPage ?? 1;
+                            $queryParams = $_GET;
+                            ?>
+                            
+                            <!-- Previous button -->
+                            <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?<?= http_build_query(array_merge($queryParams, ['page' => $currentPage - 1])) ?>">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            
+                            <!-- Page numbers -->
+                            <?php
+                            $startPage = max(1, $currentPage - 2);
+                            $endPage = min($totalPages, $currentPage + 2);
+                            
+                            if ($startPage > 1): ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="?<?= http_build_query(array_merge($queryParams, ['page' => 1])) ?>">1</a>
+                                </li>
+                                <?php if ($startPage > 2): ?>
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                            
+                            <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+                                <li class="page-item <?= $i == $currentPage ? 'active' : '' ?>">
+                                    <a class="page-link" href="?<?= http_build_query(array_merge($queryParams, ['page' => $i])) ?>">
+                                        <?= $i ?>
+                                    </a>
+                                </li>
+                            <?php endfor; ?>
+                            
+                            <?php if ($endPage < $totalPages): ?>
+                                <?php if ($endPage < $totalPages - 1): ?>
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                <?php endif; ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="?<?= http_build_query(array_merge($queryParams, ['page' => $totalPages])) ?>">
+                                        <?= $totalPages ?>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            
+                            <!-- Next button -->
+                            <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?<?= http_build_query(array_merge($queryParams, ['page' => $currentPage + 1])) ?>">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                    
+                    <div class="text-center mt-3 text-muted">
+                        Hiển thị <?= count($users) ?> / <?= $totalUsers ?> người dùng
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div> 
@@ -157,5 +234,35 @@ function toggleUserStatus(userId, userName, status) {
     .catch(() => {
         showNotification('danger', 'Không thể kết nối tới server');
     });
+}
+
+function showNotification(type, message) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 350px; min-width: 250px;';
+    
+    const icons = {
+        'success': 'check-circle',
+        'danger': 'exclamation-triangle',
+        'warning': 'exclamation-circle',
+        'info': 'info-circle'
+    };
+    const icon = icons[type] || 'info-circle';
+    
+    notification.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas fa-${icon} me-2"></i>
+            <span>${message}</span>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 3000);
 }
 </script>

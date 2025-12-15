@@ -19,9 +19,12 @@ class UserController extends Controller
 
     public function index()
     {
+        $currentPage = (int)($_GET['page'] ?? 1);
+        $limit = 20;
+        
         $filters = [
-            'limit' => 20,
-            'offset' => ($_GET['page'] ?? 1) - 1
+            'limit' => $limit,
+            'offset' => ($currentPage - 1) * $limit
         ];
         
         if (!empty($_GET['role'])) {
@@ -34,10 +37,13 @@ class UserController extends Controller
         
         $users = $this->userModel->getAll($filters);
         $totalUsers = $this->userModel->count($filters);
+        $totalPages = ceil($totalUsers / $limit);
         
         return $this->render('admin/users/index', [
             'users' => $users,
             'totalUsers' => $totalUsers,
+            'currentPage' => $currentPage,
+            'totalPages' => $totalPages,
             'filters' => $filters
         ]);
     }

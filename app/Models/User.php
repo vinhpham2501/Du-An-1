@@ -134,6 +134,9 @@ class User extends Model
 
         if (isset($filters['limit'])) {
             $sql .= " LIMIT " . (int)$filters['limit'];
+            if (isset($filters['offset'])) {
+                $sql .= " OFFSET " . (int)$filters['offset'];
+            }
         }
 
         $stmt = $this->db->prepare($sql);

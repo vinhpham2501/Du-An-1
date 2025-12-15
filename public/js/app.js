@@ -193,7 +193,7 @@ window.lazyLoadImages = function() {
 // Search functionality
 window.initSearch = function() {
     const searchForm = document.querySelector('form[action="/search"]');
-    const searchInput = searchForm ? .querySelector('input[name="q"]');
+    const searchInput = searchForm?.querySelector('input[name="q"]');
 
     if (!searchInput) return;
 
