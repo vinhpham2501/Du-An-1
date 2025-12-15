@@ -204,6 +204,35 @@ class OrderController extends Controller
             return $this->json(['success' => false, 'message' => 'Đơn hàng không tồn tại']);
         }
 
+        $currentStatus = $order['status'] ?? 'pending';
+        
+        // Không cho phép cập nhật nếu đã hoàn thành hoặc đã hủy
+        if (in_array($currentStatus, ['completed', 'cancelled'])) {
+            return $this->json(['success' => false, 'message' => 'Không thể cập nhật đơn hàng đã hoàn thành hoặc đã hủy']);
+        }
+
+        // Kiểm tra trạng thái tiếp theo hợp lệ
+        $nextStatus = $this->getNextStatus($currentStatus);
+        $allowedStatuses = [$nextStatus];
+        
+        // Cho phép hủy ở bất kỳ trạng thái nào (trừ completed và cancelled)
+        if ($currentStatus !== 'completed' && $currentStatus !== 'cancelled') {
+            $allowedStatuses[] = 'cancelled';
+        }
+        
+        if (!in_array($status, $allowedStatuses)) {
+            $statusLabels = [
+                'pending' => 'Chờ xác nhận',
+                'confirmed' => 'Đã xác nhận',
+                'preparing' => 'Đang chuẩn bị',
+                'delivering' => 'Đang giao',
+                'completed' => 'Hoàn thành',
+                'cancelled' => 'Đã hủy'
+            ];
+            $nextLabel = $statusLabels[$nextStatus] ?? $nextStatus;
+            return $this->json(['success' => false, 'message' => "Chỉ có thể cập nhật sang trạng thái tiếp theo: {$nextLabel}"]);
+        }
+
         // Cập nhật trạng thái đơn hàng vào cột TrangThai
         $updated = $this->orderModel->updateStatus($id, $status);
 
@@ -212,6 +241,21 @@ class OrderController extends Controller
         }
 
         return $this->json(['success' => true, 'message' => 'Cập nhật trạng thái thành công']);
+    }
+
+    /**
+     * Lấy trạng thái tiếp theo trong chuỗi
+     */
+    private function getNextStatus($currentStatus)
+    {
+        $statusFlow = [
+            'pending' => 'confirmed',
+            'confirmed' => 'preparing',
+            'preparing' => 'delivering',
+            'delivering' => 'completed'
+        ];
+        
+        return $statusFlow[$currentStatus] ?? $currentStatus;
     }
 
     public function delete($id)

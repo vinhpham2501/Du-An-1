@@ -304,24 +304,32 @@
                                     <hr>
 
                                     <?php if (!empty($_SESSION['user_id'])): ?>
-                                        <h6 class="mb-2">Viết đánh giá của bạn</h6>
-                                        <form id="review-form" onsubmit="event.preventDefault(); submitReview(<?= (int)$product['id'] ?>);">
-                                            <div class="mb-2">
-                                                <label class="form-label mb-1">Chọn số sao:</label>
-                                                <div id="review-stars" class="text-warning fs-5">
-                                                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                        <i class="far fa-star review-star" data-value="<?= $i ?>" onclick="setReviewRating(<?= $i ?>)"></i>
-                                                    <?php endfor; ?>
+                                        <?php if (isset($hasPurchased) && $hasPurchased): ?>
+                                            <h6 class="mb-2">Viết đánh giá của bạn</h6>
+                                            <form id="review-form" onsubmit="event.preventDefault(); submitReview(<?= (int)$product['id'] ?>);">
+                                                <div class="mb-2">
+                                                    <label class="form-label mb-1">Chọn số sao:</label>
+                                                    <div id="review-stars" class="text-warning fs-5">
+                                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                            <i class="far fa-star review-star" data-value="<?= $i ?>" onclick="setReviewRating(<?= $i ?>)"></i>
+                                                        <?php endfor; ?>
+                                                    </div>
+                                                    <input type="hidden" id="review-rating" value="0">
                                                 </div>
-                                                <input type="hidden" id="review-rating" value="0">
+                                                <div class="mb-2">
+                                                    <label for="review-comment" class="form-label mb-1">Nhận xét của bạn</label>
+                                                    <textarea id="review-comment" class="form-control" rows="3" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."></textarea>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary btn-sm mt-1">Gửi đánh giá</button>
+                                                <small id="review-message" class="d-block mt-1"></small>
+                                            </form>
+                                        <?php else: ?>
+                                            <div class="alert alert-info">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                <strong>Bạn chỉ có thể đánh giá sản phẩm đã mua.</strong>
+                                                <p class="mb-0 mt-2">Vui lòng mua sản phẩm này trước khi đánh giá.</p>
                                             </div>
-                                            <div class="mb-2">
-                                                <label for="review-comment" class="form-label mb-1">Nhận xét của bạn</label>
-                                                <textarea id="review-comment" class="form-control" rows="3" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."></textarea>
-                                            </div>
-                                            <button type="submit" class="btn btn-primary btn-sm mt-1">Gửi đánh giá</button>
-                                            <small id="review-message" class="d-block mt-1"></small>
-                                        </form>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         <p class="text-muted mb-0">
                                             Vui lòng <a href="/login">đăng nhập</a> để viết đánh giá.
@@ -842,6 +850,47 @@ function deleteReview(reviewId) {
 // Buy now: add to cart then redirect to checkout
 function buyNow(productId) {
     const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    
+    // Get selected color and size (or default to first available)
+    const selectedColor = document.querySelector('.btn-color-option.active');
+    const selectedSize = document.querySelector('.btn-size-option.active');
+    
+    let colorName = '';
+    let sizeName = '';
+    
+    // If no color selected, try to get first available color
+    if (selectedColor) {
+        colorName = selectedColor.dataset.color || '';
+    } else {
+        const firstColor = document.querySelector('.btn-color-option');
+        if (firstColor) {
+            colorName = firstColor.dataset.color || '';
+        }
+    }
+    
+    // If no size selected, try to get first available size
+    if (selectedSize) {
+        sizeName = selectedSize.dataset.size || '';
+    } else {
+        const firstSize = document.querySelector('.btn-size-option');
+        if (firstSize) {
+            sizeName = firstSize.dataset.size || '';
+        }
+    }
+    
+    // Validation: Require color and size if available
+    const hasColors = document.querySelectorAll('.btn-color-option').length > 0;
+    const hasSizes = document.querySelectorAll('.btn-size-option').length > 0;
+    
+    if (hasColors && !colorName) {
+        alert('Vui lòng chọn màu sắc!');
+        return;
+    }
+    
+    if (hasSizes && !sizeName) {
+        alert('Vui lòng chọn size!');
+        return;
+    }
 
     fetch('/cart/add', {
         method: 'POST',
@@ -850,7 +899,9 @@ function buyNow(productId) {
         },
         body: JSON.stringify({
             product_id: productId,
-            quantity: quantity
+            quantity: quantity,
+            color: colorName,
+            size: sizeName
         })
     })
     .then(response => response.json())

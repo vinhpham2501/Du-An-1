@@ -151,17 +151,6 @@ body {
     color: #667eea;
 }
 
-.payment-method-badge {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    color: white;
-    padding: 0.6rem 1.2rem;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 0.95rem;
-    display: inline-block;
-    letter-spacing: 0.3px;
-}
-
 .table-custom {
     border-radius: 10px;
     overflow: hidden;
@@ -304,23 +293,6 @@ small.text-muted {
                         </span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">Phương thức thanh toán</span>
-                        <span>
-                            <?php
-                            $paymentMethod = $order['payment_method'] ?? 'cod';
-                            $paymentMethodLabels = [
-                                'cod' => 'Thanh toán khi nhận hàng (COD)',
-                                'bank_transfer' => 'Chuyển khoản ngân hàng'
-                            ];
-                            $paymentMethodLabel = $paymentMethodLabels[$paymentMethod] ?? 'COD';
-                            ?>
-                            <span class="payment-method-badge">
-                                <i class="fas fa-<?= $paymentMethod === 'bank_transfer' ? 'university' : 'money-bill-wave' ?> me-2"></i>
-                                <?= $paymentMethodLabel ?>
-                            </span>
-                        </span>
-                    </div>
-                    <div class="info-row">
                         <span class="info-label">Cập nhật lần cuối</span>
                         <span class="info-value"><?= date('d/m/Y H:i', strtotime($order['updated_at'] ?? $order['created_at'])) ?></span>
                     </div>
@@ -416,22 +388,74 @@ small.text-muted {
                     </h5>
                 </div>
                 <div class="card-body">
-                    <form id="updateStatusForm">
-                        <div class="mb-3">
-                            <label for="status" class="form-label fw-bold">Trạng thái mới</label>
-                            <select class="form-select form-select-custom" id="status" name="status" required>
-                                <option value="pending" <?= $order['status'] === 'pending' ? 'selected' : '' ?>>⏳ Chờ xác nhận</option>
-                                <option value="confirmed" <?= $order['status'] === 'confirmed' ? 'selected' : '' ?>>✅ Đã xác nhận</option>
-                                <option value="preparing" <?= $order['status'] === 'preparing' ? 'selected' : '' ?>>📦 Đang chuẩn bị</option>
-                                <option value="delivering" <?= $order['status'] === 'delivering' ? 'selected' : '' ?>>🚚 Đang giao</option>
-                                <option value="completed" <?= $order['status'] === 'completed' ? 'selected' : '' ?>>🎉 Hoàn thành</option>
-                                <option value="cancelled" <?= $order['status'] === 'cancelled' ? 'selected' : '' ?>>❌ Đã hủy</option>
-                            </select>
+                    <?php
+                    $currentStatus = $order['status'] ?? 'pending';
+                    $statusFlow = [
+                        'pending' => ['next' => 'confirmed', 'label' => '✅ Đã xác nhận'],
+                        'confirmed' => ['next' => 'preparing', 'label' => '📦 Đang chuẩn bị'],
+                        'preparing' => ['next' => 'delivering', 'label' => '🚚 Đang giao'],
+                        'delivering' => ['next' => 'completed', 'label' => '🎉 Hoàn thành'],
+                    ];
+                    $canUpdate = !in_array($currentStatus, ['completed', 'cancelled']);
+                    $nextStatus = $statusFlow[$currentStatus]['next'] ?? null;
+                    $nextLabel = $statusFlow[$currentStatus]['label'] ?? '';
+                    ?>
+                    
+                    <?php if ($canUpdate && $nextStatus): ?>
+                        <form id="updateStatusForm">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Trạng thái hiện tại</label>
+                                <div class="alert alert-info mb-3">
+                                    <strong>
+                                        <?php
+                                        $currentLabels = [
+                                            'pending' => '⏳ Chờ xác nhận',
+                                            'confirmed' => '✅ Đã xác nhận',
+                                            'preparing' => '📦 Đang chuẩn bị',
+                                            'delivering' => '🚚 Đang giao',
+                                            'completed' => '🎉 Hoàn thành',
+                                            'cancelled' => '❌ Đã hủy'
+                                        ];
+                                        echo $currentLabels[$currentStatus] ?? $currentStatus;
+                                        ?>
+                                    </strong>
+                                </div>
+                                <label class="form-label fw-bold">Cập nhật sang</label>
+                                <input type="hidden" name="status" id="status" value="<?= $nextStatus ?>">
+                                <div class="alert alert-success">
+                                    <strong><?= $nextLabel ?></strong>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-update w-100">
+                                <i class="fas fa-arrow-right me-2"></i>Cập nhật sang <?= $nextLabel ?>
+                            </button>
+                        </form>
+                        
+                        <?php if ($currentStatus !== 'completed' && $currentStatus !== 'cancelled'): ?>
+                            <hr class="my-3" style="border-color: rgba(255,255,255,0.3);">
+                            <form id="cancelOrderForm">
+                                <input type="hidden" name="status" value="cancelled">
+                                <button type="submit" class="btn btn-danger w-100" style="background: rgba(220,53,69,0.9); border: none;">
+                                    <i class="fas fa-times me-2"></i>Hủy đơn hàng
+                                </button>
+                            </form>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <div class="alert alert-warning mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>
+                                <?php
+                                if ($currentStatus === 'completed') {
+                                    echo 'Đơn hàng đã hoàn thành';
+                                } elseif ($currentStatus === 'cancelled') {
+                                    echo 'Đơn hàng đã bị hủy';
+                                } else {
+                                    echo 'Không thể cập nhật trạng thái';
+                                }
+                                ?>
+                            </strong>
                         </div>
-                        <button type="submit" class="btn btn-update w-100">
-                            <i class="fas fa-save me-2"></i>Cập nhật trạng thái
-                        </button>
-                    </form>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -440,7 +464,9 @@ small.text-muted {
 
 <script>
 // Cập nhật trạng thái đơn hàng
-document.getElementById('updateStatusForm').addEventListener('submit', function(e) {
+const updateStatusForm = document.getElementById('updateStatusForm');
+if (updateStatusForm) {
+    updateStatusForm.addEventListener('submit', function(e) {
     e.preventDefault();
     
     const submitButton = this.querySelector('button[type="submit"]');
@@ -515,4 +541,84 @@ document.getElementById('updateStatusForm').addEventListener('submit', function(
         submitButton.innerHTML = originalText;
     });
 });
+}
+
+// Hủy đơn hàng
+const cancelOrderForm = document.getElementById('cancelOrderForm');
+if (cancelOrderForm) {
+    cancelOrderForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!confirm('Bạn có chắc muốn hủy đơn hàng này?')) {
+            return;
+        }
+        
+        const submitButton = this.querySelector('button[type="submit"]');
+        const originalText = submitButton.innerHTML;
+        
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang hủy...';
+        
+        const formData = new FormData(this);
+        const status = formData.get('status');
+        
+        fetch('/admin/orders/<?= $order['id'] ?>/update-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: 'status=' + encodeURIComponent(status)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.status);
+            }
+            return response.text().then(text => {
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error('Response is not valid JSON:', text);
+                    throw new Error('Server returned invalid response');
+                }
+            });
+        })
+        .then(data => {
+            if (data.success) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+                alertDiv.style.zIndex = '9999';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-check-circle me-2"></i>
+                    ${data.message || 'Hủy đơn hàng thành công!'}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(alertDiv);
+                
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 500);
+            } else {
+                throw new Error(data.message || 'Không thể hủy đơn hàng');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+            alertDiv.style.zIndex = '9999';
+            alertDiv.innerHTML = `
+                <i class="fas fa-exclamation-circle me-2"></i>
+                Có lỗi xảy ra: ${error.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+        })
+        .finally(() => {
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalText;
+        });
+    });
+}
 </script>

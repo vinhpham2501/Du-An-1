@@ -28,6 +28,7 @@
                             <?php
                             $statusColors = [
                                 'pending' => 'warning',
+                                'confirmed' => 'info',
                                 'preparing' => 'info',
                                 'delivering' => 'primary',
                                 'completed' => 'success',
@@ -36,6 +37,7 @@
                             
                             $statusLabels = [
                                 'pending' => 'Chờ xác nhận',
+                                'confirmed' => 'Đã xác nhận',
                                 'preparing' => 'Đang chuẩn bị',
                                 'delivering' => 'Đang giao hàng',
                                 'completed' => 'Hoàn thành',
@@ -74,42 +76,52 @@
                         <div class="col-md-6">
                             <h5>Trạng thái đơn hàng</h5>
                             <div class="border p-3 rounded">
-                                <div class="timeline">
-                                    <div class="timeline-item <?= in_array($order['status'] ?? '', ['pending', 'preparing', 'delivering', 'completed']) ? 'active' : '' ?>">
-                                        <i class="fas fa-clock"></i>
-                                        <span>Chờ xác nhận</span>
-                                    </div>
-                                    
-                                    <?php if ($order['status'] ?? '' !== 'cancelled'): ?>
-                                        <div class="timeline-item <?= in_array($order['status'] ?? '', ['preparing', 'delivering', 'completed']) ? 'active' : '' ?>">
-                                            <i class="fas fa-box"></i>
-                                            <span>Đang chuẩn bị</span>
-                                        </div>
-                                        
-                                        <div class="timeline-item <?= in_array($order['status'] ?? '', ['delivering', 'completed']) ? 'active' : '' ?>">
-                                            <i class="fas fa-truck"></i>
-                                            <span>Đang giao hàng</span>
-                                        </div>
-                                        
-                                        <div class="timeline-item <?= $order['status'] ?? '' === 'completed' ? 'active' : '' ?>">
-                                            <i class="fas fa-check-circle"></i>
-                                            <span>Hoàn thành</span>
-                                        </div>
-                                    <?php else: ?>
+                                <?php 
+                                $currentStatus = $order['status'] ?? 'pending';
+                                ?>
+                                <?php if ($currentStatus === 'cancelled'): ?>
+                                    <div class="timeline">
                                         <div class="timeline-item active text-danger">
                                             <i class="fas fa-times-circle"></i>
                                             <span>Đã hủy</span>
                                         </div>
-                                    <?php endif; ?>
-                                </div>
-                                
-                                <?php if ($order['status'] ?? '' === 'pending'): ?>
-                                    <div class="mt-3">
-                                        <button class="btn btn-outline-danger btn-sm" onclick="cancelOrder(<?= $order['id'] ?? '' ?>)">
-                                            <i class="fas fa-times me-1"></i>
-                                            Hủy đơn hàng
-                                        </button>
                                     </div>
+                                <?php else: ?>
+                                    <div class="timeline">
+                                        <div class="timeline-item <?= in_array($currentStatus, ['pending', 'confirmed', 'preparing', 'delivering', 'completed']) ? 'active' : '' ?>">
+                                            <i class="fas fa-clock"></i>
+                                            <span>Chờ xác nhận</span>
+                                        </div>
+                                        
+                                        <div class="timeline-item <?= in_array($currentStatus, ['confirmed', 'preparing', 'delivering', 'completed']) ? 'active' : '' ?>">
+                                            <i class="fas fa-check"></i>
+                                            <span>Đã xác nhận</span>
+                                        </div>
+                                        
+                                        <div class="timeline-item <?= in_array($currentStatus, ['preparing', 'delivering', 'completed']) ? 'active' : '' ?>">
+                                            <i class="fas fa-box"></i>
+                                            <span>Đang chuẩn bị</span>
+                                        </div>
+                                        
+                                        <div class="timeline-item <?= in_array($currentStatus, ['delivering', 'completed']) ? 'active' : '' ?>">
+                                            <i class="fas fa-truck"></i>
+                                            <span>Đang giao hàng</span>
+                                        </div>
+                                        
+                                        <div class="timeline-item <?= $currentStatus === 'completed' ? 'active' : '' ?>">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>Hoàn thành</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <?php if (in_array($currentStatus, ['pending', 'confirmed', 'preparing'])): ?>
+                                        <div class="mt-3">
+                                            <button class="btn btn-outline-danger btn-sm" onclick="cancelOrder(<?= $order['id'] ?? '' ?>)">
+                                                <i class="fas fa-times me-1"></i>
+                                                Hủy đơn hàng
+                                            </button>
+                                        </div>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </div>
                         </div>

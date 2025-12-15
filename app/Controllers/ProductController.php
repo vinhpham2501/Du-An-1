@@ -8,6 +8,7 @@ use App\Models\Review;
 use App\Models\ProductImage;
 use App\Models\ProductColor;
 use App\Models\ProductSize;
+use App\Models\Order;
 
 class ProductController extends BaseController
 {
@@ -17,6 +18,7 @@ class ProductController extends BaseController
     private $productImageModel;
     private $productColorModel;
     private $productSizeModel;
+    private $orderModel;
 
     public function __construct()
     {
@@ -26,6 +28,7 @@ class ProductController extends BaseController
         $this->productImageModel = new ProductImage();
         $this->productColorModel = new ProductColor();
         $this->productSizeModel = new ProductSize();
+        $this->orderModel = new Order();
     }
 
     public function detail($id)
@@ -65,6 +68,12 @@ class ProductController extends BaseController
         // Get all categories for breadcrumb
         $categories = $this->categoryModel->getAll();
 
+        // Kiểm tra xem user đã mua sản phẩm này chưa (chỉ hiển thị form đánh giá nếu đã mua)
+        $hasPurchased = false;
+        if (!empty($_SESSION['user_id'])) {
+            $hasPurchased = $this->orderModel->hasUserPurchasedProduct($_SESSION['user_id'], $id);
+        }
+
         return $this->render('product/detail', [
             'product' => $product,
             'images' => $images,
@@ -73,6 +82,7 @@ class ProductController extends BaseController
             'relatedProducts' => $relatedProducts,
             'categories' => $categories,
             'reviews' => $reviews,
+            'hasPurchased' => $hasPurchased,
         ]);
     }
 }

@@ -44,8 +44,8 @@ class Order extends Model
         $order = $stmt->fetch();
         
         if ($order) {
-            // Ensure default value for status
-            $order['status'] = $order['status'] ?? 'pending';
+            // Map Vietnamese status to English for consistent use in views
+            $order['status'] = $this->reverseMapStatus($order['status'] ?? 'pending');
         }
         
         return $order;
@@ -65,7 +65,14 @@ class Order extends Model
                 FROM {$this->table} WHERE MaKH = ? ORDER BY NgayDat DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$userId]);
-        return $stmt->fetchAll();
+        $orders = $stmt->fetchAll();
+        
+        // Map Vietnamese status to English for each order
+        foreach ($orders as &$order) {
+            $order['status'] = $this->reverseMapStatus($order['status'] ?? 'pending');
+        }
+        
+        return $orders;
     }
 
     public function getLastOrderByUserId($userId)
@@ -79,7 +86,14 @@ class Order extends Model
                 FROM {$this->table} WHERE MaKH = ? ORDER BY NgayDat DESC LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$userId]);
-        return $stmt->fetch();
+        $order = $stmt->fetch();
+        
+        if ($order) {
+            // Map Vietnamese status to English
+            $order['status'] = $this->reverseMapStatus($order['status'] ?? 'pending');
+        }
+        
+        return $order;
     }
 
     public function getOrderItems($orderId)
@@ -185,8 +199,10 @@ class Order extends Model
             $conditions = [];
 
             if (isset($filters['status'])) {
+                // Map English status to Vietnamese for database query
+                $vietnameseStatus = $this->mapStatus($filters['status']);
                 $conditions[] = "o.TrangThai = ?";
-                $params[] = $filters['status'];
+                $params[] = $vietnameseStatus;
             }
 
             if (isset($filters['date_from'])) {
@@ -215,6 +231,9 @@ class Order extends Model
 
             // Bổ sung các field dùng trong view admin để tránh Undefined array key
             foreach ($orders as &$order) {
+                // Map Vietnamese status to English
+                $order['status'] = $this->reverseMapStatus($order['status'] ?? 'pending');
+                
                 // Tên và SĐT giao hàng: mặc định dùng tên khách hàng, SĐT để trống nếu không có
                 if (!isset($order['delivery_name']) || $order['delivery_name'] === null) {
                     $order['delivery_name'] = $order['user_name'] ?? 'Khách hàng';
@@ -234,10 +253,13 @@ class Order extends Model
 
     public function updateStatus($id, $status)
     {
-        // Cập nhật cả trạng thái và thời gian cập nhật
-        $sql = "UPDATE {$this->table} SET TrangThai = ?, NgayCapNhat = NOW() WHERE MaDH = ?";
+        // Map English status to Vietnamese before saving to DB
+        $vietnameseStatus = $this->mapStatus($status);
+        
+        // Cập nhật trạng thái (không cập nhật NgayCapNhat vì có thể cột này không tồn tại)
+        $sql = "UPDATE {$this->table} SET TrangThai = ? WHERE MaDH = ?";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$status, $id]);
+        return $stmt->execute([$vietnameseStatus, $id]);
     }
 
     // Ghi đè update để map field app -> cột DB và dùng khóa MaDH
@@ -272,8 +294,10 @@ class Order extends Model
         $conditions = [];
 
         if (isset($filters['status'])) {
+            // Map English status to Vietnamese for database query
+            $vietnameseStatus = $this->mapStatus($filters['status']);
             $conditions[] = "o.TrangThai = ?";
-            $params[] = $filters['status'];
+            $params[] = $vietnameseStatus;
         }
 
         if (isset($filters['date_from'])) {
@@ -311,7 +335,7 @@ class Order extends Model
 
     private function mapStatus($status)
     {
-        // Map internal status to Vietnamese labels used in reports
+        // Map English status to Vietnamese labels used in database
         $map = [
             'pending' => 'Chờ duyệt',
             'confirmed' => 'Đã xác nhận',
@@ -321,5 +345,44 @@ class Order extends Model
             'cancelled' => 'Hủy',
         ];
         return $map[$status] ?? $status;
+    }
+
+    private function reverseMapStatus($status)
+    {
+        // Map Vietnamese status from database to English for consistent use in views
+        $map = [
+            'Chờ duyệt' => 'pending',
+            'Chờ xác nhận' => 'pending',
+            'Đã xác nhận' => 'confirmed',
+            'Đang chuẩn bị' => 'preparing',
+            'Đang giao' => 'delivering',
+            'Hoàn tất' => 'completed',
+            'Hoàn thành' => 'completed',
+            'Hủy' => 'cancelled',
+            'Đã hủy' => 'cancelled',
+        ];
+        return $map[$status] ?? $status;
+    }
+
+    /**
+     * Kiểm tra xem khách hàng đã mua sản phẩm chưa (từ đơn hàng đã hoàn thành)
+     * @param int $userId ID khách hàng
+     * @param int $productId ID sản phẩm
+     * @return bool True nếu đã mua, False nếu chưa mua
+     */
+    public function hasUserPurchasedProduct($userId, $productId)
+    {
+        $sql = "SELECT COUNT(*) 
+                FROM {$this->table} o
+                INNER JOIN CHI_TIET_DON_HANG oi ON o.MaDH = oi.MaDH
+                WHERE o.MaKH = ? 
+                AND oi.MaSP = ? 
+                AND o.TrangThai IN ('Hoàn tất', 'Hoàn thành', 'completed')";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$userId, $productId]);
+        $count = $stmt->fetchColumn();
+        
+        return $count > 0;
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Review;
 use App\Models\Contact;
+use App\Models\Order;
 
 class HomeController extends Controller
 {
@@ -14,6 +15,7 @@ class HomeController extends Controller
     private $categoryModel;
     private $reviewModel;
     private $contactModel;
+    private $orderModel;
 
     public function __construct()
     {
@@ -22,6 +24,7 @@ class HomeController extends Controller
         $this->categoryModel = new Category();
         $this->reviewModel = new Review();
         $this->contactModel = new Contact();
+        $this->orderModel = new Order();
     }
 
     public function products()
@@ -240,6 +243,11 @@ class HomeController extends Controller
         
         if (!$productId || !$rating || $rating < 1 || $rating > 5) {
             return $this->json(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
+        }
+        
+        // Kiểm tra xem khách hàng đã mua sản phẩm này chưa (từ đơn hàng đã hoàn thành)
+        if (!$this->orderModel->hasUserPurchasedProduct($_SESSION['user_id'], $productId)) {
+            return $this->json(['success' => false, 'message' => 'Bạn chỉ có thể đánh giá sản phẩm đã mua. Vui lòng mua sản phẩm trước khi đánh giá.']);
         }
         
         // Check if user already reviewed this product (chưa bị xóa)

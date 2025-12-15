@@ -61,7 +61,6 @@
                              <th>Khách hàng</th>
                              <th>Tổng tiền</th>
                              <th>Trạng thái</th>
-                             <th>Phương thức TT</th>
                              <th>Ngày đặt</th>
                              <th>Thao tác</th>
                          </tr>
@@ -69,7 +68,7 @@
                     <tbody>
                                                  <?php if (empty($orders)): ?>
                              <tr>
-                                 <td colspan="7" class="text-center py-4">
+                                 <td colspan="6" class="text-center py-4">
                                     <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
                                     <p class="text-muted">Không có đơn hàng nào</p>
                                 </td>
@@ -112,19 +111,6 @@
                                         ?>
                                                                                  <span class="badge bg-<?= $color ?>"><?= $label ?></span>
                                      </td>
-                                     <td>
-                                        <?php
-                                        $paymentMethods = [
-                                            'cod' => 'COD',
-                                            'bank_transfer' => 'Chuyển khoản',
-                                            'vnpay' => 'VNPay',
-                                            'momo' => 'MoMo'
-                                        ];
-                                        $paymentMethod = $order['payment_method'] ?? 'cod';
-                                        $paymentLabel = $paymentMethods[$paymentMethod] ?? $paymentMethod;
-                                        ?>
-                                        <span class="badge bg-info"><?= htmlspecialchars($paymentLabel) ?></span>
-                                    </td>
                                      <td>
                                          <?= date('d/m/Y H:i', strtotime($order['created_at'])) ?>
                                      </td>

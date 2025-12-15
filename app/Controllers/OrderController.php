@@ -349,23 +349,37 @@ class OrderController extends Controller
             return $this->json(['success' => false, 'message' => 'Đơn hàng không tồn tại']);
         }
         
-        // Trong DB, cột TrangThai đang lưu tiếng Việt (Chờ duyệt, Đang chuẩn bị, Đang giao, Hoàn tất, Hủy)
-        // Không cho phép hủy nếu đơn hàng đã ở trạng thái Đang giao hoặc Hoàn tất
-        $nonCancellableStatuses = ['Đang giao', 'Hoàn tất'];
+        // Order model đã map status từ tiếng Việt sang tiếng Anh
+        // Không cho phép hủy nếu đơn hàng đã ở trạng thái đang giao hoặc đã hoàn thành
+        $nonCancellableStatuses = ['delivering', 'completed'];
         if (in_array($order['status'], $nonCancellableStatuses, true)) {
             return $this->json(['success' => false, 'message' => 'Đơn hàng đang giao hoặc đã hoàn thành không thể hủy']);
         }
 
-        // Cho phép hủy khi đơn hàng ở trạng thái Chờ duyệt / Đã xác nhận / Đang chuẩn bị
-        $cancellableStatuses = ['Chờ duyệt', 'Đã xác nhận', 'Đang chuẩn bị'];
+        // Không cho phép hủy nếu đơn hàng đã bị hủy rồi
+        if ($order['status'] === 'cancelled') {
+            return $this->json(['success' => false, 'message' => 'Đơn hàng đã bị hủy rồi']);
+        }
+
+        // Cho phép hủy khi đơn hàng ở trạng thái pending / confirmed / preparing
+        $cancellableStatuses = ['pending', 'confirmed', 'preparing'];
         if (!in_array($order['status'], $cancellableStatuses, true)) {
             return $this->json(['success' => false, 'message' => 'Không thể hủy đơn hàng này']);
         }
 
-        // Cập nhật trực tiếp cột TrangThai sang 'Hủy'
-        $this->orderModel->update($orderId, ['TrangThai' => 'Hủy']);
-        
-        return $this->json(['success' => true, 'message' => 'Hủy đơn hàng thành công']);
+        // Cập nhật trạng thái sang 'cancelled' (sẽ được map thành 'Hủy' trong DB)
+        try {
+            $updated = $this->orderModel->updateStatus($orderId, 'cancelled');
+            
+            if (!$updated) {
+                return $this->json(['success' => false, 'message' => 'Không thể cập nhật trạng thái đơn hàng']);
+            }
+            
+            return $this->json(['success' => true, 'message' => 'Hủy đơn hàng thành công']);
+        } catch (\Exception $e) {
+            error_log("Cancel order error: " . $e->getMessage());
+            return $this->json(['success' => false, 'message' => 'Có lỗi xảy ra khi hủy đơn hàng: ' . $e->getMessage()]);
+        }
     }
 
     private function getCartItems()
