@@ -6,6 +6,7 @@ class Model
 {
     protected $db;
     protected $table;
+    protected $primaryKey = 'id';
 
     public function __construct()
     {
@@ -14,7 +15,8 @@ class Model
 
     public function findById($id)
     {
-        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE id = ?");
+        $pk = $this->primaryKey;
+        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE {$pk} = ?");
         $stmt->execute([$id]);
         return $stmt->fetch();
     }
@@ -61,7 +63,8 @@ class Model
                     break;
             }
         } else {
-            $sql .= " ORDER BY id DESC";
+            $pk = $this->primaryKey;
+            $sql .= " ORDER BY {$pk} DESC";
         }
 
         // Apply limit
@@ -101,8 +104,9 @@ class Model
     {
         $fields = array_keys($data);
         $setClause = implode(' = ?, ', $fields) . ' = ?';
-        
-        $sql = "UPDATE {$this->table} SET {$setClause} WHERE id = ?";
+
+        $pk = $this->primaryKey;
+        $sql = "UPDATE {$this->table} SET {$setClause} WHERE {$pk} = ?";
         
         $params = array_values($data);
         $params[] = $id;
@@ -113,7 +117,8 @@ class Model
 
     public function delete($id)
     {
-        $stmt = $this->db->prepare("DELETE FROM {$this->table} WHERE id = ?");
+        $pk = $this->primaryKey;
+        $stmt = $this->db->prepare("DELETE FROM {$this->table} WHERE {$pk} = ?");
         return $stmt->execute([$id]);
     }
 

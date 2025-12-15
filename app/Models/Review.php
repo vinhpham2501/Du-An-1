@@ -7,6 +7,7 @@ use App\Core\Model;
 class Review extends Model
 {
     protected $table = 'BINH_LUAN_DANH_GIA';
+    protected $primaryKey = 'MaBL';
 
     public function findById($id)
     {
@@ -18,13 +19,156 @@ class Review extends Model
                     SoSao AS rating,
                     NgayDang AS created_at,
                     TrangThai AS status,
-                    0 AS is_deleted
+                    DaXoa AS is_deleted
                 FROM {$this->table}
                 WHERE MaBL = ?
                 LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([(int)$id]);
         return $stmt->fetch();
+    }
+
+    public function getAll($filters = [])
+    {
+        // Admin list for /admin/reviews
+        $sql = "SELECT
+                    r.MaBL AS id,
+                    r.MaKH AS user_id,
+                    r.MaSP AS product_id,
+                    r.NoiDung AS comment,
+                    r.SoSao AS rating,
+                    r.NgayDang AS created_at,
+                    r.TrangThai AS status,
+                    r.DaXoa AS is_deleted,
+                    u.HoTen AS user_name,
+                    u.Email AS user_email,
+                    p.TenSP AS product_name,
+                    ar.NoiDung AS admin_reply,
+                    ar.NgayPhanHoi AS admin_replied_at
+                FROM {$this->table} r
+                JOIN KHACH_HANG u ON r.MaKH = u.MaKH
+                JOIN SAN_PHAM p ON r.MaSP = p.MaSP
+                LEFT JOIN PHAN_HOI_DANH_GIA ar ON ar.MaBL = r.MaBL";
+
+        $params = [];
+        $conditions = [];
+
+        // Status filter: 0/1
+        if (isset($filters['status']) && $filters['status'] !== '') {
+            $conditions[] = 'r.TrangThai = ?';
+            $params[] = (int)$filters['status'];
+        }
+
+        // Rating filter: 1..5
+        if (isset($filters['rating']) && $filters['rating'] !== '') {
+            $conditions[] = 'r.SoSao = ?';
+            $params[] = (int)$filters['rating'];
+        }
+
+        // Search filter
+        if (!empty($filters['search'])) {
+            $conditions[] = '(u.HoTen LIKE ? OR u.Email LIKE ? OR p.TenSP LIKE ? OR r.NoiDung LIKE ?)';
+            $q = '%' . trim((string)$filters['search']) . '%';
+            $params[] = $q;
+            $params[] = $q;
+            $params[] = $q;
+            $params[] = $q;
+        }
+
+        if (!empty($conditions)) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        }
+
+        $sql .= ' ORDER BY r.NgayDang DESC';
+
+        if (isset($filters['limit'])) {
+            $sql .= ' LIMIT ' . (int)$filters['limit'];
+            if (isset($filters['offset'])) {
+                $sql .= ' OFFSET ' . (int)$filters['offset'];
+            }
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
+    public function count($filters = [])
+    {
+        $sql = "SELECT COUNT(*)
+                FROM {$this->table} r
+                JOIN KHACH_HANG u ON r.MaKH = u.MaKH
+                JOIN SAN_PHAM p ON r.MaSP = p.MaSP";
+
+        $params = [];
+        $conditions = [];
+
+        if (isset($filters['status']) && $filters['status'] !== '') {
+            $conditions[] = 'r.TrangThai = ?';
+            $params[] = (int)$filters['status'];
+        }
+
+        if (isset($filters['rating']) && $filters['rating'] !== '') {
+            $conditions[] = 'r.SoSao = ?';
+            $params[] = (int)$filters['rating'];
+        }
+
+        if (!empty($filters['search'])) {
+            $conditions[] = '(u.HoTen LIKE ? OR u.Email LIKE ? OR p.TenSP LIKE ? OR r.NoiDung LIKE ?)';
+            $q = '%' . trim((string)$filters['search']) . '%';
+            $params[] = $q;
+            $params[] = $q;
+            $params[] = $q;
+            $params[] = $q;
+        }
+
+        if (!empty($conditions)) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return (int)$stmt->fetchColumn();
+    }
+
+    public function getRatingCounts()
+    {
+        // Return counts for 1..5 stars to render filter/stat cards
+        $sql = "SELECT SoSao AS rating, COUNT(*) AS cnt
+                FROM {$this->table}
+                GROUP BY SoSao";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $rows = $stmt->fetchAll();
+
+        $counts = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0];
+        foreach ($rows as $r) {
+            $rating = (int)($r['rating'] ?? 0);
+            if ($rating >= 1 && $rating <= 5) {
+                $counts[$rating] = (int)($r['cnt'] ?? 0);
+            }
+        }
+        return $counts;
+    }
+
+    public function getStatusCounts()
+    {
+        $sql = "SELECT TrangThai AS status, COUNT(*) AS cnt
+                FROM {$this->table}
+                GROUP BY TrangThai";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $rows = $stmt->fetchAll();
+
+        // status 1: hiển thị/đã duyệt, 0: ẩn/chưa duyệt
+        $counts = ['1' => 0, '0' => 0];
+        foreach ($rows as $r) {
+            $status = (string)($r['status'] ?? '');
+            if ($status === '0' || $status === '1') {
+                $counts[$status] = (int)($r['cnt'] ?? 0);
+            }
+        }
+        return $counts;
     }
 
     public function userHasPurchasedProduct($userId, $productId)
@@ -44,7 +188,7 @@ class Review extends Model
 
     public function userHasReviewedProduct($userId, $productId)
     {
-        $sql = "SELECT 1 FROM {$this->table} WHERE MaKH = ? AND MaSP = ? LIMIT 1";
+        $sql = "SELECT 1 FROM {$this->table} WHERE MaKH = ? AND MaSP = ? AND DaXoa = 0 LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([(int)$userId, (int)$productId]);
         return (bool)$stmt->fetchColumn();
@@ -60,7 +204,7 @@ class Review extends Model
                     SoSao AS rating,
                     NgayDang AS created_at,
                     TrangThai AS status,
-                    0 AS is_deleted
+                    DaXoa AS is_deleted
                 FROM {$this->table}
                 WHERE MaKH = ? AND MaSP = ?
                 LIMIT 1";
@@ -93,7 +237,7 @@ class Review extends Model
                 FROM {$this->table} r 
                 JOIN KHACH_HANG u ON r.MaKH = u.MaKH 
                 LEFT JOIN PHAN_HOI_DANH_GIA ar ON ar.MaBL = r.MaBL
-                WHERE r.MaSP = ?";
+                WHERE r.MaSP = ? AND r.DaXoa = 0";
 
         if ($approvedOnly) {
             $sql .= " AND r.TrangThai = 1";
@@ -115,7 +259,7 @@ class Review extends Model
     {
         $sql = "SELECT AVG(SoSao) as avg_rating, COUNT(*) as total_reviews 
                 FROM {$this->table} 
-                WHERE MaSP = ?";
+                WHERE MaSP = ? AND DaXoa = 0";
 
         if ($approvedOnly) {
             $sql .= " AND TrangThai = 1";
@@ -173,9 +317,9 @@ class Review extends Model
 
     public function softDelete($reviewId)
     {
-        // Fallback: the table may not have an IsDeleted column.
-        // Use hard delete to keep the API contract (boolean) and avoid SQL errors.
-        return $this->deleteById($reviewId);
+        $sql = "UPDATE {$this->table} SET DaXoa = 1 WHERE MaBL = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([(int)$reviewId]);
     }
 
     public function getAllForAdmin($filters = [])
@@ -241,6 +385,11 @@ class Review extends Model
         $sql = "UPDATE {$this->table} SET TrangThai = ? WHERE MaBL = ?";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([(int)$status, (int)$reviewId]);
+    }
+
+    public function updateStatus($reviewId, $status)
+    {
+        return $this->setStatus($reviewId, $status);
     }
 
     public function deleteById($reviewId)
